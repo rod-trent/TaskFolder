@@ -29,15 +29,13 @@ TaskFolder brings back quick-access application launching to Windows 11's taskba
 ### Installation
 
 1. Download the latest release from [Releases](../../releases) *(or build from source)*
-2. Extract and run `TaskFolder.exe`
-3. Look for the icon in your system tray
-4. Right-click → "Add Application..." to get started!
+2. Look for the icon in your system tray
+3. Right-click → "Add Application..." to get started!
 
 ### Building from Source
 
 ```bash
-git clone https://github.com/rod-trent/JunkDrawer.git
-cd JunkDrawer/TaskFolder
+git clone https://github.com/rod-trent/TaskFolder.git
 dotnet build -c Release
 ```
 
