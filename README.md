@@ -269,7 +269,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - **Issues**: [GitHub Issues](../../issues)
 - **Discussions**: [GitHub Discussions](../../discussions)
-- **Blog Post**: [Read the full story](#) *(link to your blog post)*
+- **Blog Post**: [Read the full story](https://rodtrent.substack.com/p/announcing-taskfolder-a-sleek-app)
 
 ## ⭐ Star History
 
