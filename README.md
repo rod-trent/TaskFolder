@@ -4,6 +4,7 @@
 
 TaskFolder brings back quick-access application launching to Windows 11's taskbar area through a clean system tray menu. Launch your favorite apps, PWAs, and scripts with a single click—no taskbar clutter required.
 
+![Version](https://img.shields.io/badge/Version-1.0.1-green.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![.NET 8.0](https://img.shields.io/badge/.NET-8.0-purple.svg)
 ![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2011%2F10-blue.svg)
@@ -202,6 +203,25 @@ None currently reported! 🎉
 
 If you find a bug, please [open an issue](../../issues).
 
+## 📋 Changelog
+
+### v1.0.1 (February 2026)
+
+**Bug Fixes:**
+- **Fixed application list not auto-refreshing** — The `FileSystemWatcher` debounce used `Task.Delay().ContinueWith()` which spawned a new background task per event, causing race conditions on the shortcuts list and calling COM objects from MTA threads where they silently fail. Replaced with a proper `System.Threading.Timer` debounce.
+- **Fixed cross-thread UI updates** — Shortcut change notifications now correctly marshal to the UI (STA) thread via `BeginInvoke`, and the menu handle is eagerly created so `InvokeRequired` works reliably.
+- **Fixed thread safety** — Added locking around the shared shortcuts list to prevent corruption from concurrent access.
+- **Fixed silent failures when adding applications** — The "Add Application" handler now catches and displays errors instead of silently swallowing exceptions.
+- **Fixed property name casing typo** — Corrected `ShortCutFilePath` → `ShortcutFilePath` references that prevented compilation.
+
+### v1.0.0 (Initial Release)
+
+- System tray application launcher for Windows 11
+- PWA support with correct icon extraction
+- Auto-start with Windows option
+- FileSystemWatcher-based auto-refresh
+- Inno Setup installer
+
 ## 🚧 Roadmap
 
 Potential future features (contributions welcome!):
@@ -214,6 +234,7 @@ Potential future features (contributions welcome!):
 - [ ] **Cloud sync** - Sync shortcuts across machines
 - [ ] **Portable mode** - Run from USB drive
 - [ ] **Custom icon picker** - Override detected icons
+- [ ] **Jump List support** - Windows taskbar Jump List integration
 
 ## 🤝 Contributing
 
