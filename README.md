@@ -64,9 +64,7 @@ Output: `bin/Release/net8.0-windows/TaskFolder.exe`
 
 ### Managing Shortcuts
 
-- **Remove**: Right-click shortcut in menu → Remove
 - **Rename**: Open shortcuts folder → Rename the .lnk file
-- **Reorder**: Rename files (sorted alphabetically)
 - **Organize**: Use the shortcuts folder like any Windows folder
 
 ## 💡 Use Cases
