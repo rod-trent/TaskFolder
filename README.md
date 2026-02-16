@@ -47,7 +47,7 @@ Output: `bin/Release/net8.0-windows/TaskFolder.exe`
 ### Adding Applications
 
 **Method 1: GUI**
-1. Right-click TaskFolder system tray icon
+1. Left-click TaskFolder system tray icon
 2. Click "Add Application..."
 3. Browse to any `.exe` or `.lnk` file
 4. Done!
@@ -60,7 +60,6 @@ Output: `bin/Release/net8.0-windows/TaskFolder.exe`
 
 - **Left-click** the tray icon to see your menu
 - **Click** any application to launch it
-- **Right-click** for settings and management
 
 ### Managing Shortcuts
 
