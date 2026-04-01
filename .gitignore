@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+
+# Zips / archives
+*.zip
+
+# User-specific VS files
+*.user
+*.suo
+.vs/
+
+# Rider
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
