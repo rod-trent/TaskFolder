@@ -2,9 +2,9 @@
 ; Quick application launcher for Windows 11 taskbar
 
 #define MyAppName "TaskFolder"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "TaskFolder"
-#define MyAppURL "https://github.com/yourusername/TaskFolder"
+#define MyAppURL "https://github.com/rod-trent/TaskFolder"
 #define MyAppExeName "TaskFolder.exe"
 #define MyAppIconName "TaskFolder.ico"
 
