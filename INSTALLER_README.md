@@ -61,7 +61,7 @@ This creates files in: `bin\Release\net8.0-windows\win-x64\publish\`
 ## Installer Output
 
 The build process creates:
-- `installer\TaskFolder-Setup-1.0.0.exe` - Your distributable installer
+- `installer\TaskFolder-Setup-1.1.0.exe` - Your distributable installer
 
 ## Testing the Installer
 
@@ -83,7 +83,7 @@ The build process creates:
 For production releases, sign your installer with a code signing certificate:
 
 ```bash
-signtool sign /f "your-certificate.pfx" /p "password" /t http://timestamp.digicert.com "installer\TaskFolder-Setup-1.0.0.exe"
+signtool sign /f "your-certificate.pfx" /p "password" /t http://timestamp.digicert.com "installer\TaskFolder-Setup-1.1.0.exe"
 ```
 
 ### Checksum Generation
@@ -91,7 +91,7 @@ signtool sign /f "your-certificate.pfx" /p "password" /t http://timestamp.digice
 Generate SHA-256 checksums for verification:
 
 ```bash
-certutil -hashfile "installer\TaskFolder-Setup-1.0.0.exe" SHA256
+certutil -hashfile "installer\TaskFolder-Setup-1.1.0.exe" SHA256
 ```
 
 ## Installer Features
@@ -113,12 +113,12 @@ When releasing a new version:
 
 1. Update version in `TaskFolder.csproj`:
    ```xml
-   <Version>1.0.1</Version>
+   <Version>1.1.0</Version>
    ```
 
 2. Update version in `TaskFolder.iss`:
    ```
-   #define MyAppVersion "1.0.1"
+   #define MyAppVersion "1.1.0"
    ```
 
 3. Rebuild both the application and installer
@@ -180,7 +180,7 @@ end;
 Users can install silently:
 
 ```bash
-TaskFolder-Setup-1.0.0.exe /VERYSILENT /NORESTART
+TaskFolder-Setup-1.1.0.exe /VERYSILENT /NORESTART
 ```
 
 ## Support
