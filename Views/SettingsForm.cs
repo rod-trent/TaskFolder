@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using TaskFolder.Services;
+using TaskFolder.Utilities;
 
 namespace TaskFolder.Views
 {
@@ -22,6 +24,14 @@ namespace TaskFolder.Views
         private CheckBox _chkHotkeyEnabled;
         private ComboBox _cboModifiers;
         private ComboBox _cboKey;
+
+        private TextBox _txtMenuHeader;
+        private NumericUpDown _numMenuItemHeight;
+        private PictureBox _picMenuLogo;
+        private Label _lblMenuLogoFile;
+        private Button _btnChooseMenuLogo;
+        private Button _btnRemoveMenuLogo;
+        private string _selectedMenuLogoPath = string.Empty;
 
         private Button _btnOpenFolder;
         private Button _btnClearShortcuts;
@@ -122,6 +132,93 @@ namespace TaskFolder.Views
             Controls.Add(grpHotkey);
             y += grpHotkey.Height + 8;
 
+            // ── Menu appearance ──────────────────────────────────────────────────
+            var grpAppearance = new GroupBox { Text = "Menu Appearance", Location = new Point(X, y), Size = new Size(W, 140) };
+
+            grpAppearance.Controls.Add(new Label
+            {
+                Text = "Header text:",
+                Location = new Point(12, 28),
+                AutoSize = true
+            });
+
+            _txtMenuHeader = new TextBox
+            {
+                Location = new Point(112, 24),
+                Size = new Size(296, 23),
+                MaxLength = 80
+            };
+            grpAppearance.Controls.Add(_txtMenuHeader);
+
+            grpAppearance.Controls.Add(new Label
+            {
+                Text = "Header logo:",
+                Location = new Point(12, 65),
+                AutoSize = true
+            });
+
+            _picMenuLogo = new PictureBox
+            {
+                Location = new Point(112, 55),
+                Size = new Size(32, 32),
+                BorderStyle = BorderStyle.FixedSingle,
+                SizeMode = PictureBoxSizeMode.CenterImage
+            };
+            grpAppearance.Controls.Add(_picMenuLogo);
+
+            _lblMenuLogoFile = new Label
+            {
+                Location = new Point(152, 63),
+                Size = new Size(100, 22),
+                AutoEllipsis = true,
+                Text = "No logo selected"
+            };
+            grpAppearance.Controls.Add(_lblMenuLogoFile);
+
+            _btnChooseMenuLogo = new Button
+            {
+                Text = "Choose...",
+                Location = new Point(260, 55),
+                Size = new Size(70, 28)
+            };
+            _btnChooseMenuLogo.Click += BtnChooseMenuLogo_Click;
+            grpAppearance.Controls.Add(_btnChooseMenuLogo);
+
+            grpAppearance.Controls.Add(new Label
+            {
+                Text = "Item height:",
+                Location = new Point(12, 105),
+                AutoSize = true
+            });
+
+            _numMenuItemHeight = new NumericUpDown
+            {
+                Location = new Point(112, 101),
+                Size = new Size(64, 23),
+                Minimum = 24,
+                Maximum = 64,
+                Increment = 2
+            };
+            grpAppearance.Controls.Add(_numMenuItemHeight);
+            grpAppearance.Controls.Add(new Label
+            {
+                Text = "px (larger values are easier to click)",
+                Location = new Point(182, 105),
+                AutoSize = true
+            });
+
+            _btnRemoveMenuLogo = new Button
+            {
+                Text = "Remove",
+                Location = new Point(338, 55),
+                Size = new Size(70, 28)
+            };
+            _btnRemoveMenuLogo.Click += BtnRemoveMenuLogo_Click;
+            grpAppearance.Controls.Add(_btnRemoveMenuLogo);
+
+            Controls.Add(grpAppearance);
+            y += grpAppearance.Height + 8;
+
             // ── Shortcuts Management ─────────────────────────────────────────────
             var grpShortcuts = new GroupBox { Text = "Shortcuts Management", Location = new Point(X, y), Size = new Size(W, 100) };
 
@@ -199,6 +296,12 @@ namespace TaskFolder.Views
             _chkAutoStart.Checked = IsAutoStartEnabled();
             _chkShowNotifications.Checked = _settingsService.Settings.ShowNotifications;
             _chkHotkeyEnabled.Checked = _settingsService.Settings.HotkeyEnabled;
+            _txtMenuHeader.Text = string.IsNullOrWhiteSpace(_settingsService.Settings.MenuHeaderText)
+                ? "Applications"
+                : _settingsService.Settings.MenuHeaderText;
+            _numMenuItemHeight.Value = Math.Clamp(_settingsService.Settings.MenuItemHeight, 24, 64);
+            _selectedMenuLogoPath = _settingsService.Settings.MenuHeaderLogoPath ?? string.Empty;
+            UpdateMenuLogoPreview();
 
             // Modifiers
             string mod = _settingsService.Settings.HotkeyModifiers ?? "Ctrl+Alt";
@@ -264,6 +367,43 @@ namespace TaskFolder.Views
             }
         }
 
+        private void BtnChooseMenuLogo_Click(object sender, EventArgs e)
+        {
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Select Menu Header Logo",
+                Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico|All files (*.*)|*.*",
+                CheckFileExists = true
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+            _selectedMenuLogoPath = dialog.FileName;
+            UpdateMenuLogoPreview();
+        }
+
+        private void BtnRemoveMenuLogo_Click(object sender, EventArgs e)
+        {
+            _selectedMenuLogoPath = string.Empty;
+            UpdateMenuLogoPreview();
+        }
+
+        private void UpdateMenuLogoPreview()
+        {
+            var oldImage = _picMenuLogo.Image;
+            _picMenuLogo.Image = MenuLogoLoader.LoadScaledBitmap(_selectedMenuLogoPath, 24);
+            oldImage?.Dispose();
+
+            bool hasLogo = _picMenuLogo.Image != null;
+            _lblMenuLogoFile.Text = hasLogo
+                ? Path.GetFileName(_selectedMenuLogoPath)
+                : string.IsNullOrWhiteSpace(_selectedMenuLogoPath)
+                    ? "No logo selected"
+                    : "Logo file is unavailable";
+            _lblMenuLogoFile.Tag = _selectedMenuLogoPath;
+            _btnRemoveMenuLogo.Enabled = !string.IsNullOrWhiteSpace(_selectedMenuLogoPath);
+        }
+
         private void BtnClearShortcuts_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
@@ -306,6 +446,11 @@ namespace TaskFolder.Views
             _settingsService.Settings.HotkeyEnabled = hotkeyEnabled;
             _settingsService.Settings.HotkeyModifiers = mods;
             _settingsService.Settings.HotkeyKey = key;
+            _settingsService.Settings.MenuHeaderText = string.IsNullOrWhiteSpace(_txtMenuHeader.Text)
+                ? "Applications"
+                : _txtMenuHeader.Text.Trim();
+            _settingsService.Settings.MenuHeaderLogoPath = _selectedMenuLogoPath;
+            _settingsService.Settings.MenuItemHeight = (int)_numMenuItemHeight.Value;
             _settingsService.Save();
 
             // Apply hotkey change
@@ -314,6 +459,13 @@ namespace TaskFolder.Views
                 _hotkeyService.Register(mods, key);
 
             Close();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _picMenuLogo?.Image?.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

@@ -24,6 +24,8 @@ TaskFolder brings back quick-access application launching to Windows 11's taskba
 - **⌨️ Global Hotkey** - User-configurable hotkey to pop the menu from anywhere
 - **📊 Launch Statistics** - Tracks most-used and recently-used shortcuts across restarts
 - **🖼️ Custom Icons** - Override any shortcut's icon with a file + index picker
+- **↕️ Adjustable Menu Rows** - Set menu item height from 24 to 64 px for easier targeting
+- **🏷️ Custom Menu Header** - Replace “Applications” with your own text and logo
 - **👤 Profiles** - Multiple named shortcut sets, switchable from the tray menu
 - **💾 Portable Mode** - Run from a USB drive with `--portable` flag
 - **🆓 Completely Free** - Open source under MIT License
@@ -167,6 +169,8 @@ Access via: Right-click tray icon → "Settings"
 - ☑️ **Start with Windows** - Auto-start on boot
 - 🔔 **Show Notifications** - Balloon tip when an app is launched
 - ⌨️ **Global Hotkey** - Enable and configure the hotkey (e.g. Ctrl+Alt+T)
+- 🏷️ **Menu Header** - Choose custom header text and a PNG, JPEG, BMP, GIF, or ICO logo
+- ↕️ **Menu Item Height** - Adjust all menu rows from 24 to 64 px
 - 📁 **Open Shortcuts Folder** - Open the active profile's shortcuts directory
 - 🗑️ **Remove All Shortcuts** - Clear the current profile's shortcuts
 

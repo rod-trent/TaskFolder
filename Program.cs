@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TaskFolder.Models;
 using TaskFolder.Services;
+using TaskFolder.Utilities;
 using TaskFolder.Views;
 
 namespace TaskFolder
@@ -61,6 +62,7 @@ namespace TaskFolder
         // ── Tray UI ─────────────────────────────────────────────────────────────
         private NotifyIcon _trayIcon;
         private ContextMenuStrip _trayMenu;
+        private Image _headerLogoImage;
 
         // ── Menu state ──────────────────────────────────────────────────────────
         private ToolStripTextBox _searchBox;
@@ -145,10 +147,19 @@ namespace TaskFolder
         {
             var menu = new ContextMenuStrip();
 
-            var header = new ToolStripLabel("Applications")
+            string headerText = string.IsNullOrWhiteSpace(_settingsService.Settings.MenuHeaderText)
+                ? "Applications"
+                : _settingsService.Settings.MenuHeaderText.Trim();
+            int logoSize = Math.Min(32, Math.Max(16, GetMenuItemHeight() - 8));
+            _headerLogoImage = MenuLogoLoader.LoadScaledBitmap(
+                _settingsService.Settings.MenuHeaderLogoPath,
+                logoSize);
+            var header = new ToolStripLabel(headerText, _headerLogoImage)
             {
                 Font = new Font(menu.Font, FontStyle.Bold),
-                ForeColor = Color.DarkBlue
+                ForeColor = Color.DarkBlue,
+                ImageScaling = ToolStripItemImageScaling.None,
+                Padding = new Padding(4)
             };
             menu.Items.Add(header);
             menu.Items.Add(new ToolStripSeparator());
@@ -176,17 +187,17 @@ namespace TaskFolder
             RefreshShortcutsList();
 
             menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add(new ToolStripMenuItem("Add Application...", null, OnAddApplication));
-            menu.Items.Add(new ToolStripMenuItem("Open Shortcuts Folder", null, OnOpenFolder));
+            menu.Items.Add(CreateMenuItem("Add Application...", null, OnAddApplication));
+            menu.Items.Add(CreateMenuItem("Open Shortcuts Folder", null, OnOpenFolder));
 
             // Switch Profile submenu
-            var profileMenu = new ToolStripMenuItem("Switch Profile");
+            var profileMenu = CreateMenuItem("Switch Profile");
             menu.Items.Add(profileMenu);
             menu.Opening += (s, e) => RebuildProfileSubmenu(profileMenu);
 
-            menu.Items.Add(new ToolStripMenuItem("Settings...", null, OnSettings));
+            menu.Items.Add(CreateMenuItem("Settings...", null, OnSettings));
             menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add(new ToolStripMenuItem("Exit TaskFolder", null, OnExit));
+            menu.Items.Add(CreateMenuItem("Exit TaskFolder", null, OnExit));
 
             return menu;
         }
@@ -246,7 +257,8 @@ namespace TaskFolder
             // Insert Most Used submenu
             if (mostUsed.Count > 0)
             {
-                var muMenu = new ToolStripMenuItem("Most Used") { Tag = "category" };
+                var muMenu = CreateMenuItem("Most Used");
+                muMenu.Tag = "category";
                 foreach (var sc in mostUsed)
                     muMenu.DropDownItems.Add(BuildShortcutItem(sc));
                 _trayMenu.Items.Insert(insertAt++, muMenu);
@@ -255,7 +267,8 @@ namespace TaskFolder
             // Insert Recently Used submenu
             if (recentlyUsed.Count > 0)
             {
-                var ruMenu = new ToolStripMenuItem("Recently Used") { Tag = "category" };
+                var ruMenu = CreateMenuItem("Recently Used");
+                ruMenu.Tag = "category";
                 foreach (var sc in recentlyUsed)
                     ruMenu.DropDownItems.Add(BuildShortcutItem(sc));
                 _trayMenu.Items.Insert(insertAt++, ruMenu);
@@ -287,7 +300,8 @@ namespace TaskFolder
                 else
                 {
                     // Category submenu
-                    var catMenu = new ToolStripMenuItem(group.Key) { Tag = "category" };
+                    var catMenu = CreateMenuItem(group.Key);
+                    catMenu.Tag = "category";
                     foreach (var sc in group)
                         catMenu.DropDownItems.Add(BuildShortcutItem(sc));
                     _trayMenu.Items.Insert(insertAt++, catMenu);
@@ -300,24 +314,47 @@ namespace TaskFolder
                 string emptyText = string.IsNullOrWhiteSpace(_searchFilter)
                     ? "(No applications added)"
                     : "(No matches)";
-                _trayMenu.Items.Insert(insertAt, new ToolStripMenuItem(emptyText)
+                _trayMenu.Items.Insert(insertAt, ConfigureMenuItem(new ToolStripMenuItem(emptyText)
                 {
                     Enabled = false,
                     Font = new Font(_trayMenu.Font, FontStyle.Italic),
                     ForeColor = Color.Gray
-                });
+                }));
             }
+        }
+
+        private int GetMenuItemHeight()
+        {
+            return Math.Clamp(_settingsService.Settings.MenuItemHeight, 24, 64);
+        }
+
+        private ToolStripMenuItem CreateMenuItem(string text, Image image = null, EventHandler onClick = null)
+        {
+            return ConfigureMenuItem(new ToolStripMenuItem(text, image, onClick));
+        }
+
+        private ToolStripMenuItem ConfigureMenuItem(ToolStripMenuItem item)
+        {
+            int naturalHeight = item.GetPreferredSize(Size.Empty).Height;
+            int extraHeight = Math.Max(0, GetMenuItemHeight() - naturalHeight);
+            int topPadding = extraHeight / 2;
+            item.Padding = new Padding(
+                item.Padding.Left,
+                item.Padding.Top + topPadding,
+                item.Padding.Right,
+                item.Padding.Bottom + extraHeight - topPadding);
+            return item;
         }
 
         private ToolStripMenuItem BuildShortcutItem(ShortcutItem shortcut)
         {
-            var menuItem = new ToolStripMenuItem(
+            var menuItem = ConfigureMenuItem(new ToolStripMenuItem(
                 shortcut.GetDisplayName(),
                 shortcut.Icon?.ToBitmap())
             {
                 Tag = shortcut,
                 ToolTipText = shortcut.TargetPath
-            };
+            });
 
             // Left-click: launch
             menuItem.Click += (s, e) => LaunchShortcut(shortcut);
@@ -325,22 +362,22 @@ namespace TaskFolder
             // Right-click context menu: Rename, Remove, Open Location, Change Icon, Move Up/Down
             var ctx = new ContextMenuStrip();
 
-            var renameItem = new ToolStripMenuItem("Rename...");
+            var renameItem = CreateMenuItem("Rename...");
             renameItem.Click += (s, e) => OnRenameShortcut(shortcut);
 
-            var removeItem = new ToolStripMenuItem("Remove");
+            var removeItem = CreateMenuItem("Remove");
             removeItem.Click += (s, e) => OnRemoveShortcut(shortcut);
 
-            var openLocItem = new ToolStripMenuItem("Open File Location");
+            var openLocItem = CreateMenuItem("Open File Location");
             openLocItem.Click += (s, e) => OnOpenFileLocation(shortcut);
 
-            var changeIconItem = new ToolStripMenuItem("Change Icon...");
+            var changeIconItem = CreateMenuItem("Change Icon...");
             changeIconItem.Click += (s, e) => OnChangeIcon(shortcut);
 
-            var moveUpItem = new ToolStripMenuItem("Move Up");
+            var moveUpItem = CreateMenuItem("Move Up");
             moveUpItem.Click += (s, e) => OnMoveShortcut(shortcut, -1);
 
-            var moveDownItem = new ToolStripMenuItem("Move Down");
+            var moveDownItem = CreateMenuItem("Move Down");
             moveDownItem.Click += (s, e) => OnMoveShortcut(shortcut, +1);
 
             ctx.Items.AddRange(new ToolStripItem[]
@@ -370,10 +407,10 @@ namespace TaskFolder
 
             foreach (string name in _profileService.GetProfileNames())
             {
-                var item = new ToolStripMenuItem(name)
+                var item = ConfigureMenuItem(new ToolStripMenuItem(name)
                 {
                     Checked = name.Equals(active, StringComparison.OrdinalIgnoreCase)
-                };
+                });
                 string captured = name;
                 item.Click += (s, e) =>
                 {
@@ -386,7 +423,7 @@ namespace TaskFolder
 
             profileMenu.DropDownItems.Add(new ToolStripSeparator());
 
-            var newProfile = new ToolStripMenuItem("New Profile...");
+            var newProfile = CreateMenuItem("New Profile...");
             newProfile.Click += (s, e) =>
             {
                 using var dlg = new RenameDialog("New Profile");
@@ -549,9 +586,23 @@ namespace TaskFolder
         private void OnSettings(object sender, EventArgs e)
         {
             using var form = new SettingsForm(_shortcutManager, _settingsService, _hotkeyService);
-            form.ShowDialog();
+            if (form.ShowDialog() == DialogResult.OK)
+                RebuildTrayMenu();
             // Re-apply tooltip in case profile changed
             UpdateTrayTooltip();
+        }
+
+        private void RebuildTrayMenu()
+        {
+            _searchFilter = string.Empty;
+            var previousMenu = _trayMenu;
+            var previousHeaderLogo = _headerLogoImage;
+            _headerLogoImage = null;
+            _trayMenu = BuildTrayMenu();
+            _trayIcon.ContextMenuStrip = _trayMenu;
+            _ = _trayMenu.Handle;
+            previousMenu?.Dispose();
+            previousHeaderLogo?.Dispose();
         }
 
         private void OnRenameShortcut(ShortcutItem shortcut)
@@ -651,6 +702,7 @@ namespace TaskFolder
             {
                 _trayIcon?.Dispose();
                 _trayMenu?.Dispose();
+                _headerLogoImage?.Dispose();
                 _shortcutManager?.Dispose();
                 _hotkeyService?.Dispose();
             }
