@@ -20,7 +20,8 @@ namespace TaskFolder.Models
 
         // Tray menu appearance
         public int MenuItemHeight { get; set; } = 30;
-        public string MenuHeaderText { get; set; } = "Applications";
+        // Retained for compatibility with existing settings.json files. The menu header is logo-only.
+        public string MenuHeaderText { get; set; } = string.Empty;
         public string MenuHeaderLogoPath { get; set; } = string.Empty;
 
         public bool PortableMode { get; set; } = false;

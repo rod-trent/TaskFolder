@@ -67,6 +67,7 @@ namespace TaskFolder
         // ── Menu state ──────────────────────────────────────────────────────────
         private ToolStripTextBox _searchBox;
         private string _searchFilter = string.Empty;
+        private int _shortcutsInsertIndex;
 
         public TaskFolderApplicationContext(bool isPortable = false)
         {
@@ -145,24 +146,28 @@ namespace TaskFolder
 
         private ContextMenuStrip BuildTrayMenu()
         {
-            var menu = new ContextMenuStrip();
+            var menu = new ContextMenuStrip
+            {
+                Renderer = new CenteredMenuTextRenderer()
+            };
 
-            string headerText = string.IsNullOrWhiteSpace(_settingsService.Settings.MenuHeaderText)
-                ? "Applications"
-                : _settingsService.Settings.MenuHeaderText.Trim();
-            int logoSize = Math.Min(32, Math.Max(16, GetMenuItemHeight() - 8));
+            int logoSize = Math.Clamp(GetMenuItemHeight(), 32, 64);
             _headerLogoImage = MenuLogoLoader.LoadScaledBitmap(
                 _settingsService.Settings.MenuHeaderLogoPath,
                 logoSize);
-            var header = new ToolStripLabel(headerText, _headerLogoImage)
+
+            if (_headerLogoImage != null)
             {
-                Font = new Font(menu.Font, FontStyle.Bold),
-                ForeColor = Color.DarkBlue,
-                ImageScaling = ToolStripItemImageScaling.None,
-                Padding = new Padding(4)
-            };
-            menu.Items.Add(header);
-            menu.Items.Add(new ToolStripSeparator());
+                var header = new ToolStripLabel
+                {
+                    Image = _headerLogoImage,
+                    ImageAlign = ContentAlignment.MiddleLeft,
+                    ImageScaling = ToolStripItemImageScaling.None,
+                    Padding = new Padding(4, 3, 4, 3)
+                };
+                menu.Items.Add(header);
+                menu.Items.Add(new ToolStripSeparator());
+            }
 
             // Search box (persists across refreshes)
             _searchBox = new ToolStripTextBox
@@ -180,6 +185,7 @@ namespace TaskFolder
             };
             menu.Items.Add(_searchBox);
             menu.Items.Add(new ToolStripSeparator());
+            _shortcutsInsertIndex = menu.Items.Count;
 
             // _trayMenu must be set before RefreshShortcutsList() is called,
             // because that method references _trayMenu directly.
@@ -205,15 +211,13 @@ namespace TaskFolder
         // ── Shortcut list refresh ───────────────────────────────────────────────
 
         /// <summary>
-        /// The index in _trayMenu.Items where shortcut rows start.
-        /// Layout: [0] header, [1] sep, [2] searchBox, [3] sep, [SHORTCUTS...], [sep], [Add], [Open], [Profile], [Settings], [sep], [Exit]
+        /// The index in _trayMenu.Items where shortcut rows start. It is calculated
+        /// after the optional logo header and the search row are added.
         /// </summary>
-        private const int ShortcutsInsertIndex = 4;
-
         private void RefreshShortcutsList()
         {
             // Remove old shortcut rows (tagged with ShortcutItem or the "(No applications)" stub)
-            for (int i = _trayMenu.Items.Count - 1; i >= ShortcutsInsertIndex; i--)
+            for (int i = _trayMenu.Items.Count - 1; i >= _shortcutsInsertIndex; i--)
             {
                 var item = _trayMenu.Items[i];
                 if (item is ToolStripMenuItem mi &&
@@ -252,7 +256,7 @@ namespace TaskFolder
                 .Take(5)
                 .ToList();
 
-            int insertAt = ShortcutsInsertIndex;
+            int insertAt = _shortcutsInsertIndex;
 
             // Insert Most Used submenu
             if (mostUsed.Count > 0)
@@ -314,12 +318,11 @@ namespace TaskFolder
                 string emptyText = string.IsNullOrWhiteSpace(_searchFilter)
                     ? "(No applications added)"
                     : "(No matches)";
-                _trayMenu.Items.Insert(insertAt, ConfigureMenuItem(new ToolStripMenuItem(emptyText)
-                {
-                    Enabled = false,
-                    Font = new Font(_trayMenu.Font, FontStyle.Italic),
-                    ForeColor = Color.Gray
-                }));
+                var emptyItem = CreateMenuItem(emptyText);
+                emptyItem.Enabled = false;
+                emptyItem.Font = new Font(_trayMenu.Font, FontStyle.Italic);
+                emptyItem.ForeColor = Color.Gray;
+                _trayMenu.Items.Insert(insertAt, emptyItem);
             }
         }
 
@@ -330,37 +333,29 @@ namespace TaskFolder
 
         private ToolStripMenuItem CreateMenuItem(string text, Image image = null, EventHandler onClick = null)
         {
-            return ConfigureMenuItem(new ToolStripMenuItem(text, image, onClick));
-        }
-
-        private ToolStripMenuItem ConfigureMenuItem(ToolStripMenuItem item)
-        {
-            int naturalHeight = item.GetPreferredSize(Size.Empty).Height;
-            int extraHeight = Math.Max(0, GetMenuItemHeight() - naturalHeight);
-            int topPadding = extraHeight / 2;
-            item.Padding = new Padding(
-                item.Padding.Left,
-                item.Padding.Top + topPadding,
-                item.Padding.Right,
-                item.Padding.Bottom + extraHeight - topPadding);
-            return item;
+            return new SizedToolStripMenuItem(text, image, onClick, GetMenuItemHeight())
+            {
+                TextAlign = ContentAlignment.MiddleLeft,
+                ImageAlign = ContentAlignment.MiddleLeft
+            };
         }
 
         private ToolStripMenuItem BuildShortcutItem(ShortcutItem shortcut)
         {
-            var menuItem = ConfigureMenuItem(new ToolStripMenuItem(
+            var menuItem = CreateMenuItem(
                 shortcut.GetDisplayName(),
-                shortcut.Icon?.ToBitmap())
-            {
-                Tag = shortcut,
-                ToolTipText = shortcut.TargetPath
-            });
+                shortcut.Icon?.ToBitmap());
+            menuItem.Tag = shortcut;
+            menuItem.ToolTipText = shortcut.TargetPath;
 
             // Left-click: launch
             menuItem.Click += (s, e) => LaunchShortcut(shortcut);
 
             // Right-click context menu: Rename, Remove, Open Location, Change Icon, Move Up/Down
-            var ctx = new ContextMenuStrip();
+            var ctx = new ContextMenuStrip
+            {
+                Renderer = new CenteredMenuTextRenderer()
+            };
 
             var renameItem = CreateMenuItem("Rename...");
             renameItem.Click += (s, e) => OnRenameShortcut(shortcut);
@@ -407,10 +402,8 @@ namespace TaskFolder
 
             foreach (string name in _profileService.GetProfileNames())
             {
-                var item = ConfigureMenuItem(new ToolStripMenuItem(name)
-                {
-                    Checked = name.Equals(active, StringComparison.OrdinalIgnoreCase)
-                });
+                var item = CreateMenuItem(name);
+                item.Checked = name.Equals(active, StringComparison.OrdinalIgnoreCase);
                 string captured = name;
                 item.Click += (s, e) =>
                 {
@@ -694,6 +687,47 @@ namespace TaskFolder
             _shortcutManager?.Dispose();
             _hotkeyService?.Dispose();
             Application.Exit();
+        }
+
+        private sealed class SizedToolStripMenuItem : ToolStripMenuItem
+        {
+            private readonly int _minimumHeight;
+
+            public SizedToolStripMenuItem(
+                string text,
+                Image image,
+                EventHandler onClick,
+                int minimumHeight)
+                : base(text, image, onClick)
+            {
+                _minimumHeight = minimumHeight;
+            }
+
+            public override Size GetPreferredSize(Size constrainingSize)
+            {
+                Size preferredSize = base.GetPreferredSize(constrainingSize);
+                preferredSize.Height = Math.Max(preferredSize.Height, _minimumHeight);
+                return preferredSize;
+            }
+        }
+
+        private sealed class CenteredMenuTextRenderer : ToolStripProfessionalRenderer
+        {
+            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            {
+                if (e.Item is ToolStripMenuItem)
+                {
+                    Rectangle textRectangle = e.TextRectangle;
+                    textRectangle.Y = 0;
+                    textRectangle.Height = e.Item.Height;
+                    e.TextRectangle = textRectangle;
+                    e.TextFormat = (e.TextFormat & ~(TextFormatFlags.Top | TextFormatFlags.Bottom))
+                        | TextFormatFlags.VerticalCenter
+                        | TextFormatFlags.SingleLine;
+                }
+
+                base.OnRenderItemText(e);
+            }
         }
 
         protected override void Dispose(bool disposing)

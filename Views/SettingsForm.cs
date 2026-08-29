@@ -25,7 +25,6 @@ namespace TaskFolder.Views
         private ComboBox _cboModifiers;
         private ComboBox _cboKey;
 
-        private TextBox _txtMenuHeader;
         private NumericUpDown _numMenuItemHeight;
         private PictureBox _picMenuLogo;
         private Label _lblMenuLogoFile;
@@ -133,34 +132,19 @@ namespace TaskFolder.Views
             y += grpHotkey.Height + 8;
 
             // ── Menu appearance ──────────────────────────────────────────────────
-            var grpAppearance = new GroupBox { Text = "Menu Appearance", Location = new Point(X, y), Size = new Size(W, 140) };
-
-            grpAppearance.Controls.Add(new Label
-            {
-                Text = "Header text:",
-                Location = new Point(12, 28),
-                AutoSize = true
-            });
-
-            _txtMenuHeader = new TextBox
-            {
-                Location = new Point(112, 24),
-                Size = new Size(296, 23),
-                MaxLength = 80
-            };
-            grpAppearance.Controls.Add(_txtMenuHeader);
+            var grpAppearance = new GroupBox { Text = "Menu Appearance", Location = new Point(X, y), Size = new Size(W, 110) };
 
             grpAppearance.Controls.Add(new Label
             {
                 Text = "Header logo:",
-                Location = new Point(12, 65),
+                Location = new Point(12, 28),
                 AutoSize = true
             });
 
             _picMenuLogo = new PictureBox
             {
-                Location = new Point(112, 55),
-                Size = new Size(32, 32),
+                Location = new Point(112, 18),
+                Size = new Size(40, 40),
                 BorderStyle = BorderStyle.FixedSingle,
                 SizeMode = PictureBoxSizeMode.CenterImage
             };
@@ -168,7 +152,7 @@ namespace TaskFolder.Views
 
             _lblMenuLogoFile = new Label
             {
-                Location = new Point(152, 63),
+                Location = new Point(160, 27),
                 Size = new Size(100, 22),
                 AutoEllipsis = true,
                 Text = "No logo selected"
@@ -178,7 +162,7 @@ namespace TaskFolder.Views
             _btnChooseMenuLogo = new Button
             {
                 Text = "Choose...",
-                Location = new Point(260, 55),
+                Location = new Point(260, 24),
                 Size = new Size(70, 28)
             };
             _btnChooseMenuLogo.Click += BtnChooseMenuLogo_Click;
@@ -187,13 +171,13 @@ namespace TaskFolder.Views
             grpAppearance.Controls.Add(new Label
             {
                 Text = "Item height:",
-                Location = new Point(12, 105),
+                Location = new Point(12, 77),
                 AutoSize = true
             });
 
             _numMenuItemHeight = new NumericUpDown
             {
-                Location = new Point(112, 101),
+                Location = new Point(112, 73),
                 Size = new Size(64, 23),
                 Minimum = 24,
                 Maximum = 64,
@@ -203,14 +187,14 @@ namespace TaskFolder.Views
             grpAppearance.Controls.Add(new Label
             {
                 Text = "px (larger values are easier to click)",
-                Location = new Point(182, 105),
+                Location = new Point(182, 77),
                 AutoSize = true
             });
 
             _btnRemoveMenuLogo = new Button
             {
                 Text = "Remove",
-                Location = new Point(338, 55),
+                Location = new Point(338, 24),
                 Size = new Size(70, 28)
             };
             _btnRemoveMenuLogo.Click += BtnRemoveMenuLogo_Click;
@@ -296,9 +280,6 @@ namespace TaskFolder.Views
             _chkAutoStart.Checked = IsAutoStartEnabled();
             _chkShowNotifications.Checked = _settingsService.Settings.ShowNotifications;
             _chkHotkeyEnabled.Checked = _settingsService.Settings.HotkeyEnabled;
-            _txtMenuHeader.Text = string.IsNullOrWhiteSpace(_settingsService.Settings.MenuHeaderText)
-                ? "Applications"
-                : _settingsService.Settings.MenuHeaderText;
             _numMenuItemHeight.Value = Math.Clamp(_settingsService.Settings.MenuItemHeight, 24, 64);
             _selectedMenuLogoPath = _settingsService.Settings.MenuHeaderLogoPath ?? string.Empty;
             UpdateMenuLogoPreview();
@@ -391,7 +372,7 @@ namespace TaskFolder.Views
         private void UpdateMenuLogoPreview()
         {
             var oldImage = _picMenuLogo.Image;
-            _picMenuLogo.Image = MenuLogoLoader.LoadScaledBitmap(_selectedMenuLogoPath, 24);
+            _picMenuLogo.Image = MenuLogoLoader.LoadScaledBitmap(_selectedMenuLogoPath, 32);
             oldImage?.Dispose();
 
             bool hasLogo = _picMenuLogo.Image != null;
@@ -446,9 +427,6 @@ namespace TaskFolder.Views
             _settingsService.Settings.HotkeyEnabled = hotkeyEnabled;
             _settingsService.Settings.HotkeyModifiers = mods;
             _settingsService.Settings.HotkeyKey = key;
-            _settingsService.Settings.MenuHeaderText = string.IsNullOrWhiteSpace(_txtMenuHeader.Text)
-                ? "Applications"
-                : _txtMenuHeader.Text.Trim();
             _settingsService.Settings.MenuHeaderLogoPath = _selectedMenuLogoPath;
             _settingsService.Settings.MenuItemHeight = (int)_numMenuItemHeight.Value;
             _settingsService.Save();
