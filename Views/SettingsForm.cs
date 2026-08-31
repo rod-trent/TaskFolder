@@ -16,6 +16,7 @@ namespace TaskFolder.Views
         private readonly ShortcutManager _shortcutManager;
         private readonly SettingsService _settingsService;
         private readonly HotkeyService _hotkeyService;
+        private Font _uiFont;
 
         // Controls
         private CheckBox _chkAutoStart;
@@ -26,6 +27,7 @@ namespace TaskFolder.Views
         private ComboBox _cboKey;
 
         private NumericUpDown _numMenuItemHeight;
+        private NumericUpDown _numMenuFontSize;
         private PictureBox _picMenuLogo;
         private Label _lblMenuLogoFile;
         private Button _btnChooseMenuLogo;
@@ -57,6 +59,10 @@ namespace TaskFolder.Views
             MaximizeBox = false;
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
+            AutoScaleMode = AutoScaleMode.Dpi;
+            _uiFont = Windows11MenuStyle.CreateFont(9.5f);
+            Font = _uiFont;
+            BackColor = Color.FromArgb(249, 249, 249);
 
             int y = 12;
             const int W = 440;
@@ -132,7 +138,7 @@ namespace TaskFolder.Views
             y += grpHotkey.Height + 8;
 
             // ── Menu appearance ──────────────────────────────────────────────────
-            var grpAppearance = new GroupBox { Text = "Menu Appearance", Location = new Point(X, y), Size = new Size(W, 110) };
+            var grpAppearance = new GroupBox { Text = "Menu Appearance", Location = new Point(X, y), Size = new Size(W, 148) };
 
             grpAppearance.Controls.Add(new Label
             {
@@ -179,8 +185,8 @@ namespace TaskFolder.Views
             {
                 Location = new Point(112, 73),
                 Size = new Size(64, 23),
-                Minimum = 24,
-                Maximum = 64,
+                Minimum = 32,
+                Maximum = 72,
                 Increment = 2
             };
             grpAppearance.Controls.Add(_numMenuItemHeight);
@@ -188,6 +194,30 @@ namespace TaskFolder.Views
             {
                 Text = "px (larger values are easier to click)",
                 Location = new Point(182, 77),
+                AutoSize = true
+            });
+
+            grpAppearance.Controls.Add(new Label
+            {
+                Text = "Text size:",
+                Location = new Point(12, 113),
+                AutoSize = true
+            });
+
+            _numMenuFontSize = new NumericUpDown
+            {
+                Location = new Point(112, 109),
+                Size = new Size(64, 23),
+                Minimum = 9,
+                Maximum = 18,
+                DecimalPlaces = 1,
+                Increment = 0.5m
+            };
+            grpAppearance.Controls.Add(_numMenuFontSize);
+            grpAppearance.Controls.Add(new Label
+            {
+                Text = "pt (applies to menu, search, and submenus)",
+                Location = new Point(182, 113),
                 AutoSize = true
             });
 
@@ -239,7 +269,7 @@ namespace TaskFolder.Views
             var grpAbout = new GroupBox { Text = "About", Location = new Point(X, y), Size = new Size(W, 65) };
             grpAbout.Controls.Add(new Label
             {
-                Text = "TaskFolder v1.1.0 — Windows 11 Application Launcher — MIT License",
+                Text = "TaskFolder v1.2.0 — Windows 11 Application Launcher — MIT License",
                 Location = new Point(12, 22),
                 Size = new Size(W - 24, 32),
                 TextAlign = ContentAlignment.MiddleCenter
@@ -280,7 +310,8 @@ namespace TaskFolder.Views
             _chkAutoStart.Checked = IsAutoStartEnabled();
             _chkShowNotifications.Checked = _settingsService.Settings.ShowNotifications;
             _chkHotkeyEnabled.Checked = _settingsService.Settings.HotkeyEnabled;
-            _numMenuItemHeight.Value = Math.Clamp(_settingsService.Settings.MenuItemHeight, 24, 64);
+            _numMenuItemHeight.Value = Math.Clamp(_settingsService.Settings.MenuItemHeight, 32, 72);
+            _numMenuFontSize.Value = (decimal)Math.Clamp(_settingsService.Settings.MenuFontSize, 9f, 18f);
             _selectedMenuLogoPath = _settingsService.Settings.MenuHeaderLogoPath ?? string.Empty;
             UpdateMenuLogoPreview();
 
@@ -429,6 +460,7 @@ namespace TaskFolder.Views
             _settingsService.Settings.HotkeyKey = key;
             _settingsService.Settings.MenuHeaderLogoPath = _selectedMenuLogoPath;
             _settingsService.Settings.MenuItemHeight = (int)_numMenuItemHeight.Value;
+            _settingsService.Settings.MenuFontSize = (float)_numMenuFontSize.Value;
             _settingsService.Save();
 
             // Apply hotkey change
@@ -444,6 +476,8 @@ namespace TaskFolder.Views
             if (disposing)
                 _picMenuLogo?.Image?.Dispose();
             base.Dispose(disposing);
+            if (disposing)
+                _uiFont?.Dispose();
         }
     }
 }

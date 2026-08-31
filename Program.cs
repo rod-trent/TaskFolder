@@ -16,11 +16,18 @@ namespace TaskFolder
     /// </summary>
     static class Program
     {
+        // THESIS: A crisp Windows 11 launcher surface replaces legacy Win32 chrome without changing the launch workflow.
+        // OWN-WORLD: Fluent neutral surfaces, Segoe UI Variable, soft 8px corners, precise one-pixel dividers, and blue focus.
+        // STORY: Open the tray, scan or search with confidence, launch in one click, and retain full nested-menu familiarity.
+        // FIRST VIEWPORT: A compact rounded menu opens with an inset search field, readable shortcut rows, and quiet utility actions.
+        // FORM: Native Windows 11 Fluent utility menu, pinned by the user brief; no concept seed required.
+        // FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
         [STAThread]
         static void Main(string[] args)
         {
             try
             {
+                Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
@@ -65,7 +72,8 @@ namespace TaskFolder
         private Image _headerLogoImage;
 
         // ── Menu state ──────────────────────────────────────────────────────────
-        private ToolStripTextBox _searchBox;
+        private Windows11SearchBox _searchBox;
+        private readonly Windows11MenuRenderer _menuRenderer = new Windows11MenuRenderer();
         private string _searchFilter = string.Empty;
         private int _shortcutsInsertIndex;
 
@@ -146,12 +154,14 @@ namespace TaskFolder
 
         private ContextMenuStrip BuildTrayMenu()
         {
-            var menu = new ContextMenuStrip
-            {
-                Renderer = new CenteredMenuTextRenderer()
-            };
+            float fontSize = Math.Clamp(_settingsService.Settings.MenuFontSize, 9f, 18f);
+            var menu = new Windows11ContextMenuStrip(
+                _menuRenderer,
+                Windows11MenuStyle.CreateFont(fontSize));
+            // Make the menu's actual monitor DPI available to all size helpers while it is built.
+            _trayMenu = menu;
 
-            int logoSize = Math.Clamp(GetMenuItemHeight(), 32, 64);
+            int logoSize = Math.Clamp(GetMenuItemHeight(), ScaleForMenu(32), ScaleForMenu(64));
             _headerLogoImage = MenuLogoLoader.LoadScaledBitmap(
                 _settingsService.Settings.MenuHeaderLogoPath,
                 logoSize);
@@ -170,26 +180,27 @@ namespace TaskFolder
             }
 
             // Search box (persists across refreshes)
-            _searchBox = new ToolStripTextBox
+            _searchBox = new Windows11SearchBox(menu.Font)
             {
-                BorderStyle = BorderStyle.FixedSingle,
-                Width = 180
+                Size = new Size(ScaleForMenu(264), ScaleForMenu(38))
             };
-            _searchBox.TextBox.PlaceholderText = "Search shortcuts...";
-            _searchBox.TextChanged += (s, e) =>
+            _searchBox.SearchTextChanged += (s, e) =>
             {
-                _searchFilter = _searchBox.Text;
+                _searchFilter = _searchBox.SearchText;
                 RefreshShortcutsList();
-                // Re-focus the search box after the rebuild
-                _searchBox.Focus();
+                _searchBox.FocusEditor();
             };
-            menu.Items.Add(_searchBox);
+            var searchHost = new ToolStripControlHost(_searchBox)
+            {
+                AutoSize = false,
+                Size = _searchBox.Size,
+                Margin = new Padding(8, 6, 8, 6),
+                Padding = Padding.Empty
+            };
+            menu.Items.Add(searchHost);
             menu.Items.Add(new ToolStripSeparator());
             _shortcutsInsertIndex = menu.Items.Count;
 
-            // _trayMenu must be set before RefreshShortcutsList() is called,
-            // because that method references _trayMenu directly.
-            _trayMenu = menu;
             RefreshShortcutsList();
 
             menu.Items.Add(new ToolStripSeparator());
@@ -216,19 +227,21 @@ namespace TaskFolder
         /// </summary>
         private void RefreshShortcutsList()
         {
-            // Remove old shortcut rows (tagged with ShortcutItem or the "(No applications)" stub)
+            // Remove and dispose every dynamic shortcut/category/empty row from the previous result set.
             for (int i = _trayMenu.Items.Count - 1; i >= _shortcutsInsertIndex; i--)
             {
                 var item = _trayMenu.Items[i];
                 if (item is ToolStripMenuItem mi &&
                     (mi.Tag is ShortcutItem || mi.Tag is string s && s == "category" ||
-                     mi.Text == "(No applications added)"))
+                     mi.Tag is string emptyTag && emptyTag == "empty"))
                 {
                     _trayMenu.Items.RemoveAt(i);
+                    DisposeMenuTreeItem(mi);
                 }
                 else if (item is ToolStripSeparator sep && sep.Tag is string sepTag && sepTag == "shortcuts-sep")
                 {
                     _trayMenu.Items.RemoveAt(i);
+                    sep.Dispose();
                 }
             }
 
@@ -243,18 +256,22 @@ namespace TaskFolder
             }
 
             // ── Most Used section ──────────────────────────────────────────────
-            var mostUsed = allShortcuts
-                .Where(sc => sc.LaunchCount > 0)
-                .OrderByDescending(sc => sc.LaunchCount)
-                .Take(5)
-                .ToList();
+            var mostUsed = string.IsNullOrWhiteSpace(_searchFilter)
+                ? allShortcuts
+                    .Where(sc => sc.LaunchCount > 0)
+                    .OrderByDescending(sc => sc.LaunchCount)
+                    .Take(5)
+                    .ToList()
+                : new List<ShortcutItem>();
 
             // ── Recently Used section ──────────────────────────────────────────
-            var recentlyUsed = allShortcuts
-                .Where(sc => sc.LastUsed.HasValue)
-                .OrderByDescending(sc => sc.LastUsed)
-                .Take(5)
-                .ToList();
+            var recentlyUsed = string.IsNullOrWhiteSpace(_searchFilter)
+                ? allShortcuts
+                    .Where(sc => sc.LastUsed.HasValue)
+                    .OrderByDescending(sc => sc.LastUsed)
+                    .Take(5)
+                    .ToList()
+                : new List<ShortcutItem>();
 
             int insertAt = _shortcutsInsertIndex;
 
@@ -320,7 +337,7 @@ namespace TaskFolder
                     : "(No matches)";
                 var emptyItem = CreateMenuItem(emptyText);
                 emptyItem.Enabled = false;
-                emptyItem.Font = new Font(_trayMenu.Font, FontStyle.Italic);
+                emptyItem.Tag = "empty";
                 emptyItem.ForeColor = Color.Gray;
                 _trayMenu.Items.Insert(insertAt, emptyItem);
             }
@@ -328,16 +345,46 @@ namespace TaskFolder
 
         private int GetMenuItemHeight()
         {
-            return Math.Clamp(_settingsService.Settings.MenuItemHeight, 24, 64);
+            return ScaleForMenu(Math.Clamp(_settingsService.Settings.MenuItemHeight, 32, 72));
+        }
+
+        private int ScaleForMenu(int logicalPixels)
+        {
+            int dpi = _trayMenu?.DeviceDpi ?? 96;
+            return Math.Max(1, (int)Math.Round(logicalPixels * dpi / 96f));
         }
 
         private ToolStripMenuItem CreateMenuItem(string text, Image image = null, EventHandler onClick = null)
         {
-            return new SizedToolStripMenuItem(text, image, onClick, GetMenuItemHeight())
+            return new SizedToolStripMenuItem(
+                text,
+                image,
+                onClick,
+                GetMenuItemHeight(),
+                _menuRenderer,
+                Math.Clamp(_settingsService.Settings.MenuFontSize, 9f, 18f))
             {
+                Font = _trayMenu.Font,
                 TextAlign = ContentAlignment.MiddleLeft,
                 ImageAlign = ContentAlignment.MiddleLeft
             };
+        }
+
+        private static void DisposeMenuTreeItem(ToolStripMenuItem item)
+        {
+            for (int i = item.DropDownItems.Count - 1; i >= 0; i--)
+            {
+                ToolStripItem child = item.DropDownItems[i];
+                if (child is ToolStripMenuItem childMenu)
+                    DisposeMenuTreeItem(childMenu);
+                else
+                    child.Dispose();
+            }
+
+            Image image = item.Image;
+            item.Image = null;
+            image?.Dispose();
+            item.Dispose();
         }
 
         private ToolStripMenuItem BuildShortcutItem(ShortcutItem shortcut)
@@ -352,10 +399,10 @@ namespace TaskFolder
             menuItem.Click += (s, e) => LaunchShortcut(shortcut);
 
             // Right-click context menu: Rename, Remove, Open Location, Change Icon, Move Up/Down
-            var ctx = new ContextMenuStrip
-            {
-                Renderer = new CenteredMenuTextRenderer()
-            };
+            var ctx = new Windows11ContextMenuStrip(
+                _menuRenderer,
+                Windows11MenuStyle.CreateFont(
+                    Math.Clamp(_settingsService.Settings.MenuFontSize, 9f, 18f)));
 
             var renameItem = CreateMenuItem("Rename...");
             renameItem.Click += (s, e) => OnRenameShortcut(shortcut);
@@ -389,6 +436,7 @@ namespace TaskFolder
                 if (e.Button == MouseButtons.Right)
                     ctx.Show(Cursor.Position);
             };
+            menuItem.Disposed += (_, _) => ctx.Dispose();
 
             return menuItem;
         }
@@ -397,7 +445,15 @@ namespace TaskFolder
 
         private void RebuildProfileSubmenu(ToolStripMenuItem profileMenu)
         {
-            profileMenu.DropDownItems.Clear();
+            for (int i = profileMenu.DropDownItems.Count - 1; i >= 0; i--)
+            {
+                ToolStripItem oldItem = profileMenu.DropDownItems[i];
+                profileMenu.DropDownItems.RemoveAt(i);
+                if (oldItem is ToolStripMenuItem oldMenuItem)
+                    DisposeMenuTreeItem(oldMenuItem);
+                else
+                    oldItem.Dispose();
+            }
             string active = _settingsService.Settings.ActiveProfileName;
 
             foreach (string name in _profileService.GetProfileNames())
@@ -594,8 +650,23 @@ namespace TaskFolder
             _trayMenu = BuildTrayMenu();
             _trayIcon.ContextMenuStrip = _trayMenu;
             _ = _trayMenu.Handle;
+            DisposeMenuImages(previousMenu?.Items);
             previousMenu?.Dispose();
             previousHeaderLogo?.Dispose();
+        }
+
+        private static void DisposeMenuImages(ToolStripItemCollection items)
+        {
+            if (items == null) return;
+
+            foreach (ToolStripItem item in items)
+            {
+                if (item is not ToolStripMenuItem menuItem) continue;
+                DisposeMenuImages(menuItem.DropDownItems);
+                Image image = menuItem.Image;
+                menuItem.Image = null;
+                image?.Dispose();
+            }
         }
 
         private void OnRenameShortcut(ShortcutItem shortcut)
@@ -692,15 +763,21 @@ namespace TaskFolder
         private sealed class SizedToolStripMenuItem : ToolStripMenuItem
         {
             private readonly int _minimumHeight;
+            private readonly Windows11MenuRenderer _renderer;
+            private readonly float _fontSize;
 
             public SizedToolStripMenuItem(
                 string text,
                 Image image,
                 EventHandler onClick,
-                int minimumHeight)
+                int minimumHeight,
+                Windows11MenuRenderer renderer,
+                float fontSize)
                 : base(text, image, onClick)
             {
                 _minimumHeight = minimumHeight;
+                _renderer = renderer;
+                _fontSize = fontSize;
             }
 
             public override Size GetPreferredSize(Size constrainingSize)
@@ -709,24 +786,12 @@ namespace TaskFolder
                 preferredSize.Height = Math.Max(preferredSize.Height, _minimumHeight);
                 return preferredSize;
             }
-        }
 
-        private sealed class CenteredMenuTextRenderer : ToolStripProfessionalRenderer
-        {
-            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            protected override ToolStripDropDown CreateDefaultDropDown()
             {
-                if (e.Item is ToolStripMenuItem)
-                {
-                    Rectangle textRectangle = e.TextRectangle;
-                    textRectangle.Y = 0;
-                    textRectangle.Height = e.Item.Height;
-                    e.TextRectangle = textRectangle;
-                    e.TextFormat = (e.TextFormat & ~(TextFormatFlags.Top | TextFormatFlags.Bottom))
-                        | TextFormatFlags.VerticalCenter
-                        | TextFormatFlags.SingleLine;
-                }
-
-                base.OnRenderItemText(e);
+                return new Windows11ContextMenuStrip(
+                    _renderer,
+                    Windows11MenuStyle.CreateFont(_fontSize));
             }
         }
 
@@ -735,6 +800,7 @@ namespace TaskFolder
             if (disposing)
             {
                 _trayIcon?.Dispose();
+                DisposeMenuImages(_trayMenu?.Items);
                 _trayMenu?.Dispose();
                 _headerLogoImage?.Dispose();
                 _shortcutManager?.Dispose();

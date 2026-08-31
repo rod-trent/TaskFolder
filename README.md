@@ -4,7 +4,7 @@
 
 TaskFolder brings back quick-access application launching to Windows 11's taskbar area through a clean system tray menu. Launch your favorite apps, PWAs, and scripts with a single click—no taskbar clutter required.
 
-![Version](https://img.shields.io/badge/Version-1.1.0-green.svg)
+![Version](https://img.shields.io/badge/Version-1.2.0-green.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![.NET 8.0](https://img.shields.io/badge/.NET-8.0-purple.svg)
 ![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2011%2F10-blue.svg)
@@ -24,7 +24,9 @@ TaskFolder brings back quick-access application launching to Windows 11's taskba
 - **⌨️ Global Hotkey** - User-configurable hotkey to pop the menu from anywhere
 - **📊 Launch Statistics** - Tracks most-used and recently-used shortcuts across restarts
 - **🖼️ Custom Icons** - Override any shortcut's icon with a file + index picker
-- **↕️ Adjustable Menu Rows** - Set menu item height from 24 to 64 px for easier targeting
+- **🔤 Crisp Adjustable Menu Text** - DPI-aware Segoe UI Variable text, adjustable from 9 to 18 pt
+- **↕️ Adjustable Menu Rows** - Set menu item height from 32 to 72 logical px for easier targeting
+- **🪟 Windows 11 Menu Styling** - Fluent surfaces, rounded selection states, and a modern inset search field
 - **🖼️ Custom Menu Logo** - Show your own logo above the tray menu
 - **👤 Profiles** - Multiple named shortcut sets, switchable from the tray menu
 - **💾 Portable Mode** - Run from a USB drive with `--portable` flag
@@ -170,7 +172,8 @@ Access via: Right-click tray icon → "Settings"
 - 🔔 **Show Notifications** - Balloon tip when an app is launched
 - ⌨️ **Global Hotkey** - Enable and configure the hotkey (e.g. Ctrl+Alt+T)
 - 🖼️ **Menu Header Logo** - Choose a PNG, JPEG, BMP, GIF, or ICO logo
-- ↕️ **Menu Item Height** - Adjust all menu rows from 24 to 64 px
+- 🔤 **Menu Text Size** - Adjust menu, search, and submenu text from 9 to 18 pt
+- ↕️ **Menu Item Height** - Adjust all menu rows from 32 to 72 logical px
 - 📁 **Open Shortcuts Folder** - Open the active profile's shortcuts directory
 - 🗑️ **Remove All Shortcuts** - Clear the current profile's shortcuts
 
@@ -277,7 +280,7 @@ Requires [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" TaskFolder.iss
 ```
 
-Output: `installer\TaskFolder-Setup-1.1.0.exe`
+Output: `installer\TaskFolder-Setup-1.2.0.exe`
 
 ### Code Style
 - Standard C# conventions
@@ -292,6 +295,19 @@ None currently reported! 🎉
 If you find a bug, please [open an issue](../../issues).
 
 ## 📋 Changelog
+
+### v1.2.0 (September 2026)
+
+**New Features:**
+- **Adjustable menu typography** — Set menu, search, and submenu text from 9 to 18 pt
+- **Windows 11 Fluent menu** — Rounded surfaces, modern selection states, and a redesigned inset search field
+- **Per-monitor DPI support** — Crisp native text and logical sizing from 100% through 200% display scaling
+
+**Improvements:**
+- Menu row height now supports 32–72 logical px and scales with the active monitor
+- Root, nested, profile, recent, most-used, and shortcut context menus share one visual system
+- Search results no longer retain stale empty states or unrelated recent/most-used groups
+- Dynamic menu icons, nested menus, and context-menu resources are disposed during refresh and shutdown
 
 ### v1.1.0 (April 2026)
 
