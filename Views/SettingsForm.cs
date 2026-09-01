@@ -53,256 +53,347 @@ namespace TaskFolder.Views
 
         private void InitializeComponent()
         {
+            SuspendLayout();
             Text = "TaskFolder Settings";
-            Size = new Size(480, 520);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
+            ClientSize = new Size(620, 720);
+            MinimumSize = new Size(560, 600);
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MaximizeBox = true;
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
             AutoScaleMode = AutoScaleMode.Dpi;
+            AutoScroll = false;
             _uiFont = Windows11MenuStyle.CreateFont(9.5f);
             Font = _uiFont;
             BackColor = Color.FromArgb(249, 249, 249);
 
-            int y = 12;
-            const int W = 440;
-            const int X = 15;
+            var scrollHost = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = BackColor
+            };
+            var content = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                RowCount = 0,
+                GrowStyle = TableLayoutPanelGrowStyle.AddRows,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Padding = new Padding(16, 12, 16, 16),
+                BackColor = BackColor
+            };
+            content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            scrollHost.Controls.Add(content);
+            Controls.Add(scrollHost);
 
             // ── Startup ──────────────────────────────────────────────────────────
-            var grpStartup = new GroupBox { Text = "Startup", Location = new Point(X, y), Size = new Size(W, 60) };
-
             _chkAutoStart = new CheckBox
             {
                 Text = "Start TaskFolder when Windows starts",
-                Location = new Point(12, 20),
-                Size = new Size(W - 24, 20)
+                AutoSize = true,
+                Margin = Padding.Empty
             };
-            grpStartup.Controls.Add(_chkAutoStart);
-            Controls.Add(grpStartup);
-            y += grpStartup.Height + 8;
+            content.Controls.Add(CreateSection("Startup", _chkAutoStart));
 
             // ── Notifications ────────────────────────────────────────────────────
-            var grpNotif = new GroupBox { Text = "Notifications", Location = new Point(X, y), Size = new Size(W, 60) };
-
             _chkShowNotifications = new CheckBox
             {
                 Text = "Show a balloon tip when an application is launched",
-                Location = new Point(12, 20),
-                Size = new Size(W - 24, 20)
+                AutoSize = true,
+                Margin = Padding.Empty
             };
-            grpNotif.Controls.Add(_chkShowNotifications);
-            Controls.Add(grpNotif);
-            y += grpNotif.Height + 8;
+            content.Controls.Add(CreateSection("Notifications", _chkShowNotifications));
 
             // ── Global Hotkey ────────────────────────────────────────────────────
-            var grpHotkey = new GroupBox { Text = "Global Hotkey (pops the tray menu)", Location = new Point(X, y), Size = new Size(W, 90) };
-
             _chkHotkeyEnabled = new CheckBox
             {
                 Text = "Enable global hotkey",
-                Location = new Point(12, 20),
-                Size = new Size(200, 20)
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 8)
             };
-            grpHotkey.Controls.Add(_chkHotkeyEnabled);
-
-            var lblMod = new Label { Text = "Modifiers:", Location = new Point(12, 48), AutoSize = true };
-            grpHotkey.Controls.Add(lblMod);
 
             _cboModifiers = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(80, 45),
-                Width = 130
+                Width = 160,
+                Margin = new Padding(6, 0, 20, 0)
             };
             _cboModifiers.Items.AddRange(new object[]
             {
                 "Ctrl+Alt", "Ctrl+Shift", "Alt+Shift", "Ctrl+Alt+Shift", "Win"
             });
-            grpHotkey.Controls.Add(_cboModifiers);
-
-            var lblKey = new Label { Text = "Key:", Location = new Point(224, 48), AutoSize = true };
-            grpHotkey.Controls.Add(lblKey);
-
             _cboKey = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(255, 45),
-                Width = 80
+                Width = 96,
+                Margin = new Padding(6, 0, 0, 0)
             };
             // Populate with A-Z and F1-F12
             for (char c = 'A'; c <= 'Z'; c++) _cboKey.Items.Add(c.ToString());
             for (int i = 1; i <= 12; i++) _cboKey.Items.Add($"F{i}");
-            grpHotkey.Controls.Add(_cboKey);
-
-            Controls.Add(grpHotkey);
-            y += grpHotkey.Height + 8;
+            var hotkeyFields = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Dock = DockStyle.Top,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                Margin = Padding.Empty
+            };
+            hotkeyFields.Controls.Add(CreateInlineLabel("Modifiers:"));
+            hotkeyFields.Controls.Add(_cboModifiers);
+            hotkeyFields.Controls.Add(CreateInlineLabel("Key:"));
+            hotkeyFields.Controls.Add(_cboKey);
+            var hotkeyLayout = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                RowCount = 2,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = Padding.Empty
+            };
+            hotkeyLayout.Controls.Add(_chkHotkeyEnabled, 0, 0);
+            hotkeyLayout.Controls.Add(hotkeyFields, 0, 1);
+            content.Controls.Add(CreateSection("Global Hotkey (pops the tray menu)", hotkeyLayout));
 
             // ── Menu appearance ──────────────────────────────────────────────────
-            var grpAppearance = new GroupBox { Text = "Menu Appearance", Location = new Point(X, y), Size = new Size(W, 148) };
-
-            grpAppearance.Controls.Add(new Label
-            {
-                Text = "Header logo:",
-                Location = new Point(12, 28),
-                AutoSize = true
-            });
-
             _picMenuLogo = new PictureBox
             {
-                Location = new Point(112, 18),
                 Size = new Size(40, 40),
                 BorderStyle = BorderStyle.FixedSingle,
-                SizeMode = PictureBoxSizeMode.CenterImage
+                SizeMode = PictureBoxSizeMode.CenterImage,
+                Margin = new Padding(8, 0, 8, 6)
             };
-            grpAppearance.Controls.Add(_picMenuLogo);
-
             _lblMenuLogoFile = new Label
             {
-                Location = new Point(160, 27),
-                Size = new Size(100, 22),
+                Dock = DockStyle.Fill,
                 AutoEllipsis = true,
-                Text = "No logo selected"
+                Text = "No logo selected",
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0, 0, 8, 6)
             };
-            grpAppearance.Controls.Add(_lblMenuLogoFile);
-
             _btnChooseMenuLogo = new Button
             {
                 Text = "Choose...",
-                Location = new Point(260, 24),
-                Size = new Size(70, 28)
+                AutoSize = true,
+                MinimumSize = new Size(88, 32),
+                Margin = new Padding(0, 0, 6, 6)
             };
             _btnChooseMenuLogo.Click += BtnChooseMenuLogo_Click;
-            grpAppearance.Controls.Add(_btnChooseMenuLogo);
-
-            grpAppearance.Controls.Add(new Label
-            {
-                Text = "Item height:",
-                Location = new Point(12, 77),
-                AutoSize = true
-            });
-
             _numMenuItemHeight = new NumericUpDown
             {
-                Location = new Point(112, 73),
-                Size = new Size(64, 23),
+                Width = 80,
                 Minimum = 32,
                 Maximum = 72,
-                Increment = 2
+                Increment = 2,
+                Margin = new Padding(8, 3, 8, 3)
             };
-            grpAppearance.Controls.Add(_numMenuItemHeight);
-            grpAppearance.Controls.Add(new Label
-            {
-                Text = "px (larger values are easier to click)",
-                Location = new Point(182, 77),
-                AutoSize = true
-            });
-
-            grpAppearance.Controls.Add(new Label
-            {
-                Text = "Text size:",
-                Location = new Point(12, 113),
-                AutoSize = true
-            });
-
             _numMenuFontSize = new NumericUpDown
             {
-                Location = new Point(112, 109),
-                Size = new Size(64, 23),
+                Width = 80,
                 Minimum = 9,
                 Maximum = 18,
                 DecimalPlaces = 1,
-                Increment = 0.5m
+                Increment = 0.5m,
+                Margin = new Padding(8, 3, 8, 3)
             };
-            grpAppearance.Controls.Add(_numMenuFontSize);
-            grpAppearance.Controls.Add(new Label
-            {
-                Text = "pt (applies to menu, search, and submenus)",
-                Location = new Point(182, 113),
-                AutoSize = true
-            });
-
             _btnRemoveMenuLogo = new Button
             {
                 Text = "Remove",
-                Location = new Point(338, 24),
-                Size = new Size(70, 28)
+                AutoSize = true,
+                MinimumSize = new Size(88, 32),
+                Margin = new Padding(0, 0, 0, 6)
             };
             _btnRemoveMenuLogo.Click += BtnRemoveMenuLogo_Click;
-            grpAppearance.Controls.Add(_btnRemoveMenuLogo);
-
-            Controls.Add(grpAppearance);
-            y += grpAppearance.Height + 8;
+            var logoActions = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Dock = DockStyle.Top,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                Margin = Padding.Empty
+            };
+            logoActions.Controls.Add(_btnChooseMenuLogo);
+            logoActions.Controls.Add(_btnRemoveMenuLogo);
+            var logoLayout = new TableLayoutPanel
+            {
+                ColumnCount = 3,
+                RowCount = 2,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = new Padding(0, 0, 0, 6)
+            };
+            logoLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            logoLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            logoLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            logoLayout.Controls.Add(CreateInlineLabel("Header logo:"), 0, 0);
+            logoLayout.Controls.Add(_picMenuLogo, 1, 0);
+            logoLayout.Controls.Add(_lblMenuLogoFile, 2, 0);
+            logoLayout.Controls.Add(logoActions, 0, 1);
+            logoLayout.SetColumnSpan(logoActions, 3);
+            var appearanceLayout = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                RowCount = 3,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = Padding.Empty
+            };
+            appearanceLayout.Controls.Add(logoLayout, 0, 0);
+            appearanceLayout.Controls.Add(CreateSettingRow(
+                "Item height:", _numMenuItemHeight, "px — larger rows are easier to click"), 0, 1);
+            appearanceLayout.Controls.Add(CreateSettingRow(
+                "Text size:", _numMenuFontSize, "pt — menu, search, and submenus"), 0, 2);
+            content.Controls.Add(CreateSection("Menu Appearance", appearanceLayout));
 
             // ── Shortcuts Management ─────────────────────────────────────────────
-            var grpShortcuts = new GroupBox { Text = "Shortcuts Management", Location = new Point(X, y), Size = new Size(W, 100) };
-
             _btnOpenFolder = new Button
             {
                 Text = "Open Shortcuts Folder",
-                Location = new Point(12, 25),
-                Size = new Size(180, 28)
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                MinimumSize = new Size(190, 34),
+                Margin = new Padding(0, 0, 8, 8)
             };
             _btnOpenFolder.Click += BtnOpenFolder_Click;
-            grpShortcuts.Controls.Add(_btnOpenFolder);
-
             _btnClearShortcuts = new Button
             {
                 Text = "Remove All Shortcuts",
-                Location = new Point(210, 25),
-                Size = new Size(180, 28)
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                MinimumSize = new Size(190, 34),
+                Margin = new Padding(8, 0, 0, 8)
             };
             _btnClearShortcuts.Click += BtnClearShortcuts_Click;
-            grpShortcuts.Controls.Add(_btnClearShortcuts);
-
             var lblFolder = new Label
             {
                 Text = $"Folder: {_shortcutManager.ShortcutsFolder}",
-                Location = new Point(12, 65),
-                Size = new Size(W - 24, 22),
-                AutoEllipsis = true
+                Dock = DockStyle.Fill,
+                AutoEllipsis = true,
+                AutoSize = false,
+                Height = 28,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = Padding.Empty
             };
-            grpShortcuts.Controls.Add(lblFolder);
-            Controls.Add(grpShortcuts);
-            y += grpShortcuts.Height + 8;
+            var shortcutsLayout = new TableLayoutPanel
+            {
+                ColumnCount = 2,
+                RowCount = 2,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = Padding.Empty
+            };
+            shortcutsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            shortcutsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            shortcutsLayout.Controls.Add(_btnOpenFolder, 0, 0);
+            shortcutsLayout.Controls.Add(_btnClearShortcuts, 1, 0);
+            shortcutsLayout.Controls.Add(lblFolder, 0, 1);
+            shortcutsLayout.SetColumnSpan(lblFolder, 2);
+            content.Controls.Add(CreateSection("Shortcuts Management", shortcutsLayout));
 
             // ── About ────────────────────────────────────────────────────────────
-            var grpAbout = new GroupBox { Text = "About", Location = new Point(X, y), Size = new Size(W, 65) };
-            grpAbout.Controls.Add(new Label
+            var aboutLabel = new Label
             {
-                Text = "TaskFolder v1.2.0 — Windows 11 Application Launcher — MIT License",
-                Location = new Point(12, 22),
-                Size = new Size(W - 24, 32),
-                TextAlign = ContentAlignment.MiddleCenter
-            });
-            Controls.Add(grpAbout);
-            y += grpAbout.Height + 12;
+                Text = "TaskFolder v1.2.1 — Windows 11 Application Launcher — MIT License",
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                MaximumSize = new Size(460, 0),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = Padding.Empty
+            };
+            content.Controls.Add(CreateSection("About", aboutLabel));
 
             // ── Buttons ──────────────────────────────────────────────────────────
             _btnOK = new Button
             {
                 Text = "OK",
                 DialogResult = DialogResult.OK,
-                Location = new Point(W - 165, y),
-                Size = new Size(80, 28)
+                AutoSize = true,
+                MinimumSize = new Size(96, 34),
+                Margin = new Padding(8, 0, 0, 0)
             };
             _btnOK.Click += BtnOK_Click;
-
             _btnCancel = new Button
             {
                 Text = "Cancel",
                 DialogResult = DialogResult.Cancel,
-                Location = new Point(W - 75, y),
-                Size = new Size(80, 28)
+                AutoSize = true,
+                MinimumSize = new Size(96, 34),
+                Margin = new Padding(8, 0, 0, 0)
             };
-
-            Controls.Add(_btnOK);
-            Controls.Add(_btnCancel);
+            var footer = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Dock = DockStyle.Top,
+                FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false,
+                Margin = new Padding(0, 4, 0, 0)
+            };
+            footer.Controls.Add(_btnCancel);
+            footer.Controls.Add(_btnOK);
+            content.Controls.Add(footer);
 
             AcceptButton = _btnOK;
             CancelButton = _btnCancel;
+            ResumeLayout(true);
+        }
 
-            // Resize form to fit content
-            ClientSize = new Size(W + 30, y + _btnOK.Height + 16);
+        private static GroupBox CreateSection(string title, Control body)
+        {
+            var section = new GroupBox
+            {
+                Text = title,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Padding = new Padding(12, 24, 12, 12),
+                Margin = new Padding(0, 0, 0, 8)
+            };
+            body.Dock = DockStyle.Top;
+            section.Controls.Add(body);
+            return section;
+        }
+
+        private static Label CreateInlineLabel(string text)
+        {
+            return new Label
+            {
+                Text = text,
+                AutoSize = true,
+                Anchor = AnchorStyles.Left,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0, 6, 0, 6)
+            };
+        }
+
+        private static FlowLayoutPanel CreateSettingRow(
+            string label,
+            NumericUpDown input,
+            string description)
+        {
+            var row = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Dock = DockStyle.Top,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                Margin = new Padding(0, 0, 0, 4)
+            };
+            var title = CreateInlineLabel(label);
+            title.MinimumSize = new Size(96, 0);
+            row.Controls.Add(title);
+            row.Controls.Add(input);
+            row.Controls.Add(CreateInlineLabel(description));
+            return row;
         }
 
         private void LoadSettings()

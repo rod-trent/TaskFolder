@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-01T00:12:24.4007031+09:00",
+  "generatedAt": "2026-09-01T04:03:50.6204484+09:00",
   "title": "Design System: TaskFolder",
   "extensions": {
     "colorMeta": {
@@ -112,16 +112,16 @@
     {
       "name": "Settings Group",
       "kind": "card",
-      "description": "Native group-box organization used throughout the fixed Settings dialog.",
+      "description": "Auto-height native group-box section used in the resizable, scroll-safe Settings stack.",
       "html": "<fieldset class=\"ds-settings-group\"><legend>Menu Appearance</legend><label>Item height: <input type=\"number\" min=\"32\" max=\"72\" step=\"2\" value=\"36\"/> px</label><label>Text size: <input type=\"number\" min=\"9\" max=\"18\" step=\"0.5\" value=\"10\"/> pt</label></fieldset>",
-      "css": ".ds-settings-group { width: 440px; padding: 12px; display: grid; gap: 12px; background: #F9F9F9; color: #1F1F1F; border: 1px solid #D6D6D6; font: 400 9.5pt 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-settings-group legend { padding: 0 4px; } .ds-settings-group label { display: flex; align-items: center; gap: 8px; } .ds-settings-group input { width: 64px; min-height: 23px; font: inherit; } .ds-settings-group input:focus-visible { outline: 2px solid #0067C0; outline-offset: 1px; }"
+      "css": ".ds-settings-group { width: 100%; max-width: 588px; padding: 12px; display: grid; gap: 12px; background: #F9F9F9; color: #1F1F1F; border: 1px solid #D6D6D6; font: 400 9.5pt 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-settings-group legend { padding: 0 4px; } .ds-settings-group label { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .ds-settings-group input { width: 80px; font: inherit; } .ds-settings-group input:focus-visible { outline: 2px solid #0067C0; outline-offset: 1px; }"
     },
     {
       "name": "Settings Button",
       "kind": "button",
-      "description": "Native-sized dialog action used for OK, Cancel, Choose, Remove, and management actions.",
+      "description": "Wider native footer action used for OK and Cancel in the responsive Settings stack.",
       "html": "<button class=\"ds-settings-button\" type=\"button\">OK</button>",
-      "css": ".ds-settings-button { min-width: 80px; height: 28px; padding: 0 12px; background: #F3F3F3; color: #1F1F1F; border: 1px solid #D6D6D6; border-radius: 3px; font: 400 9.5pt 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-settings-button:hover { background: #E8E8E8; } .ds-settings-button:active { background: #E0E0E0; } .ds-settings-button:focus-visible { outline: 2px solid #0067C0; outline-offset: 1px; } .ds-settings-button:disabled { color: #969696; }"
+      "css": ".ds-settings-button { min-width: 96px; min-height: 34px; padding: 0 12px; background: #F3F3F3; color: #1F1F1F; border: 1px solid #D6D6D6; border-radius: 3px; font: 400 9.5pt 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-settings-button:hover { background: #E8E8E8; } .ds-settings-button:active { background: #E0E0E0; } .ds-settings-button:focus-visible { outline: 2px solid #0067C0; outline-offset: 1px; } .ds-settings-button:disabled { color: #969696; }"
     }
   ],
   "narrative": {
@@ -132,11 +132,12 @@
       "One renderer across root, nested, and right-click menus.",
       "Adjustable menu type and row height stored as device-local logical values.",
       "Solid tonal states, precise dividers, and OS-provided menu shadow.",
-      "Native settings controls rather than a custom web-like control kit."
+      "Resizable, scroll-safe Settings sections built from native adaptive layout panels."
     ],
     "rules": [
       { "name": "The Blue Means Focus Rule", "body": "Use focus-blue only for a live focus affordance unless a future implemented control establishes another interaction role.", "section": "colors" },
       { "name": "The Solid-State Rule", "body": "Hover and pressed feedback use solid tonal fills; do not reintroduce glossy Win32 gradients.", "section": "colors" },
+      { "name": "The Clean Repaint Rule", "body": "Repaint every menu row with Soft Utility Canvas before applying an optional hover or pressed wash so selection changes cannot leave stale highlight pixels.", "section": "colors" },
       { "name": "The One Type Voice Rule", "body": "Do not introduce headings or novelty faces into tray-menu rows; logo imagery is the optional branding moment.", "section": "typography" },
       { "name": "The Logical Size Rule", "body": "Persist point size as an unscaled preference, then let WinForms and the current monitor DPI produce the physical result.", "section": "typography" },
       { "name": "The Whole Tree Rule", "body": "Any new submenu or shortcut context action must be created through the shared Windows 11 menu classes so it inherits the same renderer and DPI behavior.", "section": "layout" },
@@ -149,13 +150,16 @@
       "Do preserve a single-line, vertically centered, ellipsized label in every adjustable-height menu row.",
       "Do scale logical menu geometry from the owning control's current DPI and keep persisted preferences unscaled.",
       "Do use native WinForms controls and Windows visual styles for Settings unless implementation establishes a complete replacement system.",
-      "Do preserve visible default, hover/selected, pressed, disabled, separator, checked, and focused-search states."
+      "Do preserve visible default, hover/selected, pressed, disabled, separator, checked, and focused-search states.",
+      "Do clear a menu row to the base surface before drawing its current hover or pressed state.",
+      "Do keep Settings sections auto-sized, wrapping, and vertically scrollable at constrained sizes and higher DPI."
     ],
     "donts": [
       "Don't mix a legacy-rendered submenu or context menu into the Windows 11 menu tree.",
       "Don't use blue as decoration, a row hover fill, or a general brand wash; it currently means focused text entry.",
       "Don't add gradients, extra shadows, translucency, animation, or ornamental typography that is absent from the implementation.",
       "Don't wrap menu labels or allow text size to change the configured minimum row rhythm.",
+      "Don't restore fixed-position Settings sections or fixed-height copy that clips when the window narrows or DPI increases.",
       "Don't claim 100–200% DPI behavior is visually verified until the real GUI has been exercised on representative Windows displays."
     ]
   }

@@ -4,7 +4,7 @@
 
 TaskFolder brings back quick-access application launching to Windows 11's taskbar area through a clean system tray menu. Launch your favorite apps, PWAs, and scripts with a single click—no taskbar clutter required.
 
-![Version](https://img.shields.io/badge/Version-1.2.0-green.svg)
+![Version](https://img.shields.io/badge/Version-1.2.1-green.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![.NET 8.0](https://img.shields.io/badge/.NET-8.0-purple.svg)
 ![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2011%2F10-blue.svg)
@@ -280,7 +280,7 @@ Requires [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" TaskFolder.iss
 ```
 
-Output: `installer\TaskFolder-Setup-1.2.0.exe`
+Output: `installer\TaskFolder-Setup-1.2.1.exe`
 
 ### Code Style
 - Standard C# conventions
@@ -295,6 +295,14 @@ None currently reported! 🎉
 If you find a bug, please [open an issue](../../issues).
 
 ## 📋 Changelog
+
+### v1.2.1 (September 2026)
+
+**Bug Fixes:**
+- Menu rows now repaint their normal surface when selection moves, preventing stale hover highlights
+- Settings now uses responsive auto-sized sections instead of fixed coordinates and heights
+- Large fonts and DPI scaling no longer clip labels, numeric controls, buttons, or About text
+- Narrow Settings windows gain wrapping rows and a vertical scroll fallback
 
 ### v1.2.0 (September 2026)
 

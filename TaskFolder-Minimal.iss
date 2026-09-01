@@ -2,7 +2,7 @@
 ; This version is simple and works with manual path configuration
 
 #define MyAppName "TaskFolder"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.2.1"
 #define MyAppPublisher "TaskFolder"
 #define MyAppURL "https://github.com/yourusername/TaskFolder"
 #define MyAppExeName "TaskFolder.exe"

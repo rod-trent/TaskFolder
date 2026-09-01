@@ -62,7 +62,8 @@ components:
     backgroundColor: "{colors.menu-surface}"
     textColor: "{colors.text-primary}"
     typography: "{typography.settings}"
-    width: "470px"
+    width: "620px"
+    height: "720px"
 ---
 
 # Design System: TaskFolder
@@ -83,7 +84,7 @@ The tokens and component behavior below were extracted from the WinForms/GDI imp
 - One renderer across root, nested, and right-click menus.
 - Adjustable menu type and row height stored as device-local logical values.
 - Solid tonal states, precise dividers, and OS-provided menu shadow.
-- Native settings controls rather than a custom web-like control kit.
+- Resizable, scroll-safe Settings sections built from native adaptive layout panels.
 
 ## Colors
 
@@ -108,6 +109,8 @@ The palette is almost entirely neutral. Blue is reserved for active keyboard/tex
 **The Blue Means Focus Rule.** Use focus-blue only for a live focus affordance unless a future implemented control establishes another interaction role.
 
 **The Solid-State Rule.** Hover and pressed feedback use solid tonal fills; do not reintroduce glossy Win32 gradients.
+
+**The Clean Repaint Rule.** Repaint every menu row with Soft Utility Canvas before applying an optional hover or pressed wash so selection changes cannot leave stale highlight pixels.
 
 ## Typography
 
@@ -137,7 +140,9 @@ Menu rows default to 36 logical pixels and may be set from 32 through 72 in two-
 
 Separators begin and end at the lg spacing inset. Category, Most Used, Recently Used, and Switch Profile entries open nested menus; shortcut rows also expose a right-click context menu. All descendants use the same surface, typography, row sizing, and renderer rather than falling back to legacy submenu chrome.
 
-Settings is a fixed dialog with a 470 logical-pixel client width at 96 DPI and `AutoScaleMode.Dpi`. It uses 440-pixel-wide native group boxes, 8-pixel vertical gaps, and a right-aligned OK/Cancel footer. Appearance controls keep the logo preview and Choose/Remove actions on one row, followed by separate item-height and text-size rows.
+Settings opens as a resizable 620 by 720 logical-pixel shell with a 560 by 600 minimum and `AutoScaleMode.Dpi`. A fill-docked scroll host provides vertical overflow fallback, while a top-docked, single-column `TableLayoutPanel` grows to the real content height. Auto-sized native group boxes form the vertical sections with 8-pixel gaps; the right-aligned OK/Cancel footer remains the final content row.
+
+Hotkey fields, logo actions, and item-height/text-size setting rows use wrapping `FlowLayoutPanel` groups so narrow or high-scale windows can reflow instead of clipping. The logo and shortcuts layouts use percentage/auto-sized table columns, file paths use end ellipsis, and About copy computes its own height within a bounded readable width.
 
 **The Whole Tree Rule.** Any new submenu or shortcut context action must be created through the shared Windows 11 menu classes so it inherits the same renderer and DPI behavior.
 
@@ -169,6 +174,7 @@ The recurring silhouette is a softly rounded 8-logical-pixel container or field 
 - **Default:** Soft Utility Canvas with Primary Ink and left-aligned icon/text.
 - **Hover / Selected:** Inset Hover Wash with the smaller item radius.
 - **Pressed:** Inset Pressed Wash with the same silhouette.
+- **Repaint:** The renderer clears the complete item rectangle to Soft Utility Canvas before drawing any optional state wash.
 - **Disabled / Empty:** Unavailable Ink, no activation, and the same vertical rhythm.
 - **Text:** Vertically centered, single-line, end-ellipsized, with no extra renderer padding.
 - **Height:** Defaults to 36 logical pixels and follows the persisted 32–72 range.
@@ -202,11 +208,12 @@ The recurring silhouette is a softly rounded 8-logical-pixel container or field 
 
 ### Settings Dialog
 
-- **Shell:** Fixed, centered native dialog on the shared Soft Utility Canvas using the Settings Body role.
-- **Grouping:** Native group boxes organize Startup, Notifications, Global Hotkey, Menu Appearance, Shortcuts Management, and About.
+- **Shell:** Resizable, centered 620 by 720 logical-pixel dialog with a 560 by 600 minimum, shared Soft Utility Canvas, and vertical AutoScroll fallback.
+- **Grouping:** A top-docked auto-sized table stack holds auto-height native group boxes for Startup, Notifications, Global Hotkey, Menu Appearance, Shortcuts Management, and About.
 - **Inputs:** Native check boxes, drop-down lists, numeric steppers, file dialog, and buttons preserve Windows interaction and focus behavior.
-- **Appearance controls:** Item height accepts 32–72 in steps of 2; text size accepts 9–18pt in steps of 0.5pt; the 40-pixel logo preview centers a 32-pixel bitmap.
-- **Actions:** Standard 28-pixel-high buttons; OK is the accept action and Cancel is the cancel action.
+- **Responsive rows:** Hotkey, logo-action, and setting rows wrap horizontally when width is constrained; file-path labels ellipsize, and About copy grows vertically instead of clipping.
+- **Appearance controls:** Item height accepts 32–72 in steps of 2; text size accepts 9–18pt in steps of 0.5pt; both numeric inputs are 80 logical pixels wide, and the 40-pixel logo preview centers a 32-pixel bitmap.
+- **Actions:** Choose/Remove buttons have an 88 by 32 minimum, shortcut-management buttons have a 190 by 34 minimum, and footer buttons have a 96 by 34 minimum. OK is the accept action and Cancel is the cancel action.
 
 ## Do's and Don'ts
 
@@ -217,6 +224,8 @@ The recurring silhouette is a softly rounded 8-logical-pixel container or field 
 - **Do** scale logical menu geometry from the owning control's current DPI and keep persisted preferences unscaled.
 - **Do** use native WinForms controls and Windows visual styles for Settings unless implementation establishes a complete replacement system.
 - **Do** preserve visible default, hover/selected, pressed, disabled, separator, checked, and focused-search states.
+- **Do** clear a menu row to the base surface before drawing its current hover or pressed state.
+- **Do** keep Settings sections auto-sized, wrapping, and vertically scrollable at constrained sizes and higher DPI.
 
 ### Don't:
 
@@ -224,4 +233,5 @@ The recurring silhouette is a softly rounded 8-logical-pixel container or field 
 - **Don't** use blue as decoration, a row hover fill, or a general brand wash; it currently means focused text entry.
 - **Don't** add gradients, extra shadows, translucency, animation, or ornamental typography that is absent from the implementation.
 - **Don't** wrap menu labels or allow text size to change the configured minimum row rhythm.
+- **Don't** restore fixed-position Settings sections or fixed-height copy that clips when the window narrows or DPI increases.
 - **Don't** claim 100–200% DPI behavior is visually verified until the real GUI has been exercised on representative Windows displays.

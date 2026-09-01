@@ -93,6 +93,12 @@ namespace TaskFolder.Utilities
 
         protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
         {
+            // ToolStrip reuses the item surface while selection moves between rows.
+            // Always repaint the normal state first or the previous hover wash can
+            // remain visible until another dropdown receives mouse input.
+            using (var surfaceBrush = new SolidBrush(Windows11MenuStyle.Surface))
+                e.Graphics.FillRectangle(surfaceBrush, new Rectangle(Point.Empty, e.Item.Size));
+
             if (!e.Item.Selected) return;
 
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;

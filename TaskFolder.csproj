@@ -8,7 +8,7 @@
     <ApplicationIcon>Resources\TaskFolder.ico</ApplicationIcon>
     <AssemblyName>TaskFolder</AssemblyName>
     <RootNamespace>TaskFolder</RootNamespace>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>Your Name</Authors>
     <Company>TaskFolder</Company>
     <Product>TaskFolder</Product>
