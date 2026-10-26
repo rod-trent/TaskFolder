@@ -6,17 +6,26 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationIcon>Resources\TaskFolder.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Keep the runtime beside the app; do not extract executable libraries to Temp at launch. -->
+    <PublishSingleFile>false</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <AssemblyName>TaskFolder</AssemblyName>
     <RootNamespace>TaskFolder</RootNamespace>
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
     <Authors>Your Name</Authors>
     <Company>TaskFolder</Company>
     <Product>TaskFolder</Product>
-    <Description>Quick application launcher for Windows 11 taskbar</Description>
+    <Description>Windows application launcher with a tray menu and desktop widget</Description>
     <Copyright>Copyright © 2025</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="PowerMenuSmoke" />
+    <InternalsVisibleTo Include="CoreSmoke" />
+    <InternalsVisibleTo Include="ShellIntegrationSmoke" />
+    <InternalsVisibleTo Include="UiSmoke" />
+    <Compile Remove="tests\**\*.cs" />
     <!-- Copy icon file to output directory -->
     <None Update="Resources\TaskFolder.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

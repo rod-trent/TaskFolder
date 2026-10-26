@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="..\..\Services\WindowsIntegrationService.cs" Link="WindowsIntegrationService.cs" />
+    <Compile Include="..\..\Utilities\WindowsShellLink.cs" Link="WindowsShellLink.cs" />
+  </ItemGroup>
+</Project>

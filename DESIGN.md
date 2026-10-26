@@ -3,11 +3,11 @@ name: TaskFolder
 description: A crisp, DPI-aware Windows 11 tray launcher built from restrained Fluent utility surfaces.
 colors:
   focus-blue: "#0067C0"
-  menu-surface: "#F9F9F9"
+  menu-surface: "#FAFAFA"
   input-surface: "#F3F3F3"
-  border-subtle: "#D6D6D6"
+  border-subtle: "#CACACA"
   border-hover: "#ACACAC"
-  row-hover: "#E8E8E8"
+  row-hover: "#ECECEC"
   row-pressed: "#E0E0E0"
   text-primary: "#1F1F1F"
   text-muted: "#616161"
@@ -74,7 +74,7 @@ components:
 
 TaskFolder is a compact Windows utility, not a branded dashboard. Its visual system replaces legacy Win32 menu chrome with a restrained Windows 11-inspired surface while preserving the speed, density, hierarchy, and interaction model users expect from a tray launcher. The root tray menu, category and profile submenus, and shortcut context menus must feel like one continuous native system.
 
-The design is quiet and functional: warm-neutral surfaces, crisp dark text, soft corners, one-pixel structure, and a single blue focus signal. Shortcut icons and the optional user-selected logo carry the visual identity; decoration must never compete with scanability or one-click launching.
+The design is quiet and functional: a light neutral surface, crisp dark text, soft corners, one outer outline, and a single blue focus signal reserved for text entry. Shortcut icons and the optional user-selected logo carry the visual identity; decoration must never compete with scanability or one-click launching.
 
 The tokens and component behavior below were extracted from the WinForms/GDI implementation. Static review and the Release build passed with a SHIP disposition; actual Windows GUI appearance at 100–200% display scaling remains to be verified on representative monitors.
 
@@ -83,7 +83,7 @@ The tokens and component behavior below were extracted from the WinForms/GDI imp
 - Compact, readable Windows 11 utility density.
 - One renderer across root, nested, and right-click menus.
 - Adjustable menu type and row height stored as device-local logical values.
-- Solid tonal states, precise dividers, and OS-provided menu shadow.
+- Solid gray hover states, precise dividers, and OS-provided menu shadow.
 - Resizable, scroll-safe Settings sections built from native adaptive layout panels.
 
 ## Colors
@@ -98,7 +98,7 @@ The palette is almost entirely neutral. Blue is reserved for active keyboard/tex
 
 - **Soft Utility Canvas:** Carries every menu surface and the Settings dialog background.
 - **Inset Search Surface:** Separates the search field from the menu without a card or shadow.
-- **Quiet Structure:** Defines the outer menu border, idle search border, settings logo preview, and separators.
+- **Quiet Structure:** Defines the single outer menu border, idle search border, settings logo preview, and separators.
 - **Responsive Gray:** Replaces Quiet Structure on search hover and communicates pointer readiness without color.
 - **Hover Wash:** Fills selected rows and checked-item backgrounds.
 - **Pressed Wash:** Deepens the row or checked-item fill during activation.
@@ -138,7 +138,7 @@ The tray menu is a single compact vertical stack. Its container uses md-radius c
 
 Menu rows default to 36 logical pixels and may be set from 32 through 72 in two-pixel increments. The full menu tree uses the same row-height and font preferences. Row hover geometry is inset by the xs spacing step on each horizontal edge and half that amount vertically, preventing selected fills from touching the menu border.
 
-Separators begin and end at the lg spacing inset. Category, Most Used, Recently Used, and Switch Profile entries open nested menus; shortcut rows also expose a right-click context menu. All descendants use the same surface, typography, row sizing, and renderer rather than falling back to legacy submenu chrome.
+Separators begin and end at the lg spacing inset. Folders at every depth, Most Used, Recently Used, and Switch Profile entries open nested menus; shortcut rows also expose a right-click context menu. Intermediate and empty folders remain visible, with an explicit disabled empty state where necessary. All descendants use the same surface, typography, row sizing, and renderer rather than falling back to legacy submenu chrome.
 
 Settings opens as a resizable 620 by 720 logical-pixel shell with a 560 by 600 minimum and `AutoScaleMode.Dpi`. A fill-docked scroll host provides vertical overflow fallback, while a top-docked, single-column `TableLayoutPanel` grows to the real content height. Auto-sized native group boxes form the vertical sections with 8-pixel gaps; the right-aligned OK/Cancel footer remains the final content row.
 
@@ -150,7 +150,7 @@ Hotkey fields, logo actions, and item-height/text-size setting rows use wrapping
 
 ## Elevation & Depth
 
-The system is flat inside each surface. Depth comes from the rounded one-pixel menu outline, the inset search surface, tonal interaction fills, and the native Windows drop shadow enabled on each context menu. There are no custom shadow values, gradients, translucency, or animated elevation tokens in the implementation.
+The system is flat inside each surface. Depth comes from one rounded painted outline, the inset search surface, tonal interaction fills, and the native Windows drop shadow enabled on each context menu. Native border and client-edge styles are removed so they cannot draw a second contour. Hover washes ease into place with a short inset transition when Windows menu animation and fading are enabled; the effect becomes immediate when either system preference is disabled. There are no custom shadow values, gradients, translucency, or animated elevation tokens in the implementation.
 
 **The Native Shadow Rule.** Let Windows own context-menu shadow rendering; do not approximate it with a second custom shadow layer.
 
@@ -166,13 +166,13 @@ The recurring silhouette is a softly rounded 8-logical-pixel container or field 
 
 - **Character:** A compact rounded utility surface with a quiet outline and native drop shadow.
 - **Content:** Optional logo header, search, dynamic shortcut sections, utility actions, Settings, and Exit.
-- **Behavior:** Uses the manager-level renderer so automatically created dropdowns match the root surface.
+- **Behavior:** Root, nested, and shortcut context menus receive the shared renderer directly. The icon margin keeps alignment without painting a separate vertical stripe.
 - **DPI:** Padding, clipping radius, row metrics, search size, and separator insets scale from the menu's current `DeviceDpi`.
 
 ### Menu Rows
 
 - **Default:** Soft Utility Canvas with Primary Ink and left-aligned icon/text.
-- **Hover / Selected:** Inset Hover Wash with the smaller item radius.
+- **Hover / Selected:** Inset Hover Wash with the smaller item radius and a short system-aware ease-in.
 - **Pressed:** Inset Pressed Wash with the same silhouette.
 - **Repaint:** The renderer clears the complete item rectangle to Soft Utility Canvas before drawing any optional state wash.
 - **Disabled / Empty:** Unavailable Ink, no activation, and the same vertical rhythm.
@@ -181,8 +181,8 @@ The recurring silhouette is a softly rounded 8-logical-pixel container or field 
 
 ### Nested and Context Menus
 
-- **Nested navigation:** Category, Most Used, Recently Used, and profile rows use muted native arrows.
-- **Checked state:** The active profile uses the shared neutral hover/pressed fills behind the native check indicator.
+- **Nested navigation:** Recursive folder, Most Used, Recently Used, and profile rows use muted native arrows. Folder rows use one consistent warm folder glyph to make hierarchy scannable.
+- **Checked state:** The active profile uses a neutral rounded check treatment without a system-blue or glossy indicator.
 - **Shortcut context:** Rename, Remove, Open File Location, Change Icon, Move Up, and Move Down use identical menu rows and separators.
 - **Consistency:** Submenus create the same context-menu class with the same font size and renderer; no descendant may use a separate color table.
 

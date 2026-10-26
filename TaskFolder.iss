@@ -1,214 +1,101 @@
-; Inno Setup Script for TaskFolder
-; Quick application launcher for Windows 11 taskbar
-
+; Per-user Windows 10/11 installer. Compile after publishing the win-x64 app.
 #define MyAppName "TaskFolder"
-#define MyAppVersion "1.2.1"
+#define MyAppVersion "1.3.0"
+#define MyAppFileVersion "1.3.0.0"
 #define MyAppPublisher "TaskFolder"
-#define MyAppURL "https://github.com/rod-trent/TaskFolder"
+#define MyAppURL "https://github.com/sorrowwind/TaskFolder"
 #define MyAppExeName "TaskFolder.exe"
-#define MyAppIconName "TaskFolder.ico"
-
-; ============================================
-; CONFIGURE YOUR PUBLISH PATH HERE
-; ============================================
-; Change this to match where your TaskFolder.exe is located
-; Common options:
-;   "bin\Release\net8.0-windows\publish"
-;   "bin\Release\net8.0-windows\win-x64\publish"
-;   Or use full path: "C:\Code\TaskFolder\bin\Release\net8.0-windows\publish"
-
-#define PublishPath "C:\Code\TaskFolder\bin\Release\net8.0-windows\win-x64\publish"
+#define MyAppUserModelID "TaskFolder.TaskFolder"
+#ifndef PublishPath
+  #define PublishPath "bin\Release\net8.0-windows\win-x64\publish-folder"
+#endif
 
 [Setup]
-; NOTE: The value of AppId uniquely identifies this application.
-; Do not use the same AppId value in installers for other applications.
-; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{YOUR-GUID-HERE}}
+AppId={{D461C0F5-36E3-40D1-A110-0F6422B0BBA4}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} {#MyAppVersion}
+VersionInfoVersion={#MyAppFileVersion}
+VersionInfoTextVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\{#MyAppName}
+DefaultDirName={localappdata}\Programs\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-;LicenseFile=LICENSE.txt
-; Uncomment the following line to run in non administrative install mode (install for current user only.)
-;PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
+DisableDirPage=auto
+PrivilegesRequired=lowest
 OutputDir=installer
-OutputBaseFilename=TaskFolder-Setup-{#MyAppVersion}
-;SetupIconFile=Resources\{#MyAppIconName}
-Compression=lzma2/max
+OutputBaseFilename=TaskFolder-Setup-{#MyAppVersion}-win-x64
+SetupIconFile=Resources\TaskFolder.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayName={#MyAppName}
+Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-MinVersion=10.0.22000
-;UninstallDisplayIcon={app}\{#MyAppIconName}
+MinVersion=10.0
+AppMutex=TaskFolder_SingleInstance
+CloseApplications=yes
+RestartApplications=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "startup"; Description: "Run {#MyAppName} at Windows startup"; GroupDescription: "Startup Options:"; Flags: unchecked
+Name: "startup"; Description: "Start TaskFolder when I sign in to Windows"; GroupDescription: "Startup:"; Flags: unchecked
 
 [Files]
-; Main application files - uses the PublishPath defined above
-Source: "{#PublishPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-; Documentation
-Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#PublishPath}\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "docs\usability-upgrade.md"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "docs\desktop-widget.md"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "docs\menu-motion.md"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "docs\releases\1.3.0.md"; DestDir: "{app}\docs\releases"; Flags: ignoreversion
+Source: "LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{userprograms}\{#MyAppName}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--settings"; WorkingDir: "{app}"; IconFilename: "{app}\{#MyAppExeName}"; AppUserModelID: "{#MyAppUserModelID}"; Comment: "Windows application launcher"
+Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--settings"; WorkingDir: "{app}"; AppUserModelID: "{#MyAppUserModelID}"; Tasks: desktopicon
 
 [Registry]
-; Run at startup if task is selected
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startup
-
-; Configure system tray icon behavior for Windows 11
-; Note: The actual icon visibility is stored in a binary format that Windows manages
-; This registry setting helps ensure the app's notifications are enabled
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\{#MyAppName}"; ValueType: dword; ValueName: "Enabled"; ValueData: 1; Flags: createvalueifdoesntexist uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\{#MyAppName}"; ValueType: dword; ValueName: "ShowInActionCenter"; ValueData: 1; Flags: createvalueifdoesntexist
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"" --startup"; Tasks: startup
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\{#MyAppExeName}"; ValueType: string; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\{#MyAppExeName}"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
-[UninstallDelete]
-Type: filesandordirs; Name: "{localappdata}\{#MyAppName}"
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--settings"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
-function InitializeSetup(): Boolean;
-var
-  Version: TWindowsVersion;
-begin
-  GetWindowsVersionEx(Version);
-  
-  // Check for Windows 11 (Build 22000+)
-  if (Version.Major < 10) or ((Version.Major = 10) and (Version.Build < 22000)) then
-  begin
-    MsgBox('This application requires Windows 11 or later.' + #13#13 + 
-           'Your Windows version: ' + IntToStr(Version.Major) + '.' + IntToStr(Version.Minor) + 
-           ' (Build ' + IntToStr(Version.Build) + ')', mbError, MB_OK);
-    Result := False;
-  end
-  else
-  begin
-    Result := True;
-  end;
-end;
+const
+  StartupKey = 'Software\Microsoft\Windows\CurrentVersion\Run';
 
-function InitializeUninstall(): Boolean;
-var
-  ResultCode: Integer;
+procedure InitializeWizard();
 begin
-  // Check if application is running
-  if CheckForMutexes('{#MyAppName}Mutex') then
-  begin
-    if MsgBox('{#MyAppName} is currently running. Please close it before uninstalling.' + #13#13 + 
-              'Would you like to attempt to close it now?', mbConfirmation, MB_YESNO) = IDYES then
-    begin
-      // Try to terminate the process
-      Exec('taskkill.exe', '/F /IM {#MyAppExeName}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-      Sleep(1000);
-    end
-    else
-    begin
-      Result := False;
-      Exit;
-    end;
-  end;
-  Result := True;
+  // Carry over startup selected in the app, not only the previous installer's task list.
+  if RegValueExists(HKCU, StartupKey, '{#MyAppName}') then
+    WizardSelectTasks('startup');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
-var
-  ResultCode: Integer;
-  PowerShellScript: String;
-  ScriptPath: String;
 begin
-  if CurStep = ssPostInstall then
-  begin
-    // Configure Windows 11 to show TaskFolder icon in system tray by default
-    // This sets the toggle to "On" in Settings > Personalization > Taskbar > Other system tray icons
-    
-    ScriptPath := ExpandConstant('{tmp}\ConfigureTrayIcon.ps1');
-    PowerShellScript := 
-      '# Enable TaskFolder system tray icon in Windows 11' + #13#10 +
-      '$appPath = "' + ExpandConstant('{app}\{#MyAppExeName}') + '"' + #13#10 +
-      '' + #13#10 +
-      'try {' + #13#10 +
-      '    # Method 1: Enable notification area icon via SystemTray registry' + #13#10 +
-      '    $explorerPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"' + #13#10 +
-      '    ' + #13#10 +
-      '    # Ensure the key exists' + #13#10 +
-      '    if (-not (Test-Path "$explorerPath\TrayNotify")) {' + #13#10 +
-      '        New-Item -Path "$explorerPath\TrayNotify" -Force | Out-Null' + #13#10 +
-      '    }' + #13#10 +
-      '    ' + #13#10 +
-      '    # Method 2: Clear the icon cache to force Windows to re-detect all tray icons' + #13#10 +
-      '    # When Windows rebuilds, new apps default to "On"' + #13#10 +
-      '    $regPath = "HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\TrayNotify"' + #13#10 +
-      '    ' + #13#10 +
-      '    if (Test-Path $regPath) {' + #13#10 +
-      '        # Backup current settings' + #13#10 +
-      '        $iconStreams = Get-ItemProperty -Path $regPath -Name "IconStreams" -ErrorAction SilentlyContinue' + #13#10 +
-      '        $pastIcons = Get-ItemProperty -Path $regPath -Name "PastIconsStream" -ErrorAction SilentlyContinue' + #13#10 +
-      '        ' + #13#10 +
-      '        # Remove the binary data that controls icon visibility' + #13#10 +
-      '        Remove-ItemProperty -Path $regPath -Name "IconStreams" -ErrorAction SilentlyContinue' + #13#10 +
-      '        Remove-ItemProperty -Path $regPath -Name "PastIconsStream" -ErrorAction SilentlyContinue' + #13#10 +
-      '        ' + #13#10 +
-      '        Write-Host "System tray icon cache cleared successfully"' + #13#10 +
-      '        ' + #13#10 +
-      '        # Restart Explorer to rebuild the icon list' + #13#10 +
-      '        Write-Host "Restarting Windows Explorer to apply changes..."' + #13#10 +
-      '        Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue' + #13#10 +
-      '        Start-Sleep -Seconds 2' + #13#10 +
-      '        Start-Process explorer.exe' + #13#10 +
-      '        Start-Sleep -Seconds 1' + #13#10 +
-      '        ' + #13#10 +
-      '        Write-Host "TaskFolder will now show in the system tray by default"' + #13#10 +
-      '    } else {' + #13#10 +
-      '        Write-Host "Registry path not found - icon will be visible on first run"' + #13#10 +
-      '    }' + #13#10 +
-      '    ' + #13#10 +
-      '    # Method 3: Set notification settings to ensure the app can show icons' + #13#10 +
-      '    $notificationPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\{#MyAppName}"' + #13#10 +
-      '    if (-not (Test-Path $notificationPath)) {' + #13#10 +
-      '        New-Item -Path $notificationPath -Force | Out-Null' + #13#10 +
-      '    }' + #13#10 +
-      '    Set-ItemProperty -Path $notificationPath -Name "Enabled" -Value 1 -Type DWord -Force' + #13#10 +
-      '    Set-ItemProperty -Path $notificationPath -Name "ShowInActionCenter" -Value 1 -Type DWord -Force' + #13#10 +
-      '    ' + #13#10 +
-      '} catch {' + #13#10 +
-      '    Write-Host "Warning: Could not configure system tray - $($_.Exception.Message)"' + #13#10 +
-      '    Write-Host "You may need to manually enable the icon in Settings > Taskbar"' + #13#10 +
-      '}' + #13#10;
-    
-    SaveStringToFile(ScriptPath, PowerShellScript, False);
-    
-    // Execute the PowerShell script
-    Exec('powershell.exe', '-ExecutionPolicy Bypass -WindowStyle Hidden -File "' + ScriptPath + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-  end;
+  if (CurStep = ssPostInstall) and not WizardIsTaskSelected('startup') then
+    RegDeleteValue(HKCU, StartupKey, '{#MyAppName}');
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  Command: String;
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    // Clean up any remaining files or registry entries
-    if MsgBox('Do you want to remove all TaskFolder settings and data?', mbConfirmation, MB_YESNO) = IDYES then
-    begin
-      DelTree(ExpandConstant('{localappdata}\{#MyAppName}'), True, True, True);
-    end;
+    // Leave a startup entry alone if the user has registered a different portable copy.
+    if RegQueryStringValue(HKCU, StartupKey, '{#MyAppName}', Command) then
+      if Pos(Lowercase('"' + ExpandConstant('{app}\{#MyAppExeName}') + '"'), Lowercase(Command)) = 1 then
+        RegDeleteValue(HKCU, StartupKey, '{#MyAppName}');
+    // User profiles, shortcuts and metadata in %APPDATA% are intentionally preserved.
   end;
 end;

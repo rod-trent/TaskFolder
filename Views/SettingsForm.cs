@@ -1,9 +1,10 @@
+using L = TaskFolder.Services.LocalizationService;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Microsoft.Win32;
 using TaskFolder.Services;
+using TaskFolder.Models;
 using TaskFolder.Utilities;
 
 namespace TaskFolder.Views
@@ -11,16 +12,29 @@ namespace TaskFolder.Views
     /// <summary>
     /// Settings dialog for TaskFolder.
     /// </summary>
-    public partial class SettingsForm : Form
+    public partial class SettingsForm : ThemedForm
     {
         private readonly ShortcutManager _shortcutManager;
         private readonly SettingsService _settingsService;
         private readonly HotkeyService _hotkeyService;
+        private readonly WindowsIntegrationService _windowsIntegration;
+        private bool _startupWasRegistered;
+        private bool _startupReadFailed;
+        private Label _lblWindowsRegistration;
         private Font _uiFont;
+        private SettingsDraft _settingsDraft;
 
         // Controls
         private CheckBox _chkAutoStart;
         private CheckBox _chkShowNotifications;
+        private CheckBox _chkTaskbarButton;
+        private CheckBox _chkTaskbarHover;
+        private CheckBox _chkShowRecent;
+        private CheckBox _chkShowMostUsed;
+        private ComboBox _language, _theme;
+        private CheckBox _widgetLocked;
+        private NumericUpDown _hoverDelay;
+        private NumericUpDown _widgetSize, _menuHideDelay;
 
         private CheckBox _chkHotkeyEnabled;
         private ComboBox _cboModifiers;
@@ -47,6 +61,7 @@ namespace TaskFolder.Views
             _shortcutManager = shortcutManager;
             _settingsService = settingsService;
             _hotkeyService = hotkeyService;
+            _windowsIntegration = new WindowsIntegrationService(settingsService.IsPortable);
             InitializeComponent();
             LoadSettings();
         }
@@ -54,12 +69,13 @@ namespace TaskFolder.Views
         private void InitializeComponent()
         {
             SuspendLayout();
-            Text = "TaskFolder Settings";
+            Text = L.Text("TaskFolder Settings");
             ClientSize = new Size(620, 720);
             MinimumSize = new Size(560, 600);
             FormBorderStyle = FormBorderStyle.Sizable;
             MaximizeBox = true;
             MinimizeBox = false;
+            ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterScreen;
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoScroll = false;
@@ -91,25 +107,105 @@ namespace TaskFolder.Views
             // ── Startup ──────────────────────────────────────────────────────────
             _chkAutoStart = new CheckBox
             {
-                Text = "Start TaskFolder when Windows starts",
+                Text = L.Text("Start TaskFolder when I sign in to Windows"),
                 AutoSize = true,
                 Margin = Padding.Empty
             };
-            content.Controls.Add(CreateSection("Startup", _chkAutoStart));
+            var integrationLayout = new FlowLayoutPanel
+            {
+                AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown, WrapContents = false
+            };
+            _lblWindowsRegistration = new Label
+            {
+                AutoSize = true, MaximumSize = new Size(460, 0), Margin = new Padding(0, 8, 0, 8)
+            };
+            var repairButton = new Button
+            {
+                Text = L.Text("Repair Windows integration"), AutoSize = true, MinimumSize = new Size(190, 34)
+            };
+            repairButton.Click += (_, _) => RepairWindowsIntegration();
+            var startupSettings = new LinkLabel
+            {
+                Text = L.Text("Windows startup settings"), AutoSize = true, Margin = new Padding(0, 8, 0, 4)
+            };
+            startupSettings.LinkClicked += (_, _) => OpenWindowsSettings("ms-settings:startupapps");
+            var traySettings = new LinkLabel
+            {
+                Text = L.Text("Windows taskbar and system tray settings"), AutoSize = true
+            };
+            traySettings.LinkClicked += (_, _) => OpenWindowsSettings("ms-settings:taskbar");
+            integrationLayout.Controls.Add(_chkAutoStart);
+            integrationLayout.Controls.Add(_lblWindowsRegistration);
+            integrationLayout.Controls.Add(repairButton);
+            integrationLayout.Controls.Add(startupSettings);
+            integrationLayout.Controls.Add(traySettings);
+            content.Controls.Add(CreateSection(L.Text("Windows Integration"), integrationLayout));
+
+            _chkTaskbarButton = new CheckBox
+            {
+                Text = L.Text("Show desktop TaskFolder widget"), AutoSize = true
+            };
+            _chkTaskbarHover = new CheckBox
+            {
+                Text = L.Text("Open menu on hover"), AutoSize = true
+            };
+            _chkTaskbarButton.CheckedChanged += (_, _) => UpdateWidgetControls();
+            _chkTaskbarHover.CheckedChanged += (_, _) => UpdateWidgetControls();
+            var taskbarLayout = new FlowLayoutPanel
+            {
+                AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown, WrapContents = false
+            };
+            taskbarLayout.Controls.Add(_chkTaskbarButton);
+            taskbarLayout.Controls.Add(_chkTaskbarHover);
+            _widgetLocked = new CheckBox { Text = L.Text("Lock widget position"), AutoSize = true };
+            _hoverDelay = new NumericUpDown { Minimum = 100, Maximum = 1500, Increment = 50, Width = 100 };
+            _widgetSize = new NumericUpDown { Minimum = 50, Maximum = 200, Increment = 10, Width = 100,
+                AccessibleName = L.Text("Widget size:") };
+            _menuHideDelay = new NumericUpDown { Minimum = 200, Maximum = 2000, Increment = 100, Width = 100,
+                AccessibleName = L.Text("Menu hide delay:") };
+            taskbarLayout.Controls.Add(_widgetLocked);
+            taskbarLayout.Controls.Add(CreateSettingRow(L.Text("Widget size:"), _widgetSize, "% (50–200)"));
+            taskbarLayout.Controls.Add(CreateSettingRow(L.Text("Hover delay:"), _hoverDelay, L.Text("ms (100–1500)")));
+            taskbarLayout.Controls.Add(CreateSettingRow(L.Text("Menu hide delay:"), _menuHideDelay, L.Text("ms (200–2000)")));
+            taskbarLayout.Controls.Add(new Label { Text = L.Text("Hover menus hide after the pointer leaves the widget and menu. Returning cancels the countdown; keyboard input keeps the menu open."),
+                AutoSize = true, MaximumSize = new Size(450, 0), Margin = new Padding(0, 6, 0, 0) });
+            taskbarLayout.Controls.Add(new Label
+            {
+                Text = L.Text("Drag anywhere on the desktop; position is saved. The widget stays below applications. Use the tray icon while working in an app. Right-click for Settings."),
+                AutoSize = true, MaximumSize = new Size(450, 0), Margin = new Padding(0, 6, 0, 0)
+            });
+            content.Controls.Add(CreateSection(L.Text("Desktop widget"), taskbarLayout));
 
             // ── Notifications ────────────────────────────────────────────────────
             _chkShowNotifications = new CheckBox
             {
-                Text = "Show a balloon tip when an application is launched",
+                Text = L.Text("Show a balloon tip when an application is launched"),
                 AutoSize = true,
                 Margin = Padding.Empty
             };
-            content.Controls.Add(CreateSection("Notifications", _chkShowNotifications));
+            content.Controls.Add(CreateSection(L.Text("Notifications"), _chkShowNotifications));
+            _chkShowRecent = new CheckBox { Text = LocalizationService.Get("Settings_ShowRecent", _settingsService.Settings.Language), AutoSize = true };
+            _chkShowMostUsed = new CheckBox { Text = LocalizationService.Get("Settings_ShowMostUsed", _settingsService.Settings.Language), AutoSize = true };
+            var history = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown, WrapContents = false };
+            history.Controls.Add(_chkShowRecent);
+            history.Controls.Add(_chkShowMostUsed);
+            content.Controls.Add(CreateSection(LocalizationService.Get("Settings_History", _settingsService.Settings.Language), history));
+            _language = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 190 };
+            _theme = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 190 };
+            _language.Items.AddRange(new object[] { "System", "English", "Русский" }); _theme.Items.AddRange(new object[] { "System", "Light", "Dark" });
+            _language.Format += (_, args) => args.Value = L.Text(args.ListItem.ToString()); _theme.Format += (_, args) => args.Value = L.Text(args.ListItem.ToString());
+            _language.FormattingEnabled = _theme.FormattingEnabled = true;
+            var presentation = new FlowLayoutPanel { AutoSize = true, WrapContents = true };
+            presentation.Controls.AddRange(new Control[] { CreateInlineLabel(L.Text("Language")), _language, CreateInlineLabel(L.Text("Theme")), _theme });
+            content.Controls.Add(CreateSection(L.Text("Language and theme"), presentation));
 
             // ── Global Hotkey ────────────────────────────────────────────────────
             _chkHotkeyEnabled = new CheckBox
             {
-                Text = "Enable global hotkey",
+                Text = L.Text("Enable global hotkey"),
                 AutoSize = true,
                 Margin = new Padding(0, 0, 0, 8)
             };
@@ -142,9 +238,9 @@ namespace TaskFolder.Views
                 WrapContents = true,
                 Margin = Padding.Empty
             };
-            hotkeyFields.Controls.Add(CreateInlineLabel("Modifiers:"));
+            hotkeyFields.Controls.Add(CreateInlineLabel(L.Text("Modifiers:")));
             hotkeyFields.Controls.Add(_cboModifiers);
-            hotkeyFields.Controls.Add(CreateInlineLabel("Key:"));
+            hotkeyFields.Controls.Add(CreateInlineLabel(L.Text("Key:")));
             hotkeyFields.Controls.Add(_cboKey);
             var hotkeyLayout = new TableLayoutPanel
             {
@@ -157,7 +253,7 @@ namespace TaskFolder.Views
             };
             hotkeyLayout.Controls.Add(_chkHotkeyEnabled, 0, 0);
             hotkeyLayout.Controls.Add(hotkeyFields, 0, 1);
-            content.Controls.Add(CreateSection("Global Hotkey (pops the tray menu)", hotkeyLayout));
+            content.Controls.Add(CreateSection(L.Text("Global Hotkey (pops the tray menu)"), hotkeyLayout));
 
             // ── Menu appearance ──────────────────────────────────────────────────
             _picMenuLogo = new PictureBox
@@ -171,13 +267,13 @@ namespace TaskFolder.Views
             {
                 Dock = DockStyle.Fill,
                 AutoEllipsis = true,
-                Text = "No logo selected",
+                Text = L.Text("No logo selected"),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Margin = new Padding(0, 0, 8, 6)
             };
             _btnChooseMenuLogo = new Button
             {
-                Text = "Choose...",
+                Text = L.Text("Choose..."),
                 AutoSize = true,
                 MinimumSize = new Size(88, 32),
                 Margin = new Padding(0, 0, 6, 6)
@@ -202,7 +298,7 @@ namespace TaskFolder.Views
             };
             _btnRemoveMenuLogo = new Button
             {
-                Text = "Remove",
+                Text = L.Text("Remove"),
                 AutoSize = true,
                 MinimumSize = new Size(88, 32),
                 Margin = new Padding(0, 0, 0, 6)
@@ -231,7 +327,7 @@ namespace TaskFolder.Views
             logoLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             logoLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             logoLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-            logoLayout.Controls.Add(CreateInlineLabel("Header logo:"), 0, 0);
+            logoLayout.Controls.Add(CreateInlineLabel(L.Text("Header logo:")), 0, 0);
             logoLayout.Controls.Add(_picMenuLogo, 1, 0);
             logoLayout.Controls.Add(_lblMenuLogoFile, 2, 0);
             logoLayout.Controls.Add(logoActions, 0, 1);
@@ -247,15 +343,15 @@ namespace TaskFolder.Views
             };
             appearanceLayout.Controls.Add(logoLayout, 0, 0);
             appearanceLayout.Controls.Add(CreateSettingRow(
-                "Item height:", _numMenuItemHeight, "px — larger rows are easier to click"), 0, 1);
+                L.Text("Item height:"), _numMenuItemHeight, L.Text("px — larger rows are easier to click")), 0, 1);
             appearanceLayout.Controls.Add(CreateSettingRow(
-                "Text size:", _numMenuFontSize, "pt — menu, search, and submenus"), 0, 2);
-            content.Controls.Add(CreateSection("Menu Appearance", appearanceLayout));
+                L.Text("Text size:"), _numMenuFontSize, L.Text("pt — menu, search, and submenus")), 0, 2);
+            content.Controls.Add(CreateSection(L.Text("Menu Appearance"), appearanceLayout));
 
             // ── Shortcuts Management ─────────────────────────────────────────────
             _btnOpenFolder = new Button
             {
-                Text = "Open Shortcuts Folder",
+                Text = L.Text("Open Shortcuts Folder"),
                 AutoSize = true,
                 Dock = DockStyle.Fill,
                 MinimumSize = new Size(190, 34),
@@ -264,7 +360,7 @@ namespace TaskFolder.Views
             _btnOpenFolder.Click += BtnOpenFolder_Click;
             _btnClearShortcuts = new Button
             {
-                Text = "Remove All Shortcuts",
+                Text = L.Text("Remove All Shortcuts"),
                 AutoSize = true,
                 Dock = DockStyle.Fill,
                 MinimumSize = new Size(190, 34),
@@ -273,7 +369,7 @@ namespace TaskFolder.Views
             _btnClearShortcuts.Click += BtnClearShortcuts_Click;
             var lblFolder = new Label
             {
-                Text = $"Folder: {_shortcutManager.ShortcutsFolder}",
+                Text = L.Text("Folder: {0}", _shortcutManager.ShortcutsFolder),
                 Dock = DockStyle.Fill,
                 AutoEllipsis = true,
                 AutoSize = false,
@@ -296,25 +392,24 @@ namespace TaskFolder.Views
             shortcutsLayout.Controls.Add(_btnClearShortcuts, 1, 0);
             shortcutsLayout.Controls.Add(lblFolder, 0, 1);
             shortcutsLayout.SetColumnSpan(lblFolder, 2);
-            content.Controls.Add(CreateSection("Shortcuts Management", shortcutsLayout));
+            content.Controls.Add(CreateSection(L.Text("Shortcuts Management"), shortcutsLayout));
 
             // ── About ────────────────────────────────────────────────────────────
             var aboutLabel = new Label
             {
-                Text = "TaskFolder v1.2.1 — Windows 11 Application Launcher — MIT License",
+                Text = L.Text("TaskFolder {0} — Windows application launcher — MIT License", typeof(SettingsForm).Assembly.GetName().Version?.ToString(3)),
                 Dock = DockStyle.Top,
                 AutoSize = true,
                 MaximumSize = new Size(460, 0),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Margin = Padding.Empty
             };
-            content.Controls.Add(CreateSection("About", aboutLabel));
+            content.Controls.Add(CreateSection(L.Text("About"), aboutLabel));
 
             // ── Buttons ──────────────────────────────────────────────────────────
             _btnOK = new Button
             {
-                Text = "OK",
-                DialogResult = DialogResult.OK,
+                Text = L.Text("OK"),
                 AutoSize = true,
                 MinimumSize = new Size(96, 34),
                 Margin = new Padding(8, 0, 0, 0)
@@ -322,7 +417,7 @@ namespace TaskFolder.Views
             _btnOK.Click += BtnOK_Click;
             _btnCancel = new Button
             {
-                Text = "Cancel",
+                Text = L.Text("Cancel"),
                 DialogResult = DialogResult.Cancel,
                 AutoSize = true,
                 MinimumSize = new Size(96, 34),
@@ -339,6 +434,15 @@ namespace TaskFolder.Views
             };
             footer.Controls.Add(_btnCancel);
             footer.Controls.Add(_btnOK);
+            var reload = new Button { Text = L.Text("Reload saved settings"), AutoSize = true, MinimumSize = new Size(96, 34) };
+            reload.Click += (_, _) =>
+            {
+                if (MessageBox.Show(this, L.Text("Reload saved settings and replace the input in this window?"), L.Text("Reload settings"),
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                try { _settingsService.Load(); LoadSettings(); }
+                catch (Exception ex) { MessageBox.Show(this, ex.Message, L.Text("Settings could not be reloaded"), MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            };
+            footer.Controls.Add(reload);
             content.Controls.Add(footer);
 
             AcceptButton = _btnOK;
@@ -396,10 +500,30 @@ namespace TaskFolder.Views
             return row;
         }
 
+        private void UpdateWidgetControls()
+        {
+            if (_widgetSize == null || _menuHideDelay == null || _hoverDelay == null || _widgetLocked == null) return;
+            bool enabled = _chkTaskbarButton.Checked;
+            _chkTaskbarHover.Enabled = enabled;
+            _widgetSize.Enabled = enabled;
+            _widgetLocked.Enabled = enabled;
+            _hoverDelay.Enabled = _menuHideDelay.Enabled = enabled && _chkTaskbarHover.Checked;
+        }
+
         private void LoadSettings()
         {
-            _chkAutoStart.Checked = IsAutoStartEnabled();
+            RefreshWindowsRegistration();
             _chkShowNotifications.Checked = _settingsService.Settings.ShowNotifications;
+            _chkShowRecent.Checked = _settingsService.Settings.ShowRecent;
+            _chkShowMostUsed.Checked = _settingsService.Settings.ShowMostUsed;
+            _language.SelectedItem = _settingsService.Settings.Language; _theme.SelectedItem = _settingsService.Settings.Theme;
+            _chkTaskbarButton.Checked = _settingsService.Settings.TaskbarButtonEnabled;
+            _chkTaskbarHover.Checked = _settingsService.Settings.TaskbarHoverEnabled;
+            _widgetLocked.Checked = _settingsService.Settings.WidgetPositionLocked;
+            _hoverDelay.Value = Math.Clamp(_settingsService.Settings.WidgetHoverDelayMs, 100, 1500);
+            _widgetSize.Value = Math.Clamp(_settingsService.Settings.WidgetSizePercent, 50, 200);
+            _menuHideDelay.Value = Math.Clamp(_settingsService.Settings.WidgetMenuHideDelayMs, 200, 2000);
+            UpdateWidgetControls();
             _chkHotkeyEnabled.Checked = _settingsService.Settings.HotkeyEnabled;
             _numMenuItemHeight.Value = Math.Clamp(_settingsService.Settings.MenuItemHeight, 32, 72);
             _numMenuFontSize.Value = (decimal)Math.Clamp(_settingsService.Settings.MenuFontSize, 9f, 18f);
@@ -416,40 +540,66 @@ namespace TaskFolder.Views
             int keyIdx = _cboKey.Items.IndexOf(key);
             _cboKey.SelectedIndex = keyIdx >= 0 ? keyIdx : _cboKey.Items.IndexOf("T");
             if (_cboKey.SelectedIndex < 0) _cboKey.SelectedIndex = 0;
+            _settingsDraft = new SettingsDraft(_settingsService.Settings);
         }
 
-        private bool IsAutoStartEnabled()
+        private void RefreshWindowsRegistration()
         {
             try
             {
-                using var key = Registry.CurrentUser.OpenSubKey(
-                    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", false);
-                return key?.GetValue("TaskFolder") != null;
-            }
-            catch { return false; }
-        }
-
-        private void SetAutoStart(bool enable)
-        {
-            try
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(
-                    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-                if (enable)
-                {
-                    string exe = Environment.ProcessPath
-                        ?? System.IO.Path.Combine(AppContext.BaseDirectory, "TaskFolder.exe");
-                    key?.SetValue("TaskFolder", $"\"{exe}\"");
-                }
-                else
-                {
-                    key?.DeleteValue("TaskFolder", false);
-                }
+                _startupWasRegistered = _windowsIntegration.IsStartupRegistered;
+                _startupReadFailed = false;
+                _chkAutoStart.Enabled = true;
+                _chkAutoStart.Checked = _startupWasRegistered;
+                string startup = !_startupWasRegistered ? L.Text("Startup is not registered.")
+                    : _windowsIntegration.StartupTargetsCurrentCopy ? L.Text("Startup is registered for this copy.")
+                    : L.Text("Startup points to another path or uses old launch options. Use Repair to update it.");
+                string menu = File.Exists(_windowsIntegration.StartMenuShortcutPath)
+                    ? L.Text("A Start menu shortcut is registered.") : L.Text("Use Repair to add TaskFolder to the Start menu.");
+                _lblWindowsRegistration.Text = startup + " " + menu +
+                    L.Text(" Windows can disable startup separately; check Windows startup settings.") +
+                    (_settingsService.IsPortable ? L.Text(" Keep this portable copy in a permanent folder.") : string.Empty);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to update startup settings:\n{ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _startupReadFailed = true;
+                _chkAutoStart.Enabled = false;
+                _lblWindowsRegistration.Text = L.Text("Windows registration could not be read: {0}", ex.Message);
+            }
+        }
+
+        private void RepairWindowsIntegration()
+        {
+            try
+            {
+                if (!CheckSettingsDraft()) return;
+                if (_startupReadFailed)
+                    throw new InvalidOperationException(L.Text("Startup registration could not be read. Check your account permissions first."));
+                _windowsIntegration.RegisterStartMenuShortcut();
+                _windowsIntegration.SetStartupEnabled(_chkAutoStart.Checked);
+                _settingsService.Settings.StartWithWindows = _chkAutoStart.Checked;
+                _settingsService.Save();
+                _settingsDraft = new SettingsDraft(_settingsService.Settings);
+                RefreshWindowsRegistration();
+            }
+            catch (Exception ex)
+            {
+                RefreshWindowsRegistration();
+                MessageBox.Show(this, L.Text("Windows integration could not be fully updated:\n{0}", ex.Message),
+                    "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OpenWindowsSettings(string uri)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(uri) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, L.Text("Could not open Windows settings:\n{0}", ex.Message),
+                    "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -465,7 +615,7 @@ namespace TaskFolder.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to open folder:\n{ex.Message}",
+                MessageBox.Show(L.Text("Failed to open folder:\n{0}", ex.Message),
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -474,7 +624,7 @@ namespace TaskFolder.Views
         {
             using var dialog = new OpenFileDialog
             {
-                Title = "Select Menu Header Logo",
+                Title = L.Text("Select Menu Header Logo"),
                 Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico|All files (*.*)|*.*",
                 CheckFileExists = true
             };
@@ -501,8 +651,8 @@ namespace TaskFolder.Views
             _lblMenuLogoFile.Text = hasLogo
                 ? Path.GetFileName(_selectedMenuLogoPath)
                 : string.IsNullOrWhiteSpace(_selectedMenuLogoPath)
-                    ? "No logo selected"
-                    : "Logo file is unavailable";
+                    ? L.Text("No logo selected")
+                    : L.Text("Logo file is unavailable");
             _lblMenuLogoFile.Tag = _selectedMenuLogoPath;
             _btnRemoveMenuLogo.Enabled = !string.IsNullOrWhiteSpace(_selectedMenuLogoPath);
         }
@@ -510,8 +660,8 @@ namespace TaskFolder.Views
         private void BtnClearShortcuts_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-                "Remove all shortcuts in the current profile? This cannot be undone.",
-                "Confirm Clear Shortcuts",
+                L.Text("Remove all shortcuts in the current profile? Managed links can be restored through Recovery; targets and raw EXE files remain."),
+                L.Text("Confirm Clear Shortcuts"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
@@ -519,27 +669,46 @@ namespace TaskFolder.Views
 
             try
             {
-                foreach (var sc in _shortcutManager.GetAllShortcuts())
-                    _shortcutManager.RemoveShortcut(sc);
+                _shortcutManager.RemoveShortcuts(_shortcutManager.GetAllShortcuts());
 
-                MessageBox.Show("All shortcuts have been removed.",
+                MessageBox.Show(L.Text("All shortcuts have been removed."),
                     "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to clear shortcuts:\n{ex.Message}",
+                MessageBox.Show(L.Text("Failed to clear shortcuts:\n{0}", ex.Message),
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnOK_Click(object sender, EventArgs e)
         {
-            // Persist auto-start
-            SetAutoStart(_chkAutoStart.Checked);
-            _settingsService.Settings.StartWithWindows = _chkAutoStart.Checked;
+            if (!CheckSettingsDraft()) return;
+            // Do not rewrite registration when unrelated preferences are saved, or hide a failed write.
+            if (!_startupReadFailed && _chkAutoStart.Checked != _startupWasRegistered)
+            {
+                try { _windowsIntegration.SetStartupEnabled(_chkAutoStart.Checked); }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, L.Text("Startup could not be updated:\n{0}", ex.Message),
+                        "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            if (!_startupReadFailed)
+                _settingsService.Settings.StartWithWindows = _chkAutoStart.Checked;
 
             // Persist notifications
             _settingsService.Settings.ShowNotifications = _chkShowNotifications.Checked;
+            _settingsService.Settings.ShowRecent = _chkShowRecent.Checked;
+            _settingsService.Settings.ShowMostUsed = _chkShowMostUsed.Checked;
+            _settingsService.Settings.Language = _language.SelectedItem as string ?? "System"; _settingsService.Settings.Theme = _theme.SelectedItem as string ?? "System";
+            _settingsService.Settings.TaskbarButtonEnabled = _chkTaskbarButton.Checked;
+            _settingsService.Settings.TaskbarHoverEnabled = _chkTaskbarHover.Checked;
+            _settingsService.Settings.WidgetPositionLocked = _widgetLocked.Checked;
+            _settingsService.Settings.WidgetHoverDelayMs = (int)_hoverDelay.Value;
+            _settingsService.Settings.WidgetSizePercent = (int)_widgetSize.Value;
+            _settingsService.Settings.WidgetMenuHideDelayMs = (int)_menuHideDelay.Value;
 
             // Persist hotkey settings
             bool hotkeyEnabled = _chkHotkeyEnabled.Checked;
@@ -552,14 +721,42 @@ namespace TaskFolder.Views
             _settingsService.Settings.MenuHeaderLogoPath = _selectedMenuLogoPath;
             _settingsService.Settings.MenuItemHeight = (int)_numMenuItemHeight.Value;
             _settingsService.Settings.MenuFontSize = (float)_numMenuFontSize.Value;
-            _settingsService.Save();
+            var saveResult = _settingsService.TrySave();
+            if (!saveResult.Success)
+            {
+                MessageBox.Show(this, new StatePersistenceException(saveResult).Message + L.Text("\nYour input is still here."),
+                    "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             // Apply hotkey change
             _hotkeyService.Unregister();
             if (hotkeyEnabled)
                 _hotkeyService.Register(mods, key);
 
+            DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private bool CheckSettingsDraft()
+        {
+            try { _settingsService.Load(); }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, L.Text("Saved settings could not be checked"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            if (_settingsService.StateLoad.ReadOnly)
+            {
+                MessageBox.Show(this, new StatePersistenceException(_settingsService.StateLoad.Result).Message,
+                    L.Text("Saved settings need recovery"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            if (_settingsDraft == null || _settingsDraft.IsCurrent(_settingsService.Settings)) return true;
+            MessageBox.Show(this, L.Text("Saved preferences changed while this window was open. Your input has been kept.\n") +
+                L.Text("Use Reload saved settings to review the current values before applying changes."),
+                L.Text("Settings changed"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return false;
         }
 
         protected override void Dispose(bool disposing)

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Menu_Favorites" xml:space="preserve"><value>Избранное</value></data>
+  <data name="Menu_AllFavorites" xml:space="preserve"><value>Всё избранное</value></data>
+  <data name="Menu_Profile" xml:space="preserve"><value>Профиль: {0}</value></data>
+  <data name="Menu_Pin" xml:space="preserve"><value>Закрепить в избранном</value></data>
+  <data name="Menu_Unpin" xml:space="preserve"><value>Убрать из избранного</value></data>
+  <data name="Menu_PinEarlier" xml:space="preserve"><value>Выше в избранном</value></data>
+  <data name="Menu_PinLater" xml:space="preserve"><value>Ниже в избранном</value></data>
+  <data name="Settings_ShowRecent" xml:space="preserve"><value>Показывать недавно запущенные в меню</value></data>
+  <data name="Settings_ShowMostUsed" xml:space="preserve"><value>Показывать часто запускаемые в меню</value></data>
+  <data name="Settings_History" xml:space="preserve"><value>История в меню</value></data>
+  <data name="Menu_Manager" xml:space="preserve"><value>Управление ярлыками…</value></data>
+  <data name="Manager_Title" xml:space="preserve"><value>Менеджер ярлыков</value></data>
+  <data name="Manager_Locations" xml:space="preserve"><value>Профили и папки</value></data>
+  <data name="Manager_Items" xml:space="preserve"><value>Ярлыки</value></data>
+  <data name="Manager_Search" xml:space="preserve"><value>Поиск</value></data>
+  <data name="Manager_Attention" xml:space="preserve"><value>Требуют внимания</value></data>
+  <data name="Manager_Name" xml:space="preserve"><value>Название</value></data>
+  <data name="Manager_Type" xml:space="preserve"><value>Тип</value></data>
+  <data name="Manager_Status" xml:space="preserve"><value>Состояние</value></data>
+  <data name="Manager_Folder" xml:space="preserve"><value>Папка</value></data>
+  <data name="Manager_SaveAliases" xml:space="preserve"><value>Сохранить aliases</value></data>
+  <data name="Manager_DiscardAliases" xml:space="preserve"><value>Отменить изменения</value></data>
+  <data name="Manager_AliasHint" xml:space="preserve"><value>Один alias на строку · Ctrl+Enter — сохранить</value></data>
+  <data name="Manager_NewFolder" xml:space="preserve"><value>Создать папку</value></data>
+  <data name="Manager_Rename" xml:space="preserve"><value>Переименовать</value></data>
+  <data name="Manager_Move" xml:space="preserve"><value>Переместить</value></data>
+  <data name="Manager_Copy" xml:space="preserve"><value>Копировать</value></data>
+  <data name="Manager_Add" xml:space="preserve"><value>Добавить ярлыки</value></data>
+  <data name="Manager_Up" xml:space="preserve"><value>Выше</value></data>
+  <data name="Manager_Down" xml:space="preserve"><value>Ниже</value></data>
+  <data name="Manager_Pin" xml:space="preserve"><value>Закрепить / открепить</value></data>
+  <data name="Manager_Remove" xml:space="preserve"><value>Убрать</value></data>
+  <data name="Manager_Repair" xml:space="preserve"><value>Исправить цель</value></data>
+  <data name="Manager_Refresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Manager_UseProfile" xml:space="preserve"><value>Запускать из этого профиля</value></data>
+  <data name="Manager_DiscardOnClose" xml:space="preserve"><value>Отменить несохранённые aliases и закрыть окно?</value></data>
+  <data name="Manager_Root" xml:space="preserve"><value>Корень</value></data>
+  <data name="Manager_MigrationRequired" xml:space="preserve"><value>Для менеджера нужен каталог v2 после явной миграции.</value></data>
+  <data name="Manager_Location" xml:space="preserve"><value>Открыто: {0} / {1} · Профиль запуска: {2}</value></data>
+  <data name="Manager_Empty" xml:space="preserve"><value>В этом представлении нет элементов.</value></data>
+  <data name="Manager_KeyboardHint" xml:space="preserve"><value>F2 — имя · Delete — убрать · Ctrl+M — переместить · Ctrl+Shift+C — копировать · Alt+↑/↓ — порядок</value></data>
+  <data name="Manager_StateReady" xml:space="preserve"><value>Готов</value></data>
+  <data name="Manager_StateMissingTarget" xml:space="preserve"><value>Цель не найдена</value></data>
+  <data name="Manager_StateUnavailable" xml:space="preserve"><value>Недоступен</value></data>
+  <data name="Manager_StateInvalid" xml:space="preserve"><value>Некорректный ярлык</value></data>
+  <data name="Manager_StateNeedsReview" xml:space="preserve"><value>Требует проверки</value></data>
+  <data name="Manager_Aliases" xml:space="preserve"><value>Aliases для поиска</value></data>
+  <data name="Manager_PreviewFailed" xml:space="preserve"><value>Операция невозможна. Устраните конфликт или выберите другое место.</value></data>
+  <data name="Manager_Confirm" xml:space="preserve"><value>Выполнить операцию?</value></data>
+  <data name="Manager_Destination" xml:space="preserve"><value>Выберите профиль и папку</value></data>
+  <data name="Manager_StaleDrag" xml:space="preserve"><value>Каталог изменился во время переноса. Выберите элементы заново.</value></data>
+  <data name="Manager_SafeRemove" xml:space="preserve"><value>Ярлыки сохраняются в Recovery. Файлы EXE, постороннее содержимое и цели запуска сохраняются на месте. Восстановление доступно через Recovery в меню.</value></data>
+  <data name="Add_Title" xml:space="preserve"><value>Добавить элементы</value></data>
+  <data name="Add_Destination" xml:space="preserve"><value>Профиль / папка</value></data>
+  <data name="Add_Kind" xml:space="preserve"><value>Тип элемента</value></data>
+  <data name="Add_Name" xml:space="preserve"><value>Название</value></data>
+  <data name="Add_Source" xml:space="preserve"><value>Файл, папка или URL</value></data>
+  <data name="Add_Arguments" xml:space="preserve"><value>Аргументы</value></data>
+  <data name="Add_WorkingDirectory" xml:space="preserve"><value>Рабочая папка</value></data>
+  <data name="Add_Existing" xml:space="preserve"><value>Готовый ярлык</value></data>
+  <data name="Add_Path" xml:space="preserve"><value>Файл / папка</value></data>
+  <data name="Add_Url" xml:space="preserve"><value>Веб-ссылка</value></data>
+  <data name="Add_Command" xml:space="preserve"><value>Команда</value></data>
+  <data name="Add_Browse" xml:space="preserve"><value>Выбрать файл…</value></data>
+  <data name="Add_Folder" xml:space="preserve"><value>Выбрать папку…</value></data>
+  <data name="Add_CatalogSearch" xml:space="preserve"><value>Поиск установленных приложений</value></data>
+  <data name="Add_Queue" xml:space="preserve"><value>Добавить в список</value></data>
+  <data name="Add_QueueApps" xml:space="preserve"><value>Добавить выбранные приложения</value></data>
+  <data name="Add_Remove" xml:space="preserve"><value>Убрать из списка</value></data>
+  <data name="Add_Preview" xml:space="preserve"><value>Проверить список</value></data>
+  <data name="Add_Apply" xml:space="preserve"><value>Добавить всё</value></data>
+  <data name="Add_Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Add_Ready" xml:space="preserve"><value>Готово. При добавлении ничего не запускается.</value></data>
+  <data name="Add_Duplicates" xml:space="preserve"><value>Совпадающие параметры запуска</value></data>
+  <data name="Add_DuplicateConfirm" xml:space="preserve"><value>В списке есть совпадающие параметры запуска. Добавить ещё один ярлык с указанным названием?</value></data>
+  <data name="Add_CatalogPartial" xml:space="preserve"><value>Каталог загружен частично. Можно добавить файл, папку, URL или команду.</value></data>
+  <data name="Backup_Export" xml:space="preserve"><value>Экспорт конфигурации…</value></data>
+  <data name="Backup_Import" xml:space="preserve"><value>Импорт конфигурации…</value></data>
+  <data name="Backup_Exported" xml:space="preserve"><value>Конфигурация экспортирована. Установленные программы и runtime не включены.</value></data>
+  <data name="Backup_Merge" xml:space="preserve"><value>Объединить с одноимёнными профилями</value></data>
+  <data name="Backup_Presentation" xml:space="preserve"><value>Применить язык, тему и настройки меню</value></data>
+  <data name="Backup_Copy" xml:space="preserve"><value>Создать ещё одну независимую копию</value></data>
+  <data name="Backup_Reveal" xml:space="preserve"><value>Показать цели и аргументы команд</value></data>
+  <data name="Backup_Prefix" xml:space="preserve"><value>Префикс новых профилей</value></data>
+  <data name="Backup_Include" xml:space="preserve"><value>Включить</value></data>
+  <data name="Backup_Item" xml:space="preserve"><value>Исходный элемент</value></data>
+  <data name="Backup_Conflict" xml:space="preserve"><value>При конфликте</value></data>
+  <data name="Backup_Path" xml:space="preserve"><value>Путь внутри профиля</value></data>
+  <data name="Backup_Preview" xml:space="preserve"><value>Проверить импорт</value></data>
+  <data name="Backup_Apply" xml:space="preserve"><value>Импортировать выбранное</value></data>
+  <data name="Backup_Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Backup_Confirm" xml:space="preserve"><value>Импортировать выбранную конфигурацию? Ярлыки могут содержать команды. Ничего не запускается. Заменённые элементы можно восстановить через Recovery.</value></data>
+  <data name="Backup_Ready" xml:space="preserve"><value>Проверено. Импорт / пропущено:</value></data>
+  <data name="Ui_8A5EFA06CBCEE93C" xml:space="preserve"><value>Настройки TaskFolder</value></data>
+  <data name="Ui_DDEDC775176E06F0" xml:space="preserve"><value>Запускать TaskFolder при входе в Windows</value></data>
+  <data name="Ui_7FD29643121D062C" xml:space="preserve"><value>Восстановить интеграцию с Windows</value></data>
+  <data name="Ui_EAD029B5E8283FAC" xml:space="preserve"><value>Настройки автозапуска Windows</value></data>
+  <data name="Ui_17D8F1F0BE32944F" xml:space="preserve"><value>Настройки панели задач и системного трея Windows</value></data>
+  <data name="Ui_D995EDF683DD7DFD" xml:space="preserve"><value>Интеграция с Windows</value></data>
+  <data name="Ui_D1997A46A285AB73" xml:space="preserve"><value>Показывать widget TaskFolder на панели задач</value></data>
+  <data name="Ui_4C7F8412BF14E743" xml:space="preserve"><value>Открывать меню при наведении</value></data>
+  <data name="Ui_2FE2ECDB4A709ABE" xml:space="preserve"><value>Нажатие открывает меню. Перетаскивание меняет сохранённую позицию. Правый клик открывает настройки.</value></data>
+  <data name="Ui_CF9C96707E98AE14" xml:space="preserve"><value>Widget на панели задач</value></data>
+  <data name="Ui_38884515EB8306D8" xml:space="preserve"><value>Показывать уведомление при запуске приложения</value></data>
+  <data name="Ui_788011833A5A0F22" xml:space="preserve"><value>Уведомления</value></data>
+  <data name="Ui_531CB9733ACD519F" xml:space="preserve"><value>Включить глобальную горячую клавишу</value></data>
+  <data name="Ui_A95E8D51C988A35B" xml:space="preserve"><value>Модификаторы:</value></data>
+  <data name="Ui_0311526BCC69440B" xml:space="preserve"><value>Клавиша:</value></data>
+  <data name="Ui_5DCE8E0BE87150EB" xml:space="preserve"><value>Горячая клавиша для открытия меню</value></data>
+  <data name="Ui_B7AA31AF4638C9B6" xml:space="preserve"><value>Логотип не выбран</value></data>
+  <data name="Ui_895BA517A993C95A" xml:space="preserve"><value>Выбрать…</value></data>
+  <data name="Ui_C3812FC4ACB861D5" xml:space="preserve"><value>Убрать</value></data>
+  <data name="Ui_3D2A4915F36AB55F" xml:space="preserve"><value>Логотип меню:</value></data>
+  <data name="Ui_1EAB38BED03DE1B0" xml:space="preserve"><value>Оформление меню</value></data>
+  <data name="Ui_ACB429200B4CAD61" xml:space="preserve"><value>Высота строки:</value></data>
+  <data name="Ui_8BA9F9B39E0F8DE0" xml:space="preserve"><value>Размер текста:</value></data>
+  <data name="Ui_D8CD187A94014D6E" xml:space="preserve"><value>Открыть папку ярлыков</value></data>
+  <data name="Ui_DE28B4E4630E5099" xml:space="preserve"><value>Убрать все ярлыки</value></data>
+  <data name="Ui_6AF3560356F65E20" xml:space="preserve"><value>Управление ярлыками</value></data>
+  <data name="Ui_4EFCA0D10C5FEB8E" xml:space="preserve"><value>О программе</value></data>
+  <data name="Ui_565339BC4D33D728" xml:space="preserve"><value>ОК</value></data>
+  <data name="Ui_19766ED6CCB2F4A3" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Ui_415DB71A129627BB" xml:space="preserve"><value>Загрузить сохранённые настройки</value></data>
+  <data name="Ui_39780F2881EE9539" xml:space="preserve"><value>Загрузить сохранённые настройки и заменить введённые в этом окне значения?</value></data>
+  <data name="Ui_7B9E42EE5B80F7A8" xml:space="preserve"><value>Загрузка настроек</value></data>
+  <data name="Ui_C9096606065D9353" xml:space="preserve"><value>Не удалось загрузить настройки</value></data>
+  <data name="Ui_D6D6EBFEDC5AC65E" xml:space="preserve"><value>Автозапуск не настроен.</value></data>
+  <data name="Ui_5451EAE9B7DF4A95" xml:space="preserve"><value>Автозапуск настроен для этой копии.</value></data>
+  <data name="Ui_3B8A8C2952451039" xml:space="preserve"><value>Автозапуск указывает на другой путь или использует старые параметры. Обновите его кнопкой восстановления интеграции.</value></data>
+  <data name="Ui_D422792E70AA734D" xml:space="preserve"><value>Ярлык в меню «Пуск» создан.</value></data>
+  <data name="Ui_C3D10A34CB7578E0" xml:space="preserve"><value>Добавьте TaskFolder в меню «Пуск» кнопкой восстановления интеграции.</value></data>
+  <data name="Ui_501BF7E934E7C3E5" xml:space="preserve"><value> Windows может отдельно отключить автозапуск; проверьте системные настройки.</value></data>
+  <data name="Ui_7A83B296CFC42B20" xml:space="preserve"><value> Храните эту portable-копию в постоянной папке.</value></data>
+  <data name="Ui_F071D9938CFA102B" xml:space="preserve"><value>Не удалось прочитать настройки автозапуска. Проверьте права своей учётной записи.</value></data>
+  <data name="Ui_5B6975ED78C5B9D7" xml:space="preserve"><value>Файл логотипа недоступен</value></data>
+  <data name="Ui_A35E3B40C46363C3" xml:space="preserve"><value>Все ярлыки убраны.</value></data>
+  <data name="Ui_E9B9E8F5486C6982" xml:space="preserve"><value>Убрать все ярлыки</value></data>
+  <data name="Ui_CF48E89A26771BEE" xml:space="preserve"><value>Не удалось проверить сохранённые настройки</value></data>
+  <data name="Ui_2997EBC1976893AB" xml:space="preserve"><value>Сохранённые настройки требуют восстановления</value></data>
+  <data name="Ui_211D2D15F61B3DC2" xml:space="preserve"><value>Сохранённые настройки изменились, пока окно было открыто. Введённые значения сохранены в окне.
+</value></data>
+  <data name="Ui_6129C1E58660A5BC" xml:space="preserve"><value>Нажмите «Загрузить сохранённые настройки», чтобы проверить текущие значения перед сохранением.</value></data>
+  <data name="Ui_4A2681D6EE74BB80" xml:space="preserve"><value>Настройки изменились</value></data>
+  <data name="Ui_2D9A8DB414942A4B" xml:space="preserve"><value>
+Введённые значения остаются в окне.</value></data>
+  <data name="Ui_1CE15F10A0485137" xml:space="preserve"><value>Переименовать ярлык</value></data>
+  <data name="Ui_C9EC1AD7A1769C1C" xml:space="preserve"><value>Новое название:</value></data>
+  <data name="Ui_C6F0C35D96ED78FC" xml:space="preserve"><value>Название не может быть пустым.</value></data>
+  <data name="Ui_4060E90F673512E2" xml:space="preserve"><value>Выбор значка</value></data>
+  <data name="Ui_35C9BE3A24AA6138" xml:space="preserve"><value>Файл значка (.ico, .exe, .dll):</value></data>
+  <data name="Ui_C58A6BD402EFB06C" xml:space="preserve"><value>Обзор…</value></data>
+  <data name="Ui_7B1C54D5CEF62AEE" xml:space="preserve"><value>Индекс значка:</value></data>
+  <data name="Ui_75954C5F4D87DA20" xml:space="preserve"><value>Предпросмотр:</value></data>
+  <data name="Ui_B14395003E5EFBA7" xml:space="preserve"><value>Файл не найден.</value></data>
+  <data name="Ui_56F53FE4A3959731" xml:space="preserve"><value>Выберите файл значка</value></data>
+  <data name="Ui_7223DAA0FF04CBD9" xml:space="preserve"><value>Новая цель запуска</value></data>
+  <data name="Ui_72BC7FF7DF1DA2ED" xml:space="preserve"><value>Исправить цель — </value></data>
+  <data name="Ui_C71F2028AD376548" xml:space="preserve"><value>Новый HTTP/HTTPS URL:</value></data>
+  <data name="Ui_DEAF85FCB08AFD57" xml:space="preserve"><value>Новый файл или папка:</value></data>
+  <data name="Ui_47604B2E5C45B282" xml:space="preserve"><value>Сохранённые аргументы (сохраняются):
+</value></data>
+  <data name="Ui_6BD98D86429E2FB6" xml:space="preserve"><value>
+
+Сохранённая рабочая папка (сохраняется):
+</value></data>
+  <data name="Ui_FDA6A7DA2EC83BA3" xml:space="preserve"><value>Сохранённые параметры запуска</value></data>
+  <data name="Ui_92DFDEBBBFA28EBC" xml:space="preserve"><value>Выбрать файл…</value></data>
+  <data name="Ui_826C7DCDDD3C8181" xml:space="preserve"><value>Выбрать папку…</value></data>
+  <data name="Ui_02DABF8D8D72E4D6" xml:space="preserve"><value>Выберите новую цель</value></data>
+  <data name="Ui_CBB08E5F89EC829A" xml:space="preserve"><value>Выберите новую целевую папку</value></data>
+  <data name="Ui_1196B6C538ECC61A" xml:space="preserve"><value>Исправить</value></data>
+  <data name="Ui_55DF652E427B6DDD" xml:space="preserve"><value>Выберите существующий файл, папку или корректный HTTP/HTTPS URL.</value></data>
+  <data name="Ui_BF2BD274E4C3A9B9" xml:space="preserve"><value>Некорректная цель</value></data>
+  <data name="Ui_3C1623CCD7AC2B3D" xml:space="preserve"><value>Операции восстановления</value></data>
+  <data name="Ui_6C29D974222440A3" xml:space="preserve"><value>Подробности операции</value></data>
+  <data name="Ui_B21363CB2CA2E4F3" xml:space="preserve"><value>Состояние восстановления</value></data>
+  <data name="Ui_536D8B1E30EB2FC7" xml:space="preserve"><value>Восстановить выбранное</value></data>
+  <data name="Ui_5A96C81D131CB4D1" xml:space="preserve"><value>Восстановить прерванные операции</value></data>
+  <data name="Ui_E2C50366CF4DA596" xml:space="preserve"><value>Очистить выбранные данные восстановления…</value></data>
+  <data name="Ui_5971A28E5E4129BC" xml:space="preserve"><value>TaskFolder — Восстановление</value></data>
+  <data name="Ui_0F044FEB6CA7D676" xml:space="preserve"><value>Операция</value></data>
+  <data name="Ui_99C40AB405926CB5" xml:space="preserve"><value>Дата</value></data>
+  <data name="Ui_A3B50C476732C740" xml:space="preserve"><value>Состояние</value></data>
+  <data name="Ui_FE1DCCC16E2DFA70" xml:space="preserve"><value>Данные, байт</value></data>
+  <data name="Ui_54716188946F06E7" xml:space="preserve"><value>Журнал, байт</value></data>
+  <data name="Ui_FB8E7A1A3CB7B25D" xml:space="preserve"><value>Элементы</value></data>
+  <data name="Ui_0E91610117029A62" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Ui_AC0BAAF69161C130" xml:space="preserve"><value>Открыть папку восстановления</value></data>
+  <data name="Ui_7D9EB7ACB13E2462" xml:space="preserve"><value>Закрыть</value></data>
+  <data name="Ui_BE0184D1C4122A9C" xml:space="preserve"><value>Папка восстановления пока не создана.</value></data>
+  <data name="Ui_48F6A8D5688B0CF5" xml:space="preserve"><value>Восстановление</value></data>
+  <data name="Ui_D8657BBF7FB473A7" xml:space="preserve"><value>Не удалось открыть папку восстановления</value></data>
+  <data name="Ui_89E45653B9F8C718" xml:space="preserve"><value>Не читается</value></data>
+  <data name="Ui_CF545FD455F971BB" xml:space="preserve"><value>Изменения заблокированы до восстановления прерванных операций или повреждённых журналов. </value></data>
+  <data name="Ui_E8E465A23FEF0E81" xml:space="preserve"><value>Сохранённых операций нет. Данные восстановления не очищаются автоматически.</value></data>
+  <data name="Ui_EC26CE6C993415A6" xml:space="preserve"><value>Исходный путь занят — укажите другое имя или отмените восстановление</value></data>
+  <data name="Ui_F124976EA1E5B89A" xml:space="preserve"><value>Восстановить файлы и метаданные этой операции?
+</value></data>
+  <data name="Ui_2DB1CF3334FD218A" xml:space="preserve"><value>Восстановление операции</value></data>
+  <data name="Ui_7ABDFF279371D699" xml:space="preserve"><value>Восстановить указанные ниже прерванные операции? Несохранённые изменения файлов будут отменены, сохранённые — завершены.
+
+</value></data>
+  <data name="Ui_865BA0D5C9A895EF" xml:space="preserve"><value>Эти операции больше нельзя будет восстановить. Компактные записи останутся для защиты от повторного выполнения.
+
+</value></data>
+  <data name="Ui_C54D20A42EDF9764" xml:space="preserve"><value>Очистить выбранные данные без возможности восстановления</value></data>
+  <data name="Ui_DFD4A9B9EF666DEF" xml:space="preserve"><value>Не удалось завершить восстановление</value></data>
+  <data name="Ui_7F52B3CDE44CC50F" xml:space="preserve"><value>Операция выполнена.</value></data>
+  <data name="Ui_1ED2647CD6991770" xml:space="preserve"><value>Поиск ярлыков</value></data>
+  <data name="Ui_3B7EA51793E9D906" xml:space="preserve"><value>Очистить поиск</value></data>
+  <data name="Ui_A45D6A43369A4E87" xml:space="preserve"><value>Добавить элемент…</value></data>
+  <data name="Ui_962992F2C15B63BD" xml:space="preserve"><value>Восстановление…</value></data>
+  <data name="Ui_336C2129E234F83E" xml:space="preserve"><value>Настройки…</value></data>
+  <data name="Ui_759E5C8E135F2379" xml:space="preserve"><value>Выйти из TaskFolder</value></data>
+  <data name="Ui_848E96567D6B48D5" xml:space="preserve"><value>Питание</value></data>
+  <data name="Ui_0B184BC5D5341998" xml:space="preserve"><value>Выйти из учётной записи</value></data>
+  <data name="Ui_D466BCF52EB6921B" xml:space="preserve"><value>Сон</value></data>
+  <data name="Ui_01980EBB5BA01899" xml:space="preserve"><value>Гибернация</value></data>
+  <data name="Ui_3E45A33D226000ED" xml:space="preserve"><value>Завершить работу</value></data>
+  <data name="Ui_6B983A81E5E8099E" xml:space="preserve"><value>Перезагрузка</value></data>
+  <data name="Ui_735FD468C5FF31EA" xml:space="preserve"><value>Часто используемые</value></data>
+  <data name="Ui_D61031ACB443993B" xml:space="preserve"><value>Недавние</value></data>
+  <data name="Ui_39DACE7340687EE1" xml:space="preserve"><value>(Элементы не добавлены)</value></data>
+  <data name="Ui_F75E11BA851E12EA" xml:space="preserve"><value>(Совпадений нет)</value></data>
+  <data name="Ui_64F0AB71F8E4AB4F" xml:space="preserve"><value>(Пустая папка)</value></data>
+  <data name="Ui_2B277C119864E275" xml:space="preserve"><value>Переименовать…</value></data>
+  <data name="Ui_84A079F6136B1470" xml:space="preserve"><value>Открыть расположение файла</value></data>
+  <data name="Ui_19EE7F2BD13DC964" xml:space="preserve"><value>Изменить значок…</value></data>
+  <data name="Ui_131078E0CA5A133E" xml:space="preserve"><value>Исправить цель…</value></data>
+  <data name="Ui_1359626E7B696434" xml:space="preserve"><value>Выше</value></data>
+  <data name="Ui_B58330AC25057A44" xml:space="preserve"><value>Ниже</value></data>
+  <data name="Ui_4D2A1B56F0A9085D" xml:space="preserve"><value>Создать профиль…</value></data>
+  <data name="Ui_CFEED6691C4DEFED" xml:space="preserve"><value>Новый профиль</value></data>
+  <data name="Ui_7983AB66332CABAD" xml:space="preserve"><value>Не удалось переименовать.</value></data>
+  <data name="Ui_3DC4D508C00ECAFD" xml:space="preserve"><value>Убрать ярлык</value></data>
+  <data name="Ui_1B7AC464A4D84925" xml:space="preserve"><value>Не удалось исправить цель</value></data>
+  <data name="Ui_7E5F9B1993FD8667" xml:space="preserve"><value>Выберите добавляемое приложение</value></data>
+  <data name="Ui_F11B0C85C70BD6B1" xml:space="preserve"><value>Ошибка TaskFolder</value></data>
+  <data name="Ui_679A8CA6DC93FDF3" xml:space="preserve"><value>TaskFolder — Не удалось сохранить данные</value></data>
+  <data name="Ui_55CA80505C201E45" xml:space="preserve"><value>TaskFolder — Не удалось обновить каталог</value></data>
+  <data name="Ui_5FA9BF1B75947BAB" xml:space="preserve"><value>TaskFolder — Питание</value></data>
+  <data name="Ui_DC903C4827C00020" xml:space="preserve"><value>
+Откройте восстановление для проверки прерванных операций.</value></data>
+  <data name="Ui_7C22BEC5917F6645" xml:space="preserve"><value>Запрос на запуск отправлен, но статистику сохранить не удалось.
+</value></data>
+  <data name="Ui_748DB9AD0D9A9BEA" xml:space="preserve"><value>Просмотрите и подтвердите миграцию перед изменением ярлыков. Исходные файлы не изменены.</value></data>
+  <data name="Ui_2544FC367A7C8D26" xml:space="preserve"><value>Сохранённые данные изменились. Загрузите актуальные данные перед повтором; ваши изменения ещё не сохранены.</value></data>
+  <data name="Ui_C0349A8C60541994" xml:space="preserve"><value>Эти данные требуют совместимой версии TaskFolder. Они не были перезаписаны.</value></data>
+  <data name="Ui_93DA1ADB7A2DA751" xml:space="preserve"><value>Данные требуют восстановления. Последняя исправная копия доступна только для чтения; исходные файлы сохранены.</value></data>
+  <data name="Ui_1F2E622A454C9495" xml:space="preserve"><value>Нет доступа к данным TaskFolder. Проверьте права доступа и загрузите данные перед повтором.</value></data>
+  <data name="Ui_F99863AD50002D3C" xml:space="preserve"><value>Выберите файл .lnk или .url.</value></data>
+  <data name="Ui_83D43391255898C5" xml:space="preserve"><value>Ссылки файловой системы и junction не поддерживаются как источник.</value></data>
+  <data name="Ui_14C660F7E8067693" xml:space="preserve"><value>Рабочая папка не существует.</value></data>
+  <data name="Ui_CF7D44FEE843F70E" xml:space="preserve"><value>Введите допустимое название.</value></data>
+  <data name="Ui_C140D68DB3EFBA62" xml:space="preserve"><value>Ничего не выбрано.</value></data>
+  <data name="Ui_8307A0DC7AEA6787" xml:space="preserve"><value>Некорректный InternetShortcut.</value></data>
+  <data name="Ui_1DFFAF574986BE32" xml:space="preserve"><value>Требуется доступный для записи каталог v2.</value></data>
+  <data name="Ui_1F98720D34F4413E" xml:space="preserve"><value>Сжатый архив превышает лимит.</value></data>
+  <data name="Ui_9DB5CEBB887EA9BB" xml:space="preserve"><value>В архиве слишком много элементов.</value></data>
+  <data name="Ui_26252213CBDE0137" xml:space="preserve"><value>Размер значка превышает лимит.</value></data>
+  <data name="Ui_3B4AC644948245CD" xml:space="preserve"><value>Распакованные данные превышают лимит.</value></data>
+  <data name="Ui_BC8D1B9E32CC3D39" xml:space="preserve"><value>Данные файла усечены.</value></data>
+  <data name="Ui_796DA809E6903984" xml:space="preserve"><value>Manifest отсутствует или превышает лимит.</value></data>
+  <data name="Ui_7E1D682B1B2E4E2F" xml:space="preserve"><value>Версия формата архива не поддерживается.</value></data>
+  <data name="Ui_40CBBFE66A38A4D6" xml:space="preserve"><value>Количество элементов каталога превышает лимит.</value></data>
+  <data name="Ui_358921B92303B7B9" xml:space="preserve"><value>Привязка ярлыка в архиве некорректна.</value></data>
+  <data name="Ui_1F64F81F830C0538" xml:space="preserve"><value>Привязка значка в архиве некорректна.</value></data>
+  <data name="Ui_FC4F562012DE9A6F" xml:space="preserve"><value>В архиве есть файл, отсутствующий в manifest.</value></data>
+  <data name="Ui_06CD35497C009526" xml:space="preserve"><value>Управляемый файл значка отсутствует.</value></data>
+  <data name="Ui_D4FB396BC866697B" xml:space="preserve"><value>Конфигурация превышает лимиты экспорта.</value></data>
+  <data name="Ui_6D4627A0AA09731F" xml:space="preserve"><value>Файл превышает лимит.</value></data>
+  <data name="Ui_1A0FDE82223EDB44" xml:space="preserve"><value>Путь внутри архива не разрешён.</value></data>
+  <data name="Ui_124E1461C2FC8D8D" xml:space="preserve"><value>Архив содержит ссылку или нестандартный объект файловой системы.</value></data>
+  <data name="Ui_A4D2E720FEC208B9" xml:space="preserve"><value>Выберите хотя бы один профиль.</value></data>
+  <data name="Ui_D79C767F1CD82D74" xml:space="preserve"><value>Профиль существует: измените префикс или явно включите объединение.</value></data>
+  <data name="Ui_958CF9A92B037816" xml:space="preserve"><value>Укажите свободный путь для этого элемента.</value></data>
+  <data name="Ui_02EB2BD53FFE3B00" xml:space="preserve"><value>При замене нужно сохранить тип ярлыка; замена EXE запрещена.</value></data>
+  <data name="Ui_58504CA54AD3DAB6" xml:space="preserve"><value>Файл ярлыка отсутствует.</value></data>
+  <data name="Ui_8EA3B93DC8294555" xml:space="preserve"><value>Цели ярлыков, аргументы и внешние зависимости требуют проверки; ничего не запускается. Установленные программы и интеграция с Windows не восстанавливаются.</value></data>
+  <data name="Ui_5E3477F010151F53" xml:space="preserve"><value>Отсутствует ярлык: </value></data>
+  <data name="Ui_A1A11B80A2319C17" xml:space="preserve"><value>EXE экспортирован как ссылка на внешний файл: </value></data>
+  <data name="Ui_F565DC94ED3E1BDB" xml:space="preserve"><value>Нужно проверить параметры запуска: </value></data>
+  <data name="Ui_D06BF230A8C7A728" xml:space="preserve"><value>Сохранена внешняя зависимость значка: </value></data>
+  <data name="Ui_CC99FE9ABCDF55C8" xml:space="preserve"><value>Извлечение значка недоступно.</value></data>
+  <data name="Ui_A4FE65264EF7DBB3" xml:space="preserve"><value>Язык</value></data>
+  <data name="Ui_EFB52E7172B77731" xml:space="preserve"><value>Тема</value></data>
+  <data name="Ui_270FBDA86963189D" xml:space="preserve"><value>Язык и тема</value></data>
+  <data name="Ui_6725E7BBCD28F3A8" xml:space="preserve"><value>Как в системе</value></data>
+  <data name="Ui_DBCD5E7BB7A0F538" xml:space="preserve"><value>Светлая</value></data>
+  <data name="Ui_60ACC53F13A5D1BF" xml:space="preserve"><value>Тёмная</value></data>
+  <data name="Ui_28D03596D24EEB4E" xml:space="preserve"><value>Пропустить</value></data>
+  <data name="Ui_3064D79A295CEFE4" xml:space="preserve"><value>Переименовать</value></data>
+  <data name="Ui_95E154398A4BC009" xml:space="preserve"><value>Заменить</value></data>
+  <data name="Ui_1B469286816A54E6" xml:space="preserve"><value>Ярлык Windows</value></data>
+  <data name="Ui_157CE98B9A370DC7" xml:space="preserve"><value>Веб-ссылка</value></data>
+  <data name="Ui_72CD8A64E591C9EE" xml:space="preserve"><value>Файл EXE</value></data>
+  <data name="Ui_37932E60421E3A9B" xml:space="preserve"><value>Подготовлена</value></data>
+  <data name="Ui_F0EC57F6A7D9B42C" xml:space="preserve"><value>Файл обработан</value></data>
+  <data name="Ui_5E0D13F7424B7C36" xml:space="preserve"><value>Файлы обработаны</value></data>
+  <data name="Ui_44F46EF1C4149371" xml:space="preserve"><value>Данные сохранены</value></data>
+  <data name="Ui_208A0F9A4453D9DE" xml:space="preserve"><value>Данные зафиксированы</value></data>
+  <data name="Ui_22A970D2E5B1CC23" xml:space="preserve"><value>Завершена</value></data>
+  <data name="Ui_347BC4403D48C4FB" xml:space="preserve"><value>Отменена</value></data>
+  <data name="Ui_461B5684B64F1584" xml:space="preserve"><value>Импорт</value></data>
+  <data name="Ui_56FA33B2464BE657" xml:space="preserve"><value>Создание папки</value></data>
+  <data name="Ui_327F8BC5CBC73A7A" xml:space="preserve"><value>Создание профиля</value></data>
+  <data name="Ui_FBFDBD303821C2EA" xml:space="preserve"><value>Удаление профиля</value></data>
+  <data name="Ui_14AC200E93F72412" xml:space="preserve"><value>Изменение порядка</value></data>
+  <data name="Ui_C02831761AD1D282" xml:space="preserve"><value>Сохранение настроек</value></data>
+  <data name="Ui_B59BE5659F714E06" xml:space="preserve"><value>Обновление каталога</value></data>
+  <data name="Ui_A76E13B9839270EB" xml:space="preserve"><value>Восстановление</value></data>
+  <data name="Ui_544BCCE5571F0662" xml:space="preserve"><value>Подготовка очистки</value></data>
+  <data name="Ui_46E978D0C19397C7" xml:space="preserve"><value>Ярлыки</value></data>
+  <data name="Ui_ABC7E9892806B047" xml:space="preserve"><value>Файлы</value></data>
+  <data name="Ui_8B541C818269729D" xml:space="preserve"><value>Файлы значков</value></data>
+  <data name="Ui_9D481D6F57A28F18" xml:space="preserve"><value>Изображения</value></data>
+  <data name="Ui_866956901FD15362" xml:space="preserve"><value>Все файлы</value></data>
+  <data name="Ui_5028FE65A06DDCDB" xml:space="preserve"><value>Убрать все ярлыки текущего профиля? Ярлыки можно восстановить через Recovery; цели запуска и файлы EXE сохранятся.</value></data>
+  <data name="Ui_F3667A1FD9F33C4E" xml:space="preserve"><value>Не удалось запустить TaskFolder:
+
+{0}</value></data>
+  <data name="Ui_4F41942F67C96716" xml:space="preserve"><value>TaskFolder загрузил последнюю исправную копию только для чтения.
+</value></data>
+  <data name="Ui_2F481513F008BF52" xml:space="preserve"><value>Не удалось выполнить действие. Возможно, оно недоступно в настройках питания Windows или заблокировано системной политикой.
+
+{0}</value></data>
+  <data name="Ui_7F269333DFE67A3F" xml:space="preserve"><value>Не удалось запустить приложение:
+{0}</value></data>
+  <data name="Ui_88824C4E429BAA01" xml:space="preserve"><value>Запущено: {0}</value></data>
+  <data name="Ui_5345754D44685EBA" xml:space="preserve"><value>Не удалось добавить приложение:
+{0}</value></data>
+  <data name="Ui_70D25D683BEA9184" xml:space="preserve"><value>Не удалось открыть папку ярлыков:
+{0}</value></data>
+  <data name="Ui_51D4ED707BC365F5" xml:space="preserve"><value>Убрать «{0}» из TaskFolder?</value></data>
+  <data name="Ui_7C50CCFD81812BFF" xml:space="preserve"><value>Не удалось открыть расположение:
+{0}</value></data>
+  <data name="Ui_164EFC52D7B407A4" xml:space="preserve"><value>Папка: {0}</value></data>
+  <data name="Ui_A170660E02F37F6E" xml:space="preserve"><value>TaskFolder {0} — запуск приложений Windows — лицензия MIT</value></data>
+  <data name="Ui_ADCE5B888D9B761F" xml:space="preserve"><value>Не удалось прочитать настройки интеграции с Windows: {0}</value></data>
+  <data name="Ui_1E29F4A14B007010" xml:space="preserve"><value>Не удалось полностью обновить интеграцию с Windows:
+{0}</value></data>
+  <data name="Ui_47A809EA7846B67F" xml:space="preserve"><value>Не удалось открыть настройки Windows:
+{0}</value></data>
+  <data name="Ui_9A2757338E4A279A" xml:space="preserve"><value>Не удалось открыть папку:
+{0}</value></data>
+  <data name="Ui_5AAD4AE5D1BCAA7C" xml:space="preserve"><value>Выберите логотип меню</value></data>
+  <data name="Ui_2160EC97D9A5EAB5" xml:space="preserve"><value>Не удалось убрать ярлыки:
+{0}</value></data>
+  <data name="Ui_4D1ACB755CA4D7EE" xml:space="preserve"><value>Не удалось обновить автозапуск:
+{0}</value></data>
+  <data name="Ui_3B49A04664EA5CAE" xml:space="preserve"><value>Не удалось сохранить или проверить данные TaskFolder ({0}). Проверьте свободное место и блокировку файлов, затем загрузите данные перед повтором.</value></data>
+  <data name="Ui_90FC33AD2253462E" xml:space="preserve"><value>{0:N0} байт данных, {1:N0} байт журнала. Ничего не удаляется автоматически.</value></data>
+  <data name="Ui_29E02D8BB615B57C" xml:space="preserve"><value>Удалить данные восстановления для {0} ({1:N0} байт данных и {2:N0} байт журнала) без возможности восстановления?
+</value></data>
+  <data name="Ui_DDA9A6D8652493E2" xml:space="preserve"><value>px — по крупным строкам легче попасть</value></data>
+  <data name="Ui_0423256EF2A44D57" xml:space="preserve"><value>pt — меню, поиск и подменю</value></data>
+  <data name="ShortcutCount_One" xml:space="preserve"><value>{0} ярлык</value></data>
+  <data name="ShortcutCount_Few" xml:space="preserve"><value>{0} ярлыка</value></data>
+  <data name="ShortcutCount_Many" xml:space="preserve"><value>{0} ярлыков</value></data>
+  <data name="OperationCount_One" xml:space="preserve"><value>{0} операция</value></data>
+  <data name="OperationCount_Few" xml:space="preserve"><value>{0} операции</value></data>
+  <data name="OperationCount_Many" xml:space="preserve"><value>{0} операций</value></data>
+  <data name="Ui_B7FD2ABC540D8469" xml:space="preserve"><value>Зафиксировать положение widget</value></data>
+  <data name="Ui_9DF42264B914035C" xml:space="preserve"><value>Задержка наведения:</value></data>
+  <data name="Ui_C5F712E6DBDC1550" xml:space="preserve"><value>мс (100–1500)</value></data>
+  <data name="Ui_DA3FB56081016EDD" xml:space="preserve"><value>Положение зафиксировано. Нажмите, чтобы открыть ярлыки.</value></data>
+  <data name="Ui_F1CEC6E8907B2C2D" xml:space="preserve"><value>Нажатие открывает ярлыки. Перетаскивание меняет положение widget.</value></data>
+  <data name="Ui_E08CADB24B2A7F58" xml:space="preserve"><value>TaskFolder: положение зафиксировано. Нажатие открывает меню, правый клик — настройки.</value></data>
+  <data name="Ui_01C65FDB54F058FD" xml:space="preserve"><value>TaskFolder: нажатие открывает меню, перетаскивание меняет положение. Правый клик — настройки.</value></data>
+  <data name="Ui_CB3B04D043FCC50D" xml:space="preserve"><value>Предпросмотр миграции каталога</value></data>
+  <data name="Ui_5B529ABADACC1D5D" xml:space="preserve"><value>Обновить предпросмотр</value></data>
+  <data name="Ui_30892A066B939885" xml:space="preserve"><value>Создать копию и выполнить миграцию</value></data>
+  <data name="Ui_A14813FBA360103B" xml:space="preserve"><value>Создать указанную копию миграции и state.v2.json в этой папке данных? Исходные legacy-файлы и EXE сохранятся без изменений.</value></data>
+  <data name="Ui_57BA9D56FF6F21A8" xml:space="preserve"><value>Профили: {0}; папки: {1}; ярлыки: {2}; неразрешённые записи: {3}</value></data>
+  <data name="Ui_0ED365B0D17A66C3" xml:space="preserve"><value>Копия: {0}; размер: {1:N0} байт</value></data>
+  <data name="Ui_1F8D945F830C3082" xml:space="preserve"><value>Остановите TaskFolder. Восстанавливайте копию миграции только до последующих операций с файлами. Оставьте файлы EXE на месте.</value></data>
+  <data name="Add_CatalogLimited" xml:space="preserve"><value>Каталог desktop и PWA. Packaged-приложения отключены до проверки native identity.</value></data>
+  <data name="Ui_1D8607FDA3B0547B" xml:space="preserve"><value>Не удалось сравнить существующий ярлык: {0}</value></data>
+  <data name="Ui_58CBBBA05F3A07C9" xml:space="preserve"><value>Открывать меню при наведении</value></data>
+  <data name="Ui_AFB1CF9ABBD4F904" xml:space="preserve"><value>Перетаскивайте виджет в любое место рабочего стола — позиция сохраняется. Окна приложений перекрывают виджет. При работе в приложении используйте значок в трее. Правый клик открывает настройки.</value></data>
+  <data name="Ui_B71E98BC44A11670" xml:space="preserve"><value>Показывать виджет TaskFolder на рабочем столе</value></data>
+  <data name="Ui_EFE79A9C50FC471A" xml:space="preserve"><value>Виджет рабочего стола</value></data>
+  <data name="Ui_76A12C7709A85587" xml:space="preserve"><value>Размер виджета:</value></data>
+  <data name="Ui_07A9F1988732542A" xml:space="preserve"><value>Задержка скрытия меню:</value></data>
+  <data name="Ui_1027C5163230A4C7" xml:space="preserve"><value>мс (200–2000)</value></data>
+  <data name="Ui_2C8F62C95049FA69" xml:space="preserve"><value>Меню, открытое наведением, скрывается после ухода курсора с виджета и меню. Возврат отменяет отсчёт; ввод с клавиатуры оставляет меню открытым.</value></data>
+</root>

@@ -20,7 +20,7 @@ TaskFolder runs as a lightweight Windows Forms tray application on Windows 11 an
 
 ## Capabilities and Constraints
 
-- Existing shortcut, category, profile, recent, most-used, icon, and search behavior must remain intact.
+- Existing shortcut, recursive folder, profile, recent, most-used, icon, and search behavior must remain intact.
 - The tray menu must remain usable at Windows display scaling from 100% through 200%.
 - Menu text size and row height are device-local persisted settings.
 - The interface is implemented with .NET 8 Windows Forms and native Windows drawing APIs; no production dependency is required for the redesign.

@@ -1,3 +1,4 @@
+using L = TaskFolder.Services.LocalizationService;
 using System;
 using System.Drawing;
 using System.IO;
@@ -9,7 +10,7 @@ namespace TaskFolder.Views
     /// <summary>
     /// Lets the user pick a custom icon (file + index) for a shortcut.
     /// </summary>
-    public class IconPickerDialog : Form
+    public class IconPickerDialog : ThemedForm
     {
         private TextBox _txtPath;
         private NumericUpDown _numIndex;
@@ -23,7 +24,7 @@ namespace TaskFolder.Views
 
         public IconPickerDialog(string currentPath = "", int currentIndex = 0)
         {
-            Text = "Choose Icon";
+            Text = L.Text("Choose Icon");
             Size = new Size(420, 220);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -31,15 +32,15 @@ namespace TaskFolder.Views
             StartPosition = FormStartPosition.CenterScreen;
 
             // Path row
-            var lblPath = new Label { Text = "Icon file (.ico, .exe, .dll):", Location = new Point(12, 14), AutoSize = true };
+            var lblPath = new Label { Text = L.Text("Icon file (.ico, .exe, .dll):"), Location = new Point(12, 14), AutoSize = true };
             _txtPath = new TextBox { Location = new Point(12, 32), Width = 280, Text = currentPath };
             _txtPath.TextChanged += (s, e) => UpdatePreview();
 
-            _btnBrowse = new Button { Text = "Browse...", Location = new Point(298, 30), Width = 98 };
+            _btnBrowse = new Button { Text = L.Text("Browse..."), Location = new Point(298, 30), Width = 98 };
             _btnBrowse.Click += OnBrowse;
 
             // Index row
-            var lblIndex = new Label { Text = "Icon index:", Location = new Point(12, 68), AutoSize = true };
+            var lblIndex = new Label { Text = L.Text("Icon index:"), Location = new Point(12, 68), AutoSize = true };
             _numIndex = new NumericUpDown
             {
                 Location = new Point(12, 86),
@@ -51,7 +52,7 @@ namespace TaskFolder.Views
             _numIndex.ValueChanged += (s, e) => UpdatePreview();
 
             // Preview
-            var lblPreview = new Label { Text = "Preview:", Location = new Point(200, 68), AutoSize = true };
+            var lblPreview = new Label { Text = L.Text("Preview:"), Location = new Point(200, 68), AutoSize = true };
             _preview = new PictureBox
             {
                 Location = new Point(200, 86),
@@ -63,7 +64,7 @@ namespace TaskFolder.Views
             // Buttons
             _btnOK = new Button
             {
-                Text = "OK",
+                Text = L.Text("OK"),
                 DialogResult = DialogResult.OK,
                 Location = new Point(220, 150),
                 Width = 80
@@ -72,14 +73,14 @@ namespace TaskFolder.Views
             {
                 if (!string.IsNullOrWhiteSpace(SelectedIconPath) && !File.Exists(SelectedIconPath))
                 {
-                    MessageBox.Show("File not found.", "Choose Icon", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(L.Text("File not found."), L.Text("Choose Icon"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     DialogResult = DialogResult.None;
                 }
             };
 
             _btnCancel = new Button
             {
-                Text = "Cancel",
+                Text = L.Text("Cancel"),
                 DialogResult = DialogResult.Cancel,
                 Location = new Point(310, 150),
                 Width = 80
@@ -105,7 +106,7 @@ namespace TaskFolder.Views
             using var dlg = new OpenFileDialog
             {
                 Filter = "Icon files (*.ico;*.exe;*.dll)|*.ico;*.exe;*.dll|All Files (*.*)|*.*",
-                Title = "Select Icon File"
+                Title = L.Text("Select Icon File")
             };
             if (!string.IsNullOrWhiteSpace(_txtPath.Text) && File.Exists(_txtPath.Text))
                 dlg.InitialDirectory = Path.GetDirectoryName(_txtPath.Text);

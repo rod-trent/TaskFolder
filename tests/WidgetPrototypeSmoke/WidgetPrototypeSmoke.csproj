@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>..\..\app.manifest</ApplicationManifest>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="..\..\Utilities\WidgetInteraction.cs" Link="WidgetInteraction.cs" />
+    <Compile Include="..\..\Utilities\OutsideClickMenuDismissal.cs" Link="OutsideClickMenuDismissal.cs" />
+    <Compile Include="..\..\Utilities\TaskbarHosting.cs" Link="TaskbarHosting.cs" />
+    <Compile Include="..\..\Models\AppSettings.cs" Link="AppSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resources\TaskFolder.ico" Link="Resources\TaskFolder.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

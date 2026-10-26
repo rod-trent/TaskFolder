@@ -9,6 +9,13 @@ namespace TaskFolder.Models
     /// </summary>
     public class ShortcutItem
     {
+        public Guid Id { get; set; }
+        public Guid ProfileId { get; set; }
+        public string[] Aliases { get; set; } = Array.Empty<string>();
+        public ShortcutStatus Status { get; set; } = ShortcutStatus.Ready;
+        public bool IsPinned { get; set; }
+        public int PinnedOrder { get; set; } = int.MaxValue;
+        internal ShortcutItem CloneForMenu() => (ShortcutItem)MemberwiseClone();
         /// <summary>
         /// Display name of the shortcut
         /// </summary>
@@ -52,7 +59,7 @@ namespace TaskFolder.Models
         /// <summary>
         /// Number of times the shortcut has been launched
         /// </summary>
-        public int LaunchCount { get; set; }
+        public long LaunchCount { get; set; }
 
         /// <summary>
         /// Custom sort order (lower numbers appear first)
@@ -83,6 +90,8 @@ namespace TaskFolder.Models
         {
             if (string.IsNullOrEmpty(TargetPath))
                 return false;
+
+            if (Utilities.WindowsShellLink.IsApplicationIdentity(TargetPath)) return true;
 
             try
             {
@@ -117,6 +126,8 @@ namespace TaskFolder.Models
         {
             if (obj is ShortcutItem other)
             {
+                if (Id != Guid.Empty || other.Id != Guid.Empty)
+                    return Id != Guid.Empty && Id == other.Id;
                 return string.Equals(TargetPath, other.TargetPath, StringComparison.OrdinalIgnoreCase);
             }
             return false;
@@ -124,7 +135,7 @@ namespace TaskFolder.Models
 
         public override int GetHashCode()
         {
-            return TargetPath?.ToLowerInvariant().GetHashCode() ?? 0;
+            return Id != Guid.Empty ? Id.GetHashCode() : TargetPath?.ToLowerInvariant().GetHashCode() ?? 0;
         }
     }
 }

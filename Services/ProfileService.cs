@@ -25,6 +25,8 @@ namespace TaskFolder.Services
         /// <summary>Lists all available profile names (always includes "Default").</summary>
         public List<string> GetProfileNames()
         {
+            if (_settingsService.UsesStateV2)
+                return _settingsService.StateSnapshot.Profiles.Where(p => !p.Suppressed).Select(p => p.Name).ToList();
             var names = new List<string> { "Default" };
 
             string profilesRoot = Path.Combine(_settingsService.DataRoot, "Profiles");
@@ -50,10 +52,16 @@ namespace TaskFolder.Services
             if (string.IsNullOrWhiteSpace(name)) return;
 
             string folder = _shortcutManager.ResolveShortcutsFolder(name);
-            Directory.CreateDirectory(folder);
+            if (!_settingsService.UsesStateV2) Directory.CreateDirectory(folder);
 
+            string previous = _settingsService.Settings.ActiveProfileName;
             _settingsService.Settings.ActiveProfileName = name;
-            _settingsService.Save();
+            try { _settingsService.Save(); }
+            catch
+            {
+                _settingsService.Settings.ActiveProfileName = previous;
+                throw;
+            }
 
             _shortcutManager.SetShortcutsFolder(folder);
         }
@@ -67,8 +75,7 @@ namespace TaskFolder.Services
             if (GetProfileNames().Any(p => p.Equals(name, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException($"A profile named '{name}' already exists.");
 
-            string folder = _shortcutManager.ResolveShortcutsFolder(name);
-            Directory.CreateDirectory(folder);
+            _settingsService.RegisterProfile(name);
         }
 
         /// <summary>Deletes a profile's directory. Cannot delete the active profile.</summary>
@@ -83,9 +90,11 @@ namespace TaskFolder.Services
             if (name.Equals(ActiveProfile, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Cannot delete the currently active profile. Switch to another profile first.");
 
-            string folder = _shortcutManager.ResolveShortcutsFolder(name);
-            if (Directory.Exists(folder))
-                Directory.Delete(folder, recursive: true);
+            _settingsService.RequireV2();
+            var profile = _settingsService.StateSnapshot.Profiles.Single(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var request = _settingsService.NewOperation(Models.ShortcutOperationKind.DeleteProfile, profile.Id);
+            var result = _settingsService.ExecuteOperation(request);
+            if (!result.Success) throw new Models.StatePersistenceException(result);
         }
     }
 }

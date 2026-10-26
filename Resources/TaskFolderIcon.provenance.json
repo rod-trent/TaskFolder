@@ -1,0 +1,14 @@
+{
+  "asset": "TaskFolderIcon.png",
+  "role": "Approved Gates artwork for the application, tray and desktop widget icon",
+  "source": "../design/icon-concepts/2026-10-26/06-gates-amber.png",
+  "sourceSha256": "639B969B95CBCB9EA32DCDC6B19C7167CBD4C8FEF715D33D8C2111299D831AFE",
+  "creationTool": "imagegen",
+  "prompt": "../design/icon-concepts/2026-10-26/06-gates-amber.md",
+  "userApproved": true,
+  "sourceArtworkModified": false,
+  "derivedAsset": "TaskFolder.ico",
+  "conversionScript": "../scripts/New-ApplicationIcon.ps1",
+  "iconSizes": [16, 20, 24, 32, 40, 48, 64, 96, 128, 256],
+  "conversion": "32-bit alpha DIB frames for small sizes; PNG for 256 px"
+}

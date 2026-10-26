@@ -3,6 +3,9 @@
 
 param(
     [string]$Configuration = "Release",
+    [string]$InnoSetupPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+    [string]$PublishPath = "",
+    [string]$OutputDirectory = "",
     [switch]$SelfContained = $true,
     [switch]$SkipPublish = $false,
     [switch]$SignInstaller = $false,
@@ -21,8 +24,11 @@ function Write-Failure { Write-Host $args -ForegroundColor Red }
 # Configuration
 $ProjectFile = "TaskFolder.csproj"
 $InnoSetupScript = "TaskFolder.iss"
-$InnoSetupPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-$OutputDir = "installer"
+Set-Location -LiteralPath $PSScriptRoot
+$OutputDir = if ([string]::IsNullOrWhiteSpace($OutputDirectory)) { Join-Path $PSScriptRoot 'installer' } else { [IO.Path]::GetFullPath($OutputDirectory) }
+if ([string]::IsNullOrWhiteSpace($PublishPath)) {
+    $PublishPath = "bin\$Configuration\net8.0-windows\win-x64\publish-folder"
+}
 
 Write-Info "========================================="
 Write-Info "TaskFolder Installer Build Script"
@@ -51,20 +57,7 @@ if (-not (Test-Path $InnoSetupPath)) {
 Write-Success "✓ All prerequisites found"
 Write-Info ""
 
-# Step 2: Clean previous builds
-Write-Info "Step 2: Cleaning previous builds..."
-
-if (Test-Path "bin\$Configuration") {
-    Remove-Item -Path "bin\$Configuration" -Recurse -Force
-    Write-Success "✓ Cleaned bin\$Configuration"
-}
-
-if (Test-Path $OutputDir) {
-    Remove-Item -Path $OutputDir -Recurse -Force
-    Write-Success "✓ Cleaned $OutputDir"
-}
-
-Write-Info ""
+# Keep existing published files and release artifacts. SkipPublish must be non-destructive.
 
 # Step 3: Publish the application
 if (-not $SkipPublish) {
@@ -76,7 +69,9 @@ if (-not $SkipPublish) {
         "-c", $Configuration,
         "-r", "win-x64",
         "--self-contained", $SelfContained.ToString().ToLower(),
+        "--output", $PublishPath,
         "-p:PublishSingleFile=false",
+        "-p:IncludeNativeLibrariesForSelfExtract=false",
         "-p:PublishReadyToRun=true"
     )
     
@@ -99,8 +94,6 @@ if (-not $SkipPublish) {
 # Step 4: Verify published files
 Write-Info "Step 4: Verifying published files..."
 
-$PublishPath = "bin\$Configuration\net8.0-windows\win-x64\publish"
-
 if (-not (Test-Path $PublishPath)) {
     Write-Failure "ERROR: Publish path not found: $PublishPath"
     exit 1
@@ -110,6 +103,16 @@ $ExePath = Join-Path $PublishPath "TaskFolder.exe"
 if (-not (Test-Path $ExePath)) {
     Write-Failure "ERROR: TaskFolder.exe not found in publish directory!"
     exit 1
+}
+
+if (-not (Test-Path -LiteralPath (Join-Path $PublishPath "TaskFolder.dll"))) {
+    throw "The installer requires a folder publish with TaskFolder.dll beside TaskFolder.exe. Publish again without single-file bundling."
+}
+if ($SelfContained -and -not (Test-Path -LiteralPath (Join-Path $PublishPath "coreclr.dll"))) {
+    throw "The self-contained runtime is missing from the publish folder."
+}
+if (-not (Test-Path -LiteralPath (Join-Path $PublishPath 'ru\TaskFolder.resources.dll'))) {
+    throw 'The Russian satellite assembly is missing. Publish the complete folder before building the installer.'
 }
 
 $publishedFiles = Get-ChildItem -Path $PublishPath -File
@@ -145,6 +148,8 @@ if ($missingFiles.Count -gt 0) {
 Write-Info "Step 6: Building installer with Inno Setup..."
 
 $innoArgs = @(
+    "/O$OutputDir",
+    "/DPublishPath=$((Resolve-Path -LiteralPath $PublishPath).Path)",
     $InnoSetupScript
 )
 
@@ -161,7 +166,8 @@ Write-Success "✓ Installer built successfully"
 Write-Info ""
 
 # Step 7: Find the installer file
-$installerFiles = Get-ChildItem -Path $OutputDir -Filter "*.exe"
+$taskVersion = ([xml](Get-Content -LiteralPath $ProjectFile -Raw)).Project.PropertyGroup.Version | Select-Object -First 1
+$installerFiles = @(Get-Item -LiteralPath (Join-Path $OutputDir "TaskFolder-Setup-$taskVersion-win-x64.exe") -ErrorAction SilentlyContinue)
 
 if ($installerFiles.Count -eq 0) {
     Write-Failure "ERROR: No installer file found in $OutputDir"
@@ -252,7 +258,3 @@ Write-Info "  1. Test the installer on a clean Windows 11 machine"
 Write-Info "  2. Verify all features work correctly"
 Write-Info "  3. Distribute the installer file"
 Write-Info ""
-
-# Open explorer to the installer directory
-Write-Info "Opening installer directory..."
-Start-Process explorer.exe -ArgumentList $OutputDir

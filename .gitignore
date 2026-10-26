@@ -1,6 +1,7 @@
 # Build output
 bin/
 obj/
+installer/
 
 # Zips / archives
 *.zip

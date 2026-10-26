@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Menu_Favorites" xml:space="preserve"><value>Favorites</value></data>
+  <data name="Menu_AllFavorites" xml:space="preserve"><value>All favorites</value></data>
+  <data name="Menu_Profile" xml:space="preserve"><value>Profile: {0}</value></data>
+  <data name="Menu_Pin" xml:space="preserve"><value>Pin to favorites</value></data>
+  <data name="Menu_Unpin" xml:space="preserve"><value>Unpin from favorites</value></data>
+  <data name="Menu_PinEarlier" xml:space="preserve"><value>Move earlier in favorites</value></data>
+  <data name="Menu_PinLater" xml:space="preserve"><value>Move later in favorites</value></data>
+  <data name="Settings_ShowRecent" xml:space="preserve"><value>Show Recently Used in the menu</value></data>
+  <data name="Settings_ShowMostUsed" xml:space="preserve"><value>Show Most Used in the menu</value></data>
+  <data name="Settings_History" xml:space="preserve"><value>Menu history</value></data>
+  <data name="Menu_Manager" xml:space="preserve"><value>Manage shortcuts…</value></data>
+  <data name="Manager_Title" xml:space="preserve"><value>Shortcut manager</value></data>
+  <data name="Manager_Locations" xml:space="preserve"><value>Profiles and folders</value></data>
+  <data name="Manager_Items" xml:space="preserve"><value>Shortcuts</value></data>
+  <data name="Manager_Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Manager_Attention" xml:space="preserve"><value>Needs attention</value></data>
+  <data name="Manager_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Manager_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Manager_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Manager_Folder" xml:space="preserve"><value>Folder</value></data>
+  <data name="Manager_SaveAliases" xml:space="preserve"><value>Save aliases</value></data>
+  <data name="Manager_DiscardAliases" xml:space="preserve"><value>Discard draft</value></data>
+  <data name="Manager_AliasHint" xml:space="preserve"><value>One alias per line · Ctrl+Enter to save</value></data>
+  <data name="Manager_NewFolder" xml:space="preserve"><value>New folder</value></data>
+  <data name="Manager_Rename" xml:space="preserve"><value>Rename</value></data>
+  <data name="Manager_Move" xml:space="preserve"><value>Move</value></data>
+  <data name="Manager_Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Manager_Add" xml:space="preserve"><value>Add shortcuts</value></data>
+  <data name="Manager_Up" xml:space="preserve"><value>Move up</value></data>
+  <data name="Manager_Down" xml:space="preserve"><value>Move down</value></data>
+  <data name="Manager_Pin" xml:space="preserve"><value>Pin / unpin</value></data>
+  <data name="Manager_Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Manager_Repair" xml:space="preserve"><value>Repair target</value></data>
+  <data name="Manager_Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Manager_UseProfile" xml:space="preserve"><value>Use this launch profile</value></data>
+  <data name="Manager_DiscardOnClose" xml:space="preserve"><value>Discard the unsaved alias draft and close?</value></data>
+  <data name="Manager_Root" xml:space="preserve"><value>Root</value></data>
+  <data name="Manager_MigrationRequired" xml:space="preserve"><value>This manager requires the explicitly migrated v2 catalog.</value></data>
+  <data name="Manager_Location" xml:space="preserve"><value>Browsing: {0} / {1} · Launch profile: {2}</value></data>
+  <data name="Manager_Empty" xml:space="preserve"><value>No items match this view.</value></data>
+  <data name="Manager_KeyboardHint" xml:space="preserve"><value>F2 rename · Delete remove · Ctrl+M move · Ctrl+Shift+C copy · Alt+↑/↓ reorder</value></data>
+  <data name="Manager_StateReady" xml:space="preserve"><value>Ready</value></data>
+  <data name="Manager_StateMissingTarget" xml:space="preserve"><value>Target missing</value></data>
+  <data name="Manager_StateUnavailable" xml:space="preserve"><value>Unavailable</value></data>
+  <data name="Manager_StateInvalid" xml:space="preserve"><value>Invalid definition</value></data>
+  <data name="Manager_StateNeedsReview" xml:space="preserve"><value>Needs review</value></data>
+  <data name="Manager_Aliases" xml:space="preserve"><value>Search aliases</value></data>
+  <data name="Manager_PreviewFailed" xml:space="preserve"><value>The operation cannot proceed. Resolve the conflict or choose another destination.</value></data>
+  <data name="Manager_Confirm" xml:space="preserve"><value>Apply this operation?</value></data>
+  <data name="Manager_Destination" xml:space="preserve"><value>Choose destination profile and folder</value></data>
+  <data name="Manager_StaleDrag" xml:space="preserve"><value>The catalog changed during the drag. Select the items again.</value></data>
+  <data name="Manager_SafeRemove" xml:space="preserve"><value>Managed links go to Recovery. Raw EXE files and unmanaged contents stay in place; launch targets are never deleted. Use Recovery in the menu to restore.</value></data>
+  <data name="Add_Title" xml:space="preserve"><value>Add items</value></data>
+  <data name="Add_Destination" xml:space="preserve"><value>Profile / folder</value></data>
+  <data name="Add_Kind" xml:space="preserve"><value>Input type</value></data>
+  <data name="Add_Name" xml:space="preserve"><value>Display name</value></data>
+  <data name="Add_Source" xml:space="preserve"><value>File, folder or URL</value></data>
+  <data name="Add_Arguments" xml:space="preserve"><value>Arguments</value></data>
+  <data name="Add_WorkingDirectory" xml:space="preserve"><value>Working directory</value></data>
+  <data name="Add_Existing" xml:space="preserve"><value>Existing shortcut</value></data>
+  <data name="Add_Path" xml:space="preserve"><value>File / folder</value></data>
+  <data name="Add_Url" xml:space="preserve"><value>Web link</value></data>
+  <data name="Add_Command" xml:space="preserve"><value>Explicit command</value></data>
+  <data name="Add_Browse" xml:space="preserve"><value>Choose file…</value></data>
+  <data name="Add_Folder" xml:space="preserve"><value>Choose folder…</value></data>
+  <data name="Add_CatalogSearch" xml:space="preserve"><value>Find installed applications</value></data>
+  <data name="Add_Queue" xml:space="preserve"><value>Add input to batch</value></data>
+  <data name="Add_QueueApps" xml:space="preserve"><value>Add selected apps</value></data>
+  <data name="Add_Remove" xml:space="preserve"><value>Remove from batch</value></data>
+  <data name="Add_Preview" xml:space="preserve"><value>Preview batch</value></data>
+  <data name="Add_Apply" xml:space="preserve"><value>Add all</value></data>
+  <data name="Add_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Add_Ready" xml:space="preserve"><value>Ready. Nothing will launch when added.</value></data>
+  <data name="Add_Duplicates" xml:space="preserve"><value>Matching launch definitions</value></data>
+  <data name="Add_DuplicateConfirm" xml:space="preserve"><value>This batch includes matching launch definitions. Add another shortcut with the shown name?</value></data>
+  <data name="Add_CatalogPartial" xml:space="preserve"><value>Catalog is partial; file/folder/URL/command input remains available.</value></data>
+  <data name="Backup_Export" xml:space="preserve"><value>Export configuration…</value></data>
+  <data name="Backup_Import" xml:space="preserve"><value>Import configuration…</value></data>
+  <data name="Backup_Exported" xml:space="preserve"><value>Configuration exported. Installed applications and runtime are not included.</value></data>
+  <data name="Backup_Merge" xml:space="preserve"><value>Merge into matching profile names</value></data>
+  <data name="Backup_Presentation" xml:space="preserve"><value>Apply language/theme/menu preferences</value></data>
+  <data name="Backup_Copy" xml:space="preserve"><value>Create another independent copy</value></data>
+  <data name="Backup_Reveal" xml:space="preserve"><value>Show targets and command arguments</value></data>
+  <data name="Backup_Prefix" xml:space="preserve"><value>Destination profile prefix</value></data>
+  <data name="Backup_Include" xml:space="preserve"><value>Include</value></data>
+  <data name="Backup_Item" xml:space="preserve"><value>Source item</value></data>
+  <data name="Backup_Conflict" xml:space="preserve"><value>On conflict</value></data>
+  <data name="Backup_Path" xml:space="preserve"><value>Destination relative path</value></data>
+  <data name="Backup_Preview" xml:space="preserve"><value>Validate preview</value></data>
+  <data name="Backup_Apply" xml:space="preserve"><value>Import selected</value></data>
+  <data name="Backup_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Backup_Confirm" xml:space="preserve"><value>Import the selected configuration? Link definitions may contain commands. Nothing will launch. Existing replacements can be restored through Recovery.</value></data>
+  <data name="Backup_Ready" xml:space="preserve"><value>Validated. Import / skipped:</value></data>
+  <data name="Ui_8A5EFA06CBCEE93C" xml:space="preserve"><value>TaskFolder Settings</value></data>
+  <data name="Ui_DDEDC775176E06F0" xml:space="preserve"><value>Start TaskFolder when I sign in to Windows</value></data>
+  <data name="Ui_7FD29643121D062C" xml:space="preserve"><value>Repair Windows integration</value></data>
+  <data name="Ui_EAD029B5E8283FAC" xml:space="preserve"><value>Windows startup settings</value></data>
+  <data name="Ui_17D8F1F0BE32944F" xml:space="preserve"><value>Windows taskbar and system tray settings</value></data>
+  <data name="Ui_D995EDF683DD7DFD" xml:space="preserve"><value>Windows Integration</value></data>
+  <data name="Ui_D1997A46A285AB73" xml:space="preserve"><value>Show embedded TaskFolder widget</value></data>
+  <data name="Ui_4C7F8412BF14E743" xml:space="preserve"><value>Open menu on hover after 300 ms</value></data>
+  <data name="Ui_2FE2ECDB4A709ABE" xml:space="preserve"><value>Click to open. Drag along the taskbar; position is saved. Right-click for Settings.</value></data>
+  <data name="Ui_CF9C96707E98AE14" xml:space="preserve"><value>Taskbar widget (SetParent prototype)</value></data>
+  <data name="Ui_38884515EB8306D8" xml:space="preserve"><value>Show a balloon tip when an application is launched</value></data>
+  <data name="Ui_788011833A5A0F22" xml:space="preserve"><value>Notifications</value></data>
+  <data name="Ui_531CB9733ACD519F" xml:space="preserve"><value>Enable global hotkey</value></data>
+  <data name="Ui_A95E8D51C988A35B" xml:space="preserve"><value>Modifiers:</value></data>
+  <data name="Ui_0311526BCC69440B" xml:space="preserve"><value>Key:</value></data>
+  <data name="Ui_5DCE8E0BE87150EB" xml:space="preserve"><value>Global Hotkey (pops the tray menu)</value></data>
+  <data name="Ui_B7AA31AF4638C9B6" xml:space="preserve"><value>No logo selected</value></data>
+  <data name="Ui_895BA517A993C95A" xml:space="preserve"><value>Choose...</value></data>
+  <data name="Ui_C3812FC4ACB861D5" xml:space="preserve"><value>Remove</value></data>
+  <data name="Ui_3D2A4915F36AB55F" xml:space="preserve"><value>Header logo:</value></data>
+  <data name="Ui_1EAB38BED03DE1B0" xml:space="preserve"><value>Menu Appearance</value></data>
+  <data name="Ui_ACB429200B4CAD61" xml:space="preserve"><value>Item height:</value></data>
+  <data name="Ui_8BA9F9B39E0F8DE0" xml:space="preserve"><value>Text size:</value></data>
+  <data name="Ui_D8CD187A94014D6E" xml:space="preserve"><value>Open Shortcuts Folder</value></data>
+  <data name="Ui_DE28B4E4630E5099" xml:space="preserve"><value>Remove All Shortcuts</value></data>
+  <data name="Ui_6AF3560356F65E20" xml:space="preserve"><value>Shortcuts Management</value></data>
+  <data name="Ui_4EFCA0D10C5FEB8E" xml:space="preserve"><value>About</value></data>
+  <data name="Ui_565339BC4D33D728" xml:space="preserve"><value>OK</value></data>
+  <data name="Ui_19766ED6CCB2F4A3" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Ui_415DB71A129627BB" xml:space="preserve"><value>Reload saved settings</value></data>
+  <data name="Ui_39780F2881EE9539" xml:space="preserve"><value>Reload saved settings and replace the input in this window?</value></data>
+  <data name="Ui_7B9E42EE5B80F7A8" xml:space="preserve"><value>Reload settings</value></data>
+  <data name="Ui_C9096606065D9353" xml:space="preserve"><value>Settings could not be reloaded</value></data>
+  <data name="Ui_D6D6EBFEDC5AC65E" xml:space="preserve"><value>Startup is not registered.</value></data>
+  <data name="Ui_5451EAE9B7DF4A95" xml:space="preserve"><value>Startup is registered for this copy.</value></data>
+  <data name="Ui_3B8A8C2952451039" xml:space="preserve"><value>Startup points to another path or uses old launch options. Use Repair to update it.</value></data>
+  <data name="Ui_D422792E70AA734D" xml:space="preserve"><value>A Start menu shortcut is registered.</value></data>
+  <data name="Ui_C3D10A34CB7578E0" xml:space="preserve"><value>Use Repair to add TaskFolder to the Start menu.</value></data>
+  <data name="Ui_501BF7E934E7C3E5" xml:space="preserve"><value> Windows can disable startup separately; check Windows startup settings.</value></data>
+  <data name="Ui_7A83B296CFC42B20" xml:space="preserve"><value> Keep this portable copy in a permanent folder.</value></data>
+  <data name="Ui_F071D9938CFA102B" xml:space="preserve"><value>Startup registration could not be read. Check your account permissions first.</value></data>
+  <data name="Ui_5B6975ED78C5B9D7" xml:space="preserve"><value>Logo file is unavailable</value></data>
+  <data name="Ui_A35E3B40C46363C3" xml:space="preserve"><value>All shortcuts have been removed.</value></data>
+  <data name="Ui_E9B9E8F5486C6982" xml:space="preserve"><value>Confirm Clear Shortcuts</value></data>
+  <data name="Ui_CF48E89A26771BEE" xml:space="preserve"><value>Saved settings could not be checked</value></data>
+  <data name="Ui_2997EBC1976893AB" xml:space="preserve"><value>Saved settings need recovery</value></data>
+  <data name="Ui_211D2D15F61B3DC2" xml:space="preserve"><value>Saved preferences changed while this window was open. Your input has been kept.
+</value></data>
+  <data name="Ui_6129C1E58660A5BC" xml:space="preserve"><value>Use Reload saved settings to review the current values before applying changes.</value></data>
+  <data name="Ui_4A2681D6EE74BB80" xml:space="preserve"><value>Settings changed</value></data>
+  <data name="Ui_2D9A8DB414942A4B" xml:space="preserve"><value>
+Your input is still here.</value></data>
+  <data name="Ui_1CE15F10A0485137" xml:space="preserve"><value>Rename Shortcut</value></data>
+  <data name="Ui_C9EC1AD7A1769C1C" xml:space="preserve"><value>New name:</value></data>
+  <data name="Ui_C6F0C35D96ED78FC" xml:space="preserve"><value>Name cannot be empty.</value></data>
+  <data name="Ui_4060E90F673512E2" xml:space="preserve"><value>Choose Icon</value></data>
+  <data name="Ui_35C9BE3A24AA6138" xml:space="preserve"><value>Icon file (.ico, .exe, .dll):</value></data>
+  <data name="Ui_C58A6BD402EFB06C" xml:space="preserve"><value>Browse...</value></data>
+  <data name="Ui_7B1C54D5CEF62AEE" xml:space="preserve"><value>Icon index:</value></data>
+  <data name="Ui_75954C5F4D87DA20" xml:space="preserve"><value>Preview:</value></data>
+  <data name="Ui_B14395003E5EFBA7" xml:space="preserve"><value>File not found.</value></data>
+  <data name="Ui_56F53FE4A3959731" xml:space="preserve"><value>Select Icon File</value></data>
+  <data name="Ui_7223DAA0FF04CBD9" xml:space="preserve"><value>Replacement target</value></data>
+  <data name="Ui_72BC7FF7DF1DA2ED" xml:space="preserve"><value>Repair target — </value></data>
+  <data name="Ui_C71F2028AD376548" xml:space="preserve"><value>New HTTP/HTTPS URL:</value></data>
+  <data name="Ui_DEAF85FCB08AFD57" xml:space="preserve"><value>New file or folder target:</value></data>
+  <data name="Ui_47604B2E5C45B282" xml:space="preserve"><value>Saved arguments (retained):
+</value></data>
+  <data name="Ui_6BD98D86429E2FB6" xml:space="preserve"><value>
+
+Saved working directory (retained):
+</value></data>
+  <data name="Ui_FDA6A7DA2EC83BA3" xml:space="preserve"><value>Saved launch fields</value></data>
+  <data name="Ui_92DFDEBBBFA28EBC" xml:space="preserve"><value>Choose file...</value></data>
+  <data name="Ui_826C7DCDDD3C8181" xml:space="preserve"><value>Choose folder...</value></data>
+  <data name="Ui_02DABF8D8D72E4D6" xml:space="preserve"><value>Choose replacement target</value></data>
+  <data name="Ui_CBB08E5F89EC829A" xml:space="preserve"><value>Choose replacement target folder</value></data>
+  <data name="Ui_1196B6C538ECC61A" xml:space="preserve"><value>Repair</value></data>
+  <data name="Ui_55DF652E427B6DDD" xml:space="preserve"><value>Choose an existing file/folder or a valid HTTP/HTTPS URL.</value></data>
+  <data name="Ui_BF2BD274E4C3A9B9" xml:space="preserve"><value>Invalid target</value></data>
+  <data name="Ui_3C1623CCD7AC2B3D" xml:space="preserve"><value>Recovery operations</value></data>
+  <data name="Ui_6C29D974222440A3" xml:space="preserve"><value>Operation details</value></data>
+  <data name="Ui_B21363CB2CA2E4F3" xml:space="preserve"><value>Recovery status</value></data>
+  <data name="Ui_536D8B1E30EB2FC7" xml:space="preserve"><value>Restore selected</value></data>
+  <data name="Ui_5A96C81D131CB4D1" xml:space="preserve"><value>Recover interrupted operations</value></data>
+  <data name="Ui_E2C50366CF4DA596" xml:space="preserve"><value>Clear selected recovery data...</value></data>
+  <data name="Ui_5971A28E5E4129BC" xml:space="preserve"><value>TaskFolder — Recovery</value></data>
+  <data name="Ui_0F044FEB6CA7D676" xml:space="preserve"><value>Operation</value></data>
+  <data name="Ui_99C40AB405926CB5" xml:space="preserve"><value>Date</value></data>
+  <data name="Ui_A3B50C476732C740" xml:space="preserve"><value>State</value></data>
+  <data name="Ui_FE1DCCC16E2DFA70" xml:space="preserve"><value>Recovery bytes</value></data>
+  <data name="Ui_54716188946F06E7" xml:space="preserve"><value>Record bytes</value></data>
+  <data name="Ui_FB8E7A1A3CB7B25D" xml:space="preserve"><value>Items</value></data>
+  <data name="Ui_0E91610117029A62" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Ui_AC0BAAF69161C130" xml:space="preserve"><value>Open recovery folder</value></data>
+  <data name="Ui_7D9EB7ACB13E2462" xml:space="preserve"><value>Close</value></data>
+  <data name="Ui_BE0184D1C4122A9C" xml:space="preserve"><value>There is no recovery folder yet.</value></data>
+  <data name="Ui_48F6A8D5688B0CF5" xml:space="preserve"><value>Recovery</value></data>
+  <data name="Ui_D8657BBF7FB473A7" xml:space="preserve"><value>Recovery folder could not be opened</value></data>
+  <data name="Ui_89E45653B9F8C718" xml:space="preserve"><value>Unreadable</value></data>
+  <data name="Ui_CF545FD455F971BB" xml:space="preserve"><value>Changes are blocked until interrupted or unreadable recovery data is resolved. </value></data>
+  <data name="Ui_E8E465A23FEF0E81" xml:space="preserve"><value>No saved recovery operations. Recovery data is never cleared automatically.</value></data>
+  <data name="Ui_EC26CE6C993415A6" xml:space="preserve"><value>Original path is occupied — choose another name, or Cancel to skip this restore</value></data>
+  <data name="Ui_F124976EA1E5B89A" xml:space="preserve"><value>Restore this operation&apos;s files and metadata?
+</value></data>
+  <data name="Ui_2DB1CF3334FD218A" xml:space="preserve"><value>Restore recovery operation</value></data>
+  <data name="Ui_7ABDFF279371D699" xml:space="preserve"><value>Recover the interrupted operations below? Uncommitted file changes will be rolled back; committed changes will be completed.
+
+</value></data>
+  <data name="Ui_865BA0D5C9A895EF" xml:space="preserve"><value>These operations will no longer be restorable. Small operation receipts will remain to prevent accidental replay.
+
+</value></data>
+  <data name="Ui_C54D20A42EDF9764" xml:space="preserve"><value>Permanently clear selected recovery payloads</value></data>
+  <data name="Ui_DFD4A9B9EF666DEF" xml:space="preserve"><value>Recovery could not be completed</value></data>
+  <data name="Ui_7F52B3CDE44CC50F" xml:space="preserve"><value>Operation completed.</value></data>
+  <data name="Ui_1ED2647CD6991770" xml:space="preserve"><value>Search shortcuts</value></data>
+  <data name="Ui_3B7EA51793E9D906" xml:space="preserve"><value>Clear search</value></data>
+  <data name="Ui_A45D6A43369A4E87" xml:space="preserve"><value>Add Application...</value></data>
+  <data name="Ui_962992F2C15B63BD" xml:space="preserve"><value>Recovery...</value></data>
+  <data name="Ui_336C2129E234F83E" xml:space="preserve"><value>Settings...</value></data>
+  <data name="Ui_759E5C8E135F2379" xml:space="preserve"><value>Exit TaskFolder</value></data>
+  <data name="Ui_848E96567D6B48D5" xml:space="preserve"><value>Power</value></data>
+  <data name="Ui_0B184BC5D5341998" xml:space="preserve"><value>Sign Out</value></data>
+  <data name="Ui_D466BCF52EB6921B" xml:space="preserve"><value>Sleep</value></data>
+  <data name="Ui_01980EBB5BA01899" xml:space="preserve"><value>Hibernate</value></data>
+  <data name="Ui_3E45A33D226000ED" xml:space="preserve"><value>Shut Down</value></data>
+  <data name="Ui_6B983A81E5E8099E" xml:space="preserve"><value>Restart</value></data>
+  <data name="Ui_735FD468C5FF31EA" xml:space="preserve"><value>Most Used</value></data>
+  <data name="Ui_D61031ACB443993B" xml:space="preserve"><value>Recently Used</value></data>
+  <data name="Ui_39DACE7340687EE1" xml:space="preserve"><value>(No applications added)</value></data>
+  <data name="Ui_F75E11BA851E12EA" xml:space="preserve"><value>(No matches)</value></data>
+  <data name="Ui_64F0AB71F8E4AB4F" xml:space="preserve"><value>(Empty folder)</value></data>
+  <data name="Ui_2B277C119864E275" xml:space="preserve"><value>Rename...</value></data>
+  <data name="Ui_84A079F6136B1470" xml:space="preserve"><value>Open File Location</value></data>
+  <data name="Ui_19EE7F2BD13DC964" xml:space="preserve"><value>Change Icon...</value></data>
+  <data name="Ui_131078E0CA5A133E" xml:space="preserve"><value>Repair target...</value></data>
+  <data name="Ui_1359626E7B696434" xml:space="preserve"><value>Move Up</value></data>
+  <data name="Ui_B58330AC25057A44" xml:space="preserve"><value>Move Down</value></data>
+  <data name="Ui_4D2A1B56F0A9085D" xml:space="preserve"><value>New Profile...</value></data>
+  <data name="Ui_CFEED6691C4DEFED" xml:space="preserve"><value>New Profile</value></data>
+  <data name="Ui_7983AB66332CABAD" xml:space="preserve"><value>Rename failed.</value></data>
+  <data name="Ui_3DC4D508C00ECAFD" xml:space="preserve"><value>Remove Shortcut</value></data>
+  <data name="Ui_1B7AC464A4D84925" xml:space="preserve"><value>Target could not be repaired</value></data>
+  <data name="Ui_7E5F9B1993FD8667" xml:space="preserve"><value>Select Application to Add</value></data>
+  <data name="Ui_F11B0C85C70BD6B1" xml:space="preserve"><value>TaskFolder Error</value></data>
+  <data name="Ui_679A8CA6DC93FDF3" xml:space="preserve"><value>TaskFolder — Data could not be saved</value></data>
+  <data name="Ui_55CA80505C201E45" xml:space="preserve"><value>TaskFolder — Refresh could not be completed</value></data>
+  <data name="Ui_5FA9BF1B75947BAB" xml:space="preserve"><value>TaskFolder — Power</value></data>
+  <data name="Ui_DC903C4827C00020" xml:space="preserve"><value>
+Open Recovery to inspect interrupted operations.</value></data>
+  <data name="Ui_7C22BEC5917F6645" xml:space="preserve"><value>The launch request was sent, but its statistics could not be saved.
+</value></data>
+  <data name="Ui_748DB9AD0D9A9BEA" xml:space="preserve"><value>Preview and approve legacy data migration before changing shortcuts. The legacy files have not been modified.</value></data>
+  <data name="Ui_2544FC367A7C8D26" xml:space="preserve"><value>Saved data changed. Reload the latest data before retrying; your pending changes have not been saved.</value></data>
+  <data name="Ui_C0349A8C60541994" xml:space="preserve"><value>This saved data needs a compatible TaskFolder version. It has not been overwritten.</value></data>
+  <data name="Ui_93DA1ADB7A2DA751" xml:space="preserve"><value>Saved data needs recovery. The available last-good data is read-only; the original files have been preserved.</value></data>
+  <data name="Ui_1F2E622A454C9495" xml:space="preserve"><value>TaskFolder could not access its data. Check access permissions and reload before retrying.</value></data>
+  <data name="Ui_F99863AD50002D3C" xml:space="preserve"><value>Choose .lnk or .url.</value></data>
+  <data name="Ui_83D43391255898C5" xml:space="preserve"><value>Reparse sources are not supported.</value></data>
+  <data name="Ui_14C660F7E8067693" xml:space="preserve"><value>Working directory does not exist.</value></data>
+  <data name="Ui_CF7D44FEE843F70E" xml:space="preserve"><value>Enter a valid display name.</value></data>
+  <data name="Ui_C140D68DB3EFBA62" xml:space="preserve"><value>Nothing selected.</value></data>
+  <data name="Ui_8307A0DC7AEA6787" xml:space="preserve"><value>Invalid InternetShortcut.</value></data>
+  <data name="Ui_1DFFAF574986BE32" xml:space="preserve"><value>Writable v2 catalog required.</value></data>
+  <data name="Ui_1F98720D34F4413E" xml:space="preserve"><value>Compressed archive exceeds quota.</value></data>
+  <data name="Ui_9DB5CEBB887EA9BB" xml:space="preserve"><value>Too many archive entries.</value></data>
+  <data name="Ui_26252213CBDE0137" xml:space="preserve"><value>Icon quota exceeded.</value></data>
+  <data name="Ui_3B4AC644948245CD" xml:space="preserve"><value>Streaming quota exceeded.</value></data>
+  <data name="Ui_BC8D1B9E32CC3D39" xml:space="preserve"><value>Truncated payload.</value></data>
+  <data name="Ui_796DA809E6903984" xml:space="preserve"><value>Missing or oversized manifest.</value></data>
+  <data name="Ui_7E1D682B1B2E4E2F" xml:space="preserve"><value>Unsupported archive schema.</value></data>
+  <data name="Ui_40CBBFE66A38A4D6" xml:space="preserve"><value>Catalog entry quota exceeded.</value></data>
+  <data name="Ui_358921B92303B7B9" xml:space="preserve"><value>Invalid link payload binding.</value></data>
+  <data name="Ui_1F64F81F830C0538" xml:space="preserve"><value>Invalid icon asset binding.</value></data>
+  <data name="Ui_FC4F562012DE9A6F" xml:space="preserve"><value>Undeclared payload.</value></data>
+  <data name="Ui_06CD35497C009526" xml:space="preserve"><value>Managed icon asset is missing.</value></data>
+  <data name="Ui_D4FB396BC866697B" xml:space="preserve"><value>Export exceeds archive limits.</value></data>
+  <data name="Ui_6D4627A0AA09731F" xml:space="preserve"><value>Payload exceeds quota.</value></data>
+  <data name="Ui_1A0FDE82223EDB44" xml:space="preserve"><value>Archive path is not whitelisted.</value></data>
+  <data name="Ui_124E1461C2FC8D8D" xml:space="preserve"><value>Nonregular archive payload.</value></data>
+  <data name="Ui_A4D2E720FEC208B9" xml:space="preserve"><value>Select at least one profile.</value></data>
+  <data name="Ui_D79C767F1CD82D74" xml:space="preserve"><value>Profile exists: choose another prefix or explicitly merge.</value></data>
+  <data name="Ui_958CF9A92B037816" xml:space="preserve"><value>Enter an unused replacement path for this item.</value></data>
+  <data name="Ui_02EB2BD53FFE3B00" xml:space="preserve"><value>Replacement must retain shortcut kind; raw EXE cannot be replaced.</value></data>
+  <data name="Ui_58504CA54AD3DAB6" xml:space="preserve"><value>Link definition is missing.</value></data>
+  <data name="Ui_8EA3B93DC8294555" xml:space="preserve"><value>Link targets, arguments and external dependencies are untrusted; nothing is launched. Installed programs and local Windows integration are not restored.</value></data>
+  <data name="Ui_5E3477F010151F53" xml:space="preserve"><value>Missing definition: </value></data>
+  <data name="Ui_A1A11B80A2319C17" xml:space="preserve"><value>Raw executable exported as external link: </value></data>
+  <data name="Ui_F565DC94ED3E1BDB" xml:space="preserve"><value>Launch definition needs review: </value></data>
+  <data name="Ui_D06BF230A8C7A728" xml:space="preserve"><value>External icon dependency retained: </value></data>
+  <data name="Ui_CC99FE9ABCDF55C8" xml:space="preserve"><value>Icon extraction unavailable.</value></data>
+  <data name="Ui_A4FE65264EF7DBB3" xml:space="preserve"><value>Language</value></data>
+  <data name="Ui_EFB52E7172B77731" xml:space="preserve"><value>Theme</value></data>
+  <data name="Ui_270FBDA86963189D" xml:space="preserve"><value>Language and theme</value></data>
+  <data name="Ui_6725E7BBCD28F3A8" xml:space="preserve"><value>System</value></data>
+  <data name="Ui_DBCD5E7BB7A0F538" xml:space="preserve"><value>Light</value></data>
+  <data name="Ui_60ACC53F13A5D1BF" xml:space="preserve"><value>Dark</value></data>
+  <data name="Ui_28D03596D24EEB4E" xml:space="preserve"><value>Skip</value></data>
+  <data name="Ui_3064D79A295CEFE4" xml:space="preserve"><value>Rename</value></data>
+  <data name="Ui_95E154398A4BC009" xml:space="preserve"><value>Replace</value></data>
+  <data name="Ui_1B469286816A54E6" xml:space="preserve"><value>ShellLink</value></data>
+  <data name="Ui_157CE98B9A370DC7" xml:space="preserve"><value>Url</value></data>
+  <data name="Ui_72CD8A64E591C9EE" xml:space="preserve"><value>Executable</value></data>
+  <data name="Ui_37932E60421E3A9B" xml:space="preserve"><value>Prepared</value></data>
+  <data name="Ui_F0EC57F6A7D9B42C" xml:space="preserve"><value>FileApplied</value></data>
+  <data name="Ui_5E0D13F7424B7C36" xml:space="preserve"><value>FilesApplied</value></data>
+  <data name="Ui_44F46EF1C4149371" xml:space="preserve"><value>StatePersisted</value></data>
+  <data name="Ui_208A0F9A4453D9DE" xml:space="preserve"><value>StateCommitted</value></data>
+  <data name="Ui_22A970D2E5B1CC23" xml:space="preserve"><value>Completed</value></data>
+  <data name="Ui_347BC4403D48C4FB" xml:space="preserve"><value>RolledBack</value></data>
+  <data name="Ui_461B5684B64F1584" xml:space="preserve"><value>ApplyImport</value></data>
+  <data name="Ui_56FA33B2464BE657" xml:space="preserve"><value>CreateFolder</value></data>
+  <data name="Ui_327F8BC5CBC73A7A" xml:space="preserve"><value>CreateProfile</value></data>
+  <data name="Ui_FBFDBD303821C2EA" xml:space="preserve"><value>DeleteProfile</value></data>
+  <data name="Ui_14AC200E93F72412" xml:space="preserve"><value>Reorder</value></data>
+  <data name="Ui_C02831761AD1D282" xml:space="preserve"><value>SaveSnapshot</value></data>
+  <data name="Ui_B59BE5659F714E06" xml:space="preserve"><value>Reconcile</value></data>
+  <data name="Ui_A76E13B9839270EB" xml:space="preserve"><value>Restore</value></data>
+  <data name="Ui_544BCCE5571F0662" xml:space="preserve"><value>PurgePrepared</value></data>
+  <data name="Ui_46E978D0C19397C7" xml:space="preserve"><value>Shortcuts</value></data>
+  <data name="Ui_ABC7E9892806B047" xml:space="preserve"><value>Files</value></data>
+  <data name="Ui_8B541C818269729D" xml:space="preserve"><value>Icon files</value></data>
+  <data name="Ui_9D481D6F57A28F18" xml:space="preserve"><value>Image files</value></data>
+  <data name="Ui_866956901FD15362" xml:space="preserve"><value>All files</value></data>
+  <data name="Ui_5028FE65A06DDCDB" xml:space="preserve"><value>Remove all shortcuts in the current profile? Managed links can be restored through Recovery; targets and raw EXE files remain.</value></data>
+  <data name="Ui_F3667A1FD9F33C4E" xml:space="preserve"><value>Fatal error starting TaskFolder:
+
+{0}</value></data>
+  <data name="Ui_4F41942F67C96716" xml:space="preserve"><value>TaskFolder loaded the last-good saved data in read-only mode.
+</value></data>
+  <data name="Ui_2F481513F008BF52" xml:space="preserve"><value>Unable to complete this action. It may be unavailable in Windows power settings or blocked by system policy.
+
+{0}</value></data>
+  <data name="Ui_7F269333DFE67A3F" xml:space="preserve"><value>Failed to launch application:
+{0}</value></data>
+  <data name="Ui_88824C4E429BAA01" xml:space="preserve"><value>Launched {0}</value></data>
+  <data name="Ui_5345754D44685EBA" xml:space="preserve"><value>Failed to add application:
+{0}</value></data>
+  <data name="Ui_70D25D683BEA9184" xml:space="preserve"><value>Failed to open shortcuts folder:
+{0}</value></data>
+  <data name="Ui_51D4ED707BC365F5" xml:space="preserve"><value>Remove &apos;{0}&apos; from TaskFolder?</value></data>
+  <data name="Ui_7C50CCFD81812BFF" xml:space="preserve"><value>Failed to open location:
+{0}</value></data>
+  <data name="Ui_164EFC52D7B407A4" xml:space="preserve"><value>Folder: {0}</value></data>
+  <data name="Ui_A170660E02F37F6E" xml:space="preserve"><value>TaskFolder {0} — Windows application launcher — MIT License</value></data>
+  <data name="Ui_ADCE5B888D9B761F" xml:space="preserve"><value>Windows registration could not be read: {0}</value></data>
+  <data name="Ui_1E29F4A14B007010" xml:space="preserve"><value>Windows integration could not be fully updated:
+{0}</value></data>
+  <data name="Ui_47A809EA7846B67F" xml:space="preserve"><value>Could not open Windows settings:
+{0}</value></data>
+  <data name="Ui_9A2757338E4A279A" xml:space="preserve"><value>Failed to open folder:
+{0}</value></data>
+  <data name="Ui_5AAD4AE5D1BCAA7C" xml:space="preserve"><value>Select Menu Header Logo</value></data>
+  <data name="Ui_2160EC97D9A5EAB5" xml:space="preserve"><value>Failed to clear shortcuts:
+{0}</value></data>
+  <data name="Ui_4D1ACB755CA4D7EE" xml:space="preserve"><value>Startup could not be updated:
+{0}</value></data>
+  <data name="Ui_3B49A04664EA5CAE" xml:space="preserve"><value>TaskFolder data could not be saved or verified ({0}). Check disk space and file locks, then reload before retrying.</value></data>
+  <data name="Ui_90FC33AD2253462E" xml:space="preserve"><value>{0:N0} payload bytes, {1:N0} record bytes. Nothing is removed automatically.</value></data>
+  <data name="Ui_29E02D8BB615B57C" xml:space="preserve"><value>Permanently clear recovery data for {0} ({1:N0} payload bytes and {2:N0} record bytes)?
+</value></data>
+  <data name="Ui_DDA9A6D8652493E2" xml:space="preserve"><value>px — larger rows are easier to click</value></data>
+  <data name="Ui_0423256EF2A44D57" xml:space="preserve"><value>pt — menu, search, and submenus</value></data>
+  <data name="ShortcutCount_One" xml:space="preserve"><value>{0} shortcut</value></data>
+  <data name="ShortcutCount_Few" xml:space="preserve"><value>{0} shortcuts</value></data>
+  <data name="ShortcutCount_Many" xml:space="preserve"><value>{0} shortcuts</value></data>
+  <data name="OperationCount_One" xml:space="preserve"><value>{0} operation</value></data>
+  <data name="OperationCount_Few" xml:space="preserve"><value>{0} operations</value></data>
+  <data name="OperationCount_Many" xml:space="preserve"><value>{0} operations</value></data>
+  <data name="Ui_B7FD2ABC540D8469" xml:space="preserve"><value>Lock widget position</value></data>
+  <data name="Ui_9DF42264B914035C" xml:space="preserve"><value>Hover delay:</value></data>
+  <data name="Ui_C5F712E6DBDC1550" xml:space="preserve"><value>ms (100–1500)</value></data>
+  <data name="Ui_DA3FB56081016EDD" xml:space="preserve"><value>Position locked. Click to open shortcuts.</value></data>
+  <data name="Ui_F1CEC6E8907B2C2D" xml:space="preserve"><value>Click to open shortcuts. Drag to move the widget.</value></data>
+  <data name="Ui_E08CADB24B2A7F58" xml:space="preserve"><value>TaskFolder: position locked. Click to open; right-click for Settings.</value></data>
+  <data name="Ui_01C65FDB54F058FD" xml:space="preserve"><value>TaskFolder: click to open, drag to move. Right-click for Settings.</value></data>
+  <data name="Ui_CB3B04D043FCC50D" xml:space="preserve"><value>Preview catalog migration</value></data>
+  <data name="Ui_5B529ABADACC1D5D" xml:space="preserve"><value>Refresh preview</value></data>
+  <data name="Ui_30892A066B939885" xml:space="preserve"><value>Create snapshot and migrate</value></data>
+  <data name="Ui_A14813FBA360103B" xml:space="preserve"><value>Create the shown migration snapshot and state.v2.json in this data root? Original legacy files and raw EXE files remain unchanged.</value></data>
+  <data name="Ui_57BA9D56FF6F21A8" xml:space="preserve"><value>Profiles: {0}; folders: {1}; shortcuts: {2}; unresolved records: {3}</value></data>
+  <data name="Ui_0ED365B0D17A66C3" xml:space="preserve"><value>Snapshot: {0}; bytes: {1:N0}</value></data>
+  <data name="Ui_1F8D945F830C3082" xml:space="preserve"><value>Stop TaskFolder; restore the migration snapshot only before further file operations. Keep raw executables in place.</value></data>
+  <data name="Add_CatalogLimited" xml:space="preserve"><value>Desktop and PWA catalog only. Packaged apps are disabled pending native identity verification.</value></data>
+  <data name="Ui_1D8607FDA3B0547B" xml:space="preserve"><value>Existing definition could not be compared: {0}</value></data>
+  <data name="Ui_58CBBBA05F3A07C9" xml:space="preserve"><value>Open menu on hover</value></data>
+  <data name="Ui_AFB1CF9ABBD4F904" xml:space="preserve"><value>Drag anywhere on the desktop; position is saved. The widget stays below applications. Use the tray icon while working in an app. Right-click for Settings.</value></data>
+  <data name="Ui_B71E98BC44A11670" xml:space="preserve"><value>Show desktop TaskFolder widget</value></data>
+  <data name="Ui_EFE79A9C50FC471A" xml:space="preserve"><value>Desktop widget</value></data>
+  <data name="Ui_76A12C7709A85587" xml:space="preserve"><value>Widget size:</value></data>
+  <data name="Ui_07A9F1988732542A" xml:space="preserve"><value>Menu hide delay:</value></data>
+  <data name="Ui_1027C5163230A4C7" xml:space="preserve"><value>ms (200–2000)</value></data>
+  <data name="Ui_2C8F62C95049FA69" xml:space="preserve"><value>Hover menus hide after the pointer leaves the widget and menu. Returning cancels the countdown; keyboard input keeps the menu open.</value></data>
+</root>

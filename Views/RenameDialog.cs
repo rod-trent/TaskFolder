@@ -1,3 +1,4 @@
+using L = TaskFolder.Services.LocalizationService;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -7,7 +8,7 @@ namespace TaskFolder.Views
     /// <summary>
     /// A simple modal dialog for renaming a shortcut.
     /// </summary>
-    public class RenameDialog : Form
+    public class RenameDialog : ThemedForm
     {
         private TextBox _txtName;
         private Button _btnOK;
@@ -18,7 +19,7 @@ namespace TaskFolder.Views
 
         public RenameDialog(string currentName)
         {
-            Text = "Rename Shortcut";
+            Text = L.Text("Rename Shortcut");
             Size = new Size(340, 130);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -27,7 +28,7 @@ namespace TaskFolder.Views
 
             var lbl = new Label
             {
-                Text = "New name:",
+                Text = L.Text("New name:"),
                 Location = new Point(12, 14),
                 AutoSize = true
             };
@@ -43,7 +44,7 @@ namespace TaskFolder.Views
 
             _btnOK = new Button
             {
-                Text = "OK",
+                Text = L.Text("OK"),
                 DialogResult = DialogResult.OK,
                 Location = new Point(154, 62),
                 Width = 75
@@ -52,14 +53,14 @@ namespace TaskFolder.Views
             {
                 if (string.IsNullOrWhiteSpace(NewName))
                 {
-                    MessageBox.Show("Name cannot be empty.", "Rename", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(L.Text("Name cannot be empty."), "Rename", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     DialogResult = DialogResult.None;
                 }
             };
 
             _btnCancel = new Button
             {
-                Text = "Cancel",
+                Text = L.Text("Cancel"),
                 DialogResult = DialogResult.Cancel,
                 Location = new Point(235, 62),
                 Width = 75
