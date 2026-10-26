@@ -3,6 +3,10 @@ bin/
 obj/
 installer/
 
+# Disposable local QA evidence and prototype/release build folders
+.qa/
+artifacts/
+
 # Zips / archives
 *.zip
 

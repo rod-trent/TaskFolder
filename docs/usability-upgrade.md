@@ -82,6 +82,6 @@ The initial Shell/Windows integration execution failures returned Win32 error 5.
 
 ## Build and artifact discipline
 
-Keep QA output under an external task directory. Existing bin/obj and the narrowly ignored installer directory contain disposable tooling output. Source snapshots are explicit manifests plus hashes; do not recursively copy the repository into itself. The source folder used for this work has no Git metadata: no branch/remote/HEAD, commit or push can be claimed.
+Keep QA output under an external task directory. Existing bin/obj and the narrowly ignored installer directory contain disposable tooling output. Source snapshots are explicit manifests plus hashes; do not recursively copy the repository into itself. The original local release freeze preceded Git initialization; its manifests retain `git: null`. The public repository update and stable tag are recorded in [repository provenance](repository-origin.md).
 
 Build-server and task-created UI processes must stop after QA. Keep minimal synthetic evidence and immutable source/publish manifests. Do not delete unrelated artifacts or user data as cleanup. A published folder must retain `ru/TaskFolder.resources.dll`, TaskFolder.dll and its runtime/config dependencies; single-file extraction is disabled.

@@ -2,6 +2,21 @@
 
 Local Windows application launcher with a tray menu and optional desktop widget.
 
+## Origin and maintenance
+
+This is an independently maintained continuation (source fork) of
+[Rod Trent's TaskFolder](https://github.com/rod-trent/TaskFolder), maintained here
+by [@sorrowwind](https://github.com/sorrowwind).
+
+This fork continues development of an apparently inactive upstream project. As
+checked on 2026-10-27, the latest upstream commit was
+[`fa5a6d3`](https://github.com/rod-trent/TaskFolder/commit/fa5a6d30c0d1b46c8f36a7c89dfb878b13c7cd12),
+dated 2026-04-02; GitHub does not mark that repository as archived. The original
+MIT license and **Copyright (c) 2026 Rod Trent** are preserved in [LICENSE](LICENSE).
+
+This is a public GitHub fork retaining its upstream link and Git history.
+See [repository provenance](docs/repository-origin.md).
+
 ## Stable release
 
 `1.3.0` is the stable local release approved by Andrey on 2026-10-26. It includes the desktop widget, the Gates icon, configurable widget size and hover-menu dismissal, consistent submenu typography, menu fades and deferred Settings opening. It targets Windows 10/11 and .NET 8 Windows Desktop. The self-contained folder includes its runtime; framework-dependent builds require that runtime separately. See [release notes and verification boundaries](docs/releases/1.3.0.md).
@@ -89,6 +104,6 @@ Keep the complete folder, including `TaskFolder.dll`, runtime files and `ru/Task
 
 The completion report records exact checks and source/artifact hashes. Packaged Shell identity and isolated Windows integration execution are blocked by Windows access-denied errors on their test hosts. Full keyboard/IME, repeated drag/cancel, live theme/DPI/high-contrast, real app/PWA launch, Windows 10, real taskbar/monitor lifecycle, and warm actual menu-open p95 remain separate acceptance scenarios. Green fixtures do not establish those results.
 
-The accepted build was applied to the installed application during this local workflow. The stable release is recorded in [the release notes](docs/releases/1.3.0.md). No real-data migration or public upload is part of this release. This source folder has no Git metadata; no commit, push or Git release tag is claimed.
+The accepted build was applied to the installed application during this local workflow. The stable release is recorded in [the release notes](docs/releases/1.3.0.md) and the [`v1.3.0` Git tag](https://github.com/sorrowwind/TaskFolder/tree/v1.3.0). The original local artifacts were frozen before Git was initialized; their checksums are retained unchanged. No real-data migration is part of this repository import.
 
-MIT License; see `LICENSE.txt`.
+MIT License; see [LICENSE](LICENSE) for the original copyright notice and [LICENSE.txt](LICENSE.txt) for the legacy distribution notice.
