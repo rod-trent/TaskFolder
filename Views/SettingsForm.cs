@@ -318,7 +318,7 @@ namespace TaskFolder.Views
             var grpAbout = new GroupBox { Text = "About", Location = new Point(X, y), Size = new Size(W, 65) };
             grpAbout.Controls.Add(new Label
             {
-                Text = "TaskFolder v1.2.0 — Windows 11 Application Launcher — MIT License",
+                Text = "TaskFolder v1.3.0 — Windows 11 Application Launcher — MIT License",
                 Location = new Point(12, 22),
                 Size = new Size(W - 24, 32),
                 TextAlign = ContentAlignment.MiddleCenter
