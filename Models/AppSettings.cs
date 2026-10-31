@@ -28,6 +28,11 @@ namespace TaskFolder.Models
         /// </summary>
         public string ProfilesRootPath { get; set; } = null;
 
+        // Mouse hotkey
+        public bool MouseHotkeyEnabled { get; set; } = false;
+        /// <summary>"Middle", "XButton1" (back), or "XButton2" (forward).</summary>
+        public string MouseHotkeyButton { get; set; } = "Middle";
+
         /// <summary>Font size (pt) for the tray menu. Range 7–20.</summary>
         public float MenuFontSize { get; set; } = 9f;
 

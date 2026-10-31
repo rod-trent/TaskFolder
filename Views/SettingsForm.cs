@@ -16,6 +16,7 @@ namespace TaskFolder.Views
         private readonly ShortcutManager _shortcutManager;
         private readonly SettingsService _settingsService;
         private readonly HotkeyService _hotkeyService;
+        private readonly MouseHotkeyService _mouseHotkeyService;
 
         // Controls
         private CheckBox _chkAutoStart;
@@ -33,6 +34,12 @@ namespace TaskFolder.Views
         private Button _btnClearProfilesRoot;
         private Button _btnUseDropbox;
 
+        // Mouse hotkey
+        private CheckBox _chkMouseHotkeyEnabled;
+        private Label _lblMouseButton;
+        private Button _btnSetMouseButton;
+        private string _capturedMouseButton;
+
         // Appearance
         private NumericUpDown _nudFontSize;
         private CheckBox _chkDarkMode;
@@ -43,11 +50,13 @@ namespace TaskFolder.Views
 
         public SettingsForm(ShortcutManager shortcutManager,
                             SettingsService settingsService,
-                            HotkeyService hotkeyService)
+                            HotkeyService hotkeyService,
+                            MouseHotkeyService mouseHotkeyService = null)
         {
             _shortcutManager = shortcutManager;
             _settingsService = settingsService;
             _hotkeyService = hotkeyService;
+            _mouseHotkeyService = mouseHotkeyService;
             InitializeComponent();
             LoadSettings();
         }
@@ -133,6 +142,37 @@ namespace TaskFolder.Views
 
             Controls.Add(grpHotkey);
             y += grpHotkey.Height + 8;
+
+            // ── Mouse Hotkey ─────────────────────────────────────────────────────
+            var grpMouse = new GroupBox { Text = "Mouse Button Hotkey", Location = new Point(X, y), Size = new Size(W, 80) };
+
+            _chkMouseHotkeyEnabled = new CheckBox
+            {
+                Text = "Enable mouse button hotkey",
+                Location = new Point(12, 20),
+                Size = new Size(200, 20)
+            };
+            grpMouse.Controls.Add(_chkMouseHotkeyEnabled);
+
+            _lblMouseButton = new Label
+            {
+                Text = "Button: Middle Button",
+                Location = new Point(12, 48),
+                AutoSize = true
+            };
+            grpMouse.Controls.Add(_lblMouseButton);
+
+            _btnSetMouseButton = new Button
+            {
+                Text = "Set Button...",
+                Location = new Point(W - 130, 44),
+                Size = new Size(110, 26)
+            };
+            _btnSetMouseButton.Click += BtnSetMouseButton_Click;
+            grpMouse.Controls.Add(_btnSetMouseButton);
+
+            Controls.Add(grpMouse);
+            y += grpMouse.Height + 8;
 
             // ── Shortcuts Management ─────────────────────────────────────────────
             var grpShortcuts = new GroupBox { Text = "Shortcuts Management", Location = new Point(X, y), Size = new Size(W, 100) };
@@ -351,6 +391,10 @@ namespace TaskFolder.Views
             _chkHotkeyEnabled.Checked = _settingsService.Settings.HotkeyEnabled;
             _txtProfilesRoot.Text = _settingsService.Settings.ProfilesRootPath ?? string.Empty;
 
+            _chkMouseHotkeyEnabled.Checked = _settingsService.Settings.MouseHotkeyEnabled;
+            _capturedMouseButton = _settingsService.Settings.MouseHotkeyButton ?? "Middle";
+            _lblMouseButton.Text = "Button: " + MouseHotkeyService.FriendlyName(_capturedMouseButton);
+
             float fs = _settingsService.Settings.MenuFontSize;
             _nudFontSize.Value = (decimal)(fs >= 7f && fs <= 20f ? fs : 9f);
             _chkDarkMode.Checked = _settingsService.Settings.DarkMode;
@@ -400,6 +444,17 @@ namespace TaskFolder.Views
             {
                 MessageBox.Show($"Failed to update startup settings:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnSetMouseButton_Click(object sender, EventArgs e)
+        {
+            using var dlg = new MouseButtonCaptureDialog();
+            if (dlg.ShowDialog(this) == DialogResult.OK && dlg.CapturedButton != null)
+            {
+                _capturedMouseButton = dlg.CapturedButton;
+                _lblMouseButton.Text = "Button: " + MouseHotkeyService.FriendlyName(_capturedMouseButton);
+                _chkMouseHotkeyEnabled.Checked = true;
             }
         }
 
@@ -529,6 +584,9 @@ namespace TaskFolder.Views
             string syncPath = _txtProfilesRoot.Text.Trim();
             _settingsService.Settings.ProfilesRootPath = string.IsNullOrEmpty(syncPath) ? null : syncPath;
 
+            _settingsService.Settings.MouseHotkeyEnabled = _chkMouseHotkeyEnabled.Checked;
+            _settingsService.Settings.MouseHotkeyButton = _capturedMouseButton;
+
             _settingsService.Settings.MenuFontSize = (float)_nudFontSize.Value;
             _settingsService.Settings.DarkMode = _chkDarkMode.Checked;
             var terms = _txtCleanupTerms.Text
@@ -538,10 +596,18 @@ namespace TaskFolder.Views
 
             _settingsService.Save();
 
-            // Apply hotkey change
+            // Apply keyboard hotkey change
             _hotkeyService.Unregister();
             if (hotkeyEnabled)
                 _hotkeyService.Register(mods, key);
+
+            // Apply mouse hotkey change
+            if (_mouseHotkeyService != null)
+            {
+                _mouseHotkeyService.Unregister();
+                if (_chkMouseHotkeyEnabled.Checked)
+                    _mouseHotkeyService.Register(_capturedMouseButton);
+            }
 
             Close();
         }

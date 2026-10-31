@@ -62,6 +62,7 @@ namespace TaskFolder
         private ShortcutManager _shortcutManager;
         private ProfileService _profileService;
         private HotkeyService _hotkeyService;
+        private MouseHotkeyService _mouseHotkeyService;
 
         // ── Tray UI ─────────────────────────────────────────────────────────────
         private NotifyIcon _trayIcon;
@@ -78,17 +79,23 @@ namespace TaskFolder
             _shortcutManager = new ShortcutManager(_settingsService);
             _profileService = new ProfileService(_settingsService, _shortcutManager);
             _hotkeyService = new HotkeyService();
+            _mouseHotkeyService = new MouseHotkeyService();
 
             _shortcutManager.ShortcutsChanged += OnShortcutsChanged;
             _hotkeyService.HotkeyPressed += OnHotkeyPressed;
+            _mouseHotkeyService.MouseHotkeyPressed += OnHotkeyPressed;
 
-            // Register hotkey if enabled
+            // Register keyboard hotkey if enabled
             if (_settingsService.Settings.HotkeyEnabled)
             {
                 _hotkeyService.Register(
                     _settingsService.Settings.HotkeyModifiers,
                     _settingsService.Settings.HotkeyKey);
             }
+
+            // Register mouse hotkey if enabled
+            if (_settingsService.Settings.MouseHotkeyEnabled)
+                _mouseHotkeyService.Register(_settingsService.Settings.MouseHotkeyButton);
 
             InitializeTrayIcon();
             // Force handle creation so InvokeRequired/BeginInvoke work from background threads.
@@ -817,7 +824,7 @@ namespace TaskFolder
 
         private void OnSettings(object sender, EventArgs e)
         {
-            using var form = new SettingsForm(_shortcutManager, _settingsService, _hotkeyService);
+            using var form = new SettingsForm(_shortcutManager, _settingsService, _hotkeyService, _mouseHotkeyService);
             form.ShowDialog();
             // Re-apply tooltip in case profile changed
             UpdateTrayTooltip();
@@ -911,6 +918,7 @@ namespace TaskFolder
             _trayIcon.Visible = false;
             _shortcutManager?.Dispose();
             _hotkeyService?.Dispose();
+            _mouseHotkeyService?.Dispose();
             Application.Exit();
         }
 
@@ -922,6 +930,7 @@ namespace TaskFolder
                 _trayMenu?.Dispose();
                 _shortcutManager?.Dispose();
                 _hotkeyService?.Dispose();
+                _mouseHotkeyService?.Dispose();
             }
             base.Dispose(disposing);
         }
