@@ -149,7 +149,15 @@ namespace TaskFolder
 
         private ContextMenuStrip BuildTrayMenu()
         {
-            var menu = new ContextMenuStrip();
+            var settings = _settingsService.Settings;
+            float fontSize = settings.MenuFontSize is >= 7f and <= 20f ? settings.MenuFontSize : 9f;
+
+            var menu = new ContextMenuStrip
+            {
+                Font = new Font("Segoe UI", fontSize)
+            };
+            if (settings.DarkMode)
+                menu.Renderer = new Views.DarkModeRenderer();
 
             // Keep the tray menu alive while a per-item right-click context menu is open.
             menu.Closing += (s, e) =>
@@ -220,7 +228,7 @@ namespace TaskFolder
             {
                 var item = _trayMenu.Items[i];
                 if (item is ToolStripMenuItem mi &&
-                    (mi.Tag is ShortcutItem || mi.Tag is string s && s == "category" ||
+                    (mi.Tag is ShortcutItem || mi.Tag is string s && (s == "category" || s == "stub") ||
                      mi.Text == "(No applications added)"))
                 {
                     _trayMenu.Items.RemoveAt(i);
@@ -326,9 +334,10 @@ namespace TaskFolder
             {
                 string emptyText = string.IsNullOrWhiteSpace(_searchFilter)
                     ? "(No applications added)"
-                    : "(No matches)";
+                    : $"(No matches for \"{_searchFilter}\")";
                 _trayMenu.Items.Insert(insertAt, new ToolStripMenuItem(emptyText)
                 {
+                    Tag = "stub",
                     Enabled = false,
                     Font = new Font(_trayMenu.Font, FontStyle.Italic),
                     ForeColor = Color.Gray
@@ -336,9 +345,16 @@ namespace TaskFolder
             }
         }
 
+        private string CleanDisplayName(string name)
+        {
+            foreach (var term in _settingsService.Settings.NameCleanupTerms ?? [])
+                name = name.Replace(term, string.Empty, StringComparison.OrdinalIgnoreCase);
+            return name.Trim();
+        }
+
         private ToolStripMenuItem BuildShortcutItem(ShortcutItem shortcut)
         {
-            string displayName = shortcut.GetDisplayName();
+            string displayName = CleanDisplayName(shortcut.GetDisplayName());
             string pinnedPrefix = shortcut.IsPinned ? "📌 " : "";
 
             var menuItem = new ToolStripMenuItem(
@@ -477,6 +493,8 @@ namespace TaskFolder
                 item.Click += (s, e) =>
                 {
                     _profileService.SwitchProfile(captured);
+                    _searchFilter = string.Empty;
+                    if (_searchBox != null) _searchBox.Text = string.Empty;
                     UpdateTrayTooltip();
                     RefreshShortcutsList();
                 };

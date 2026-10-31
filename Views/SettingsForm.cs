@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using TaskFolder.Services;
@@ -31,6 +32,11 @@ namespace TaskFolder.Views
         private Button _btnBrowseProfilesRoot;
         private Button _btnClearProfilesRoot;
         private Button _btnUseDropbox;
+
+        // Appearance
+        private NumericUpDown _nudFontSize;
+        private CheckBox _chkDarkMode;
+        private TextBox _txtCleanupTerms;
 
         private Button _btnOK;
         private Button _btnCancel;
@@ -222,6 +228,53 @@ namespace TaskFolder.Views
             Controls.Add(grpSync);
             y += grpSync.Height + 8;
 
+            // ── Appearance ───────────────────────────────────────────────────────
+            var grpAppearance = new GroupBox
+            {
+                Text = "Appearance",
+                Location = new Point(X, y),
+                Size = new Size(W, 120)
+            };
+
+            grpAppearance.Controls.Add(new Label { Text = "Menu font size (pt):", Location = new Point(12, 22), AutoSize = true });
+            _nudFontSize = new NumericUpDown
+            {
+                Location = new Point(130, 19),
+                Width = 60,
+                Minimum = 7,
+                Maximum = 20,
+                DecimalPlaces = 0,
+                Value = 9
+            };
+            grpAppearance.Controls.Add(_nudFontSize);
+            grpAppearance.Controls.Add(new Label { Text = "(requires restart)", Location = new Point(198, 22), AutoSize = true, ForeColor = System.Drawing.Color.Gray });
+
+            _chkDarkMode = new CheckBox
+            {
+                Text = "Dark mode menu",
+                Location = new Point(12, 48),
+                AutoSize = true
+            };
+            grpAppearance.Controls.Add(_chkDarkMode);
+            grpAppearance.Controls.Add(new Label { Text = "(requires restart)", Location = new Point(138, 50), AutoSize = true, ForeColor = System.Drawing.Color.Gray });
+
+            grpAppearance.Controls.Add(new Label
+            {
+                Text = "Strip from shortcut names (one per line, case-insensitive):",
+                Location = new Point(12, 75),
+                AutoSize = true
+            });
+            _txtCleanupTerms = new TextBox
+            {
+                Location = new Point(12, 92),
+                Size = new Size(W - 24, 20),
+                ScrollBars = ScrollBars.None
+            };
+            grpAppearance.Controls.Add(_txtCleanupTerms);
+
+            Controls.Add(grpAppearance);
+            y += grpAppearance.Height + 8;
+
             // ── Taskbar Visibility ───────────────────────────────────────────────
             var grpTray = new GroupBox
             {
@@ -297,6 +350,11 @@ namespace TaskFolder.Views
             _chkShowNotifications.Checked = _settingsService.Settings.ShowNotifications;
             _chkHotkeyEnabled.Checked = _settingsService.Settings.HotkeyEnabled;
             _txtProfilesRoot.Text = _settingsService.Settings.ProfilesRootPath ?? string.Empty;
+
+            float fs = _settingsService.Settings.MenuFontSize;
+            _nudFontSize.Value = (decimal)(fs >= 7f && fs <= 20f ? fs : 9f);
+            _chkDarkMode.Checked = _settingsService.Settings.DarkMode;
+            _txtCleanupTerms.Text = string.Join(", ", _settingsService.Settings.NameCleanupTerms ?? []);
 
             // Modifiers
             string mod = _settingsService.Settings.HotkeyModifiers ?? "Ctrl+Alt";
@@ -470,6 +528,13 @@ namespace TaskFolder.Views
 
             string syncPath = _txtProfilesRoot.Text.Trim();
             _settingsService.Settings.ProfilesRootPath = string.IsNullOrEmpty(syncPath) ? null : syncPath;
+
+            _settingsService.Settings.MenuFontSize = (float)_nudFontSize.Value;
+            _settingsService.Settings.DarkMode = _chkDarkMode.Checked;
+            var terms = _txtCleanupTerms.Text
+                .Split(new[] { ',', '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
+            _settingsService.Settings.NameCleanupTerms = new System.Collections.Generic.List<string>(
+                System.Array.ConvertAll(terms, t => t.Trim()).Where(t => t.Length > 0));
 
             _settingsService.Save();
 

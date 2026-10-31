@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace TaskFolder.Models
 {
@@ -26,5 +27,20 @@ namespace TaskFolder.Models
         /// Point this at a OneDrive or network folder to sync across machines.
         /// </summary>
         public string ProfilesRootPath { get; set; } = null;
+
+        /// <summary>Font size (pt) for the tray menu. Range 7–20.</summary>
+        public float MenuFontSize { get; set; } = 9f;
+
+        /// <summary>Use a dark background for the tray menu.</summary>
+        public bool DarkMode { get; set; } = false;
+
+        /// <summary>
+        /// Substrings stripped from shortcut display names (case-insensitive).
+        /// Lets you turn "Total Commander – Shortcut" into "Total Commander".
+        /// </summary>
+        public List<string> NameCleanupTerms { get; set; } = new()
+        {
+            " - Shortcut", " - shortcut", ".lnk", ".exe", ".url"
+        };
     }
 }
