@@ -550,6 +550,11 @@ namespace TaskFolder
         /// Shows the menu at the current cursor position, snapping to keep it
         /// fully on the screen the cursor is on. Used for hotkey-triggered opens
         /// so the menu appears on the same monitor as the active work.
+        ///
+        /// A 1×1 invisible owner form is created on the target screen so the
+        /// ContextMenuStrip receives proper focus and auto-closes when the user
+        /// clicks elsewhere (without an owner, WM_ACTIVATE is never delivered
+        /// and the menu stays open indefinitely).
         /// </summary>
         private void ShowMenuAtCursor()
         {
@@ -560,7 +565,29 @@ namespace TaskFolder
             int x = Math.Min(cursorPos.X, screen.WorkingArea.Right - 260);
             int y = Math.Min(cursorPos.Y, screen.WorkingArea.Bottom - 420);
 
-            _trayMenu.Show(new Point(x, y));
+            // Invisible 1×1 owner form positioned on the correct monitor.
+            // It activates the app so the menu receives focus and click-away events.
+            var owner = new Form
+            {
+                Size = new Size(1, 1),
+                Location = new Point(x, y),
+                FormBorderStyle = FormBorderStyle.None,
+                ShowInTaskbar = false,
+                Opacity = 0
+            };
+            owner.Show();
+            owner.Activate();
+
+            // Dispose the owner form once the menu closes.
+            ToolStripDropDownClosedEventHandler onClosed = null;
+            onClosed = (s, e) =>
+            {
+                _trayMenu.Closed -= onClosed;
+                owner.Dispose();
+            };
+            _trayMenu.Closed += onClosed;
+
+            _trayMenu.Show(owner, new Point(0, 0));
         }
 
         private void LaunchShortcut(ShortcutItem shortcut)
