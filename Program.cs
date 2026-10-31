@@ -73,6 +73,14 @@ namespace TaskFolder
         private string _searchFilter = string.Empty;
         private bool _itemContextMenuOpen = false;
 
+        // Drag-to-reorder state
+        private ShortcutItem _dragItem;
+        private Point _dragStartPt;
+        private bool _isDragging;
+
+        // Update checker
+        private System.Threading.Timer _updateCheckTimer;
+
         public TaskFolderApplicationContext(bool isPortable = false)
         {
             _settingsService = new SettingsService(isPortable);
@@ -100,6 +108,14 @@ namespace TaskFolder
             InitializeTrayIcon();
             // Force handle creation so InvokeRequired/BeginInvoke work from background threads.
             _ = _trayMenu.Handle;
+
+            // Check for updates 3 s after startup
+            if (_settingsService.Settings.CheckForUpdates)
+            {
+                UpdateChecker.UpdateAvailable += OnUpdateAvailable;
+                _updateCheckTimer = new System.Threading.Timer(
+                    _ => UpdateChecker.CheckAsync(), null, 3000, System.Threading.Timeout.Infinite);
+            }
         }
 
         // ── Tray icon ───────────────────────────────────────────────────────────
@@ -166,6 +182,9 @@ namespace TaskFolder
             if (settings.DarkMode)
                 menu.Renderer = new Views.DarkModeRenderer();
 
+            int iconPx = settings.MenuIconSize == 32 ? 32 : 16;
+            menu.ImageScalingSize = new Size(iconPx, iconPx);
+
             // Keep the tray menu alive while a per-item right-click context menu is open.
             menu.Closing += (s, e) =>
             {
@@ -195,6 +214,27 @@ namespace TaskFolder
                 // Re-focus the search box after the rebuild
                 _searchBox.Focus();
             };
+            // Enter-to-launch: press Enter in search to launch the top-matching shortcut
+            _searchBox.TextBox.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode != Keys.Return) return;
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                var allShortcuts = _shortcutManager.GetAllShortcuts();
+                ShortcutItem tolaunch = string.IsNullOrWhiteSpace(_searchFilter)
+                    ? allShortcuts.FirstOrDefault()
+                    : allShortcuts
+                        .Select(sc => (sc, score: FuzzySearch.Score(sc.GetDisplayName(), _searchFilter)))
+                        .Where(t => t.score > 0)
+                        .OrderByDescending(t => t.score)
+                        .Select(t => t.sc)
+                        .FirstOrDefault();
+                if (tolaunch != null)
+                {
+                    _trayMenu.Close();
+                    LaunchShortcut(tolaunch);
+                }
+            };
             menu.Items.Add(_searchBox);
             menu.Items.Add(new ToolStripSeparator());
 
@@ -207,6 +247,8 @@ namespace TaskFolder
             menu.Items.Add(new ToolStripMenuItem("Add Application...", null, OnAddApplication));
             menu.Items.Add(new ToolStripMenuItem("Add Note...", null, OnAddNote));
             menu.Items.Add(new ToolStripMenuItem("Open Shortcuts Folder", null, OnOpenFolder));
+            menu.Items.Add(new ToolStripMenuItem("Import Shortcuts...", null, OnImportShortcuts));
+            menu.Items.Add(new ToolStripMenuItem("Export Shortcuts...", null, OnExportShortcuts));
 
             // Switch Profile submenu
             var profileMenu = new ToolStripMenuItem("Switch Profile");
@@ -216,6 +258,46 @@ namespace TaskFolder
             menu.Items.Add(new ToolStripMenuItem("Settings...", null, OnSettings));
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add(new ToolStripMenuItem("Exit TaskFolder", null, OnExit));
+
+            // Drag-to-reorder: hold and drag an item to a new position
+            menu.MouseDown += (s, e) =>
+            {
+                if (e.Button != MouseButtons.Left) return;
+                var hit = menu.GetItemAt(e.Location);
+                if (hit is ToolStripMenuItem mi && mi.Tag is ShortcutItem sc)
+                {
+                    _dragItem = sc;
+                    _dragStartPt = e.Location;
+                    _isDragging = false;
+                }
+            };
+            menu.MouseMove += (s, e) =>
+            {
+                if (_dragItem == null) return;
+                if (!_isDragging && Math.Abs(e.Y - _dragStartPt.Y) > 6)
+                {
+                    _isDragging = true;
+                    menu.Cursor = Cursors.SizeNS;
+                }
+            };
+            menu.MouseUp += (s, e) =>
+            {
+                try
+                {
+                    if (_isDragging && _dragItem != null)
+                    {
+                        var hit = menu.GetItemAt(e.Location);
+                        if (hit is ToolStripMenuItem tmi && tmi.Tag is ShortcutItem targetSc && targetSc != _dragItem)
+                            OnMoveShortcutToPosition(_dragItem, targetSc);
+                    }
+                }
+                finally
+                {
+                    _dragItem = null;
+                    _isDragging = false;
+                    menu.Cursor = Cursors.Default;
+                }
+            };
 
             return menu;
         }
@@ -364,9 +446,14 @@ namespace TaskFolder
             string displayName = CleanDisplayName(shortcut.GetDisplayName());
             string pinnedPrefix = shortcut.IsPinned ? "📌 " : "";
 
-            var menuItem = new ToolStripMenuItem(
-                pinnedPrefix + displayName,
-                shortcut.Icon?.ToBitmap())
+            Bitmap iconBmp = null;
+            if (shortcut.Icon != null)
+            {
+                int iconPx = _settingsService.Settings.MenuIconSize == 32 ? 32 : 16;
+                var raw = shortcut.Icon.ToBitmap();
+                iconBmp = raw.Width == iconPx ? raw : new Bitmap(raw, new Size(iconPx, iconPx));
+            }
+            var menuItem = new ToolStripMenuItem(pinnedPrefix + displayName, iconBmp)
             {
                 Tag = shortcut,
                 ToolTipText = BuildTooltip(shortcut)
@@ -377,6 +464,8 @@ namespace TaskFolder
 
             // Right-click context menu
             var ctx = new ContextMenuStrip();
+            if (_settingsService.Settings.DarkMode)
+                ctx.Renderer = new DarkModeRenderer();
 
             // Header showing which shortcut this menu is for
             var header = new ToolStripLabel($"({displayName})")
@@ -913,12 +1002,124 @@ namespace TaskFolder
             RefreshShortcutsList();
         }
 
+        private void OnUpdateAvailable(string tagName, string htmlUrl)
+        {
+            if (_trayMenu.InvokeRequired)
+            {
+                _trayMenu.BeginInvoke(new Action(() => OnUpdateAvailable(tagName, htmlUrl)));
+                return;
+            }
+            _trayIcon.BalloonTipClicked += (s, e) =>
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = htmlUrl,
+                        UseShellExecute = true
+                    });
+                }
+                catch { }
+            };
+            _trayIcon.ShowBalloonTip(8000, "TaskFolder Update Available",
+                $"{tagName} is available — click here to download.", ToolTipIcon.Info);
+        }
+
+        private void OnExportShortcuts(object sender, EventArgs e)
+        {
+            using var dlg = new SaveFileDialog
+            {
+                Title = "Export Shortcuts",
+                Filter = "TaskFolder Archive (*.tfzip)|*.tfzip|ZIP Archive (*.zip)|*.zip",
+                FileName = $"TaskFolder-{DateTime.Now:yyyyMMdd}"
+            };
+            if (dlg.ShowDialog() != DialogResult.OK) return;
+            try
+            {
+                string tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                Directory.CreateDirectory(tempDir);
+                foreach (var file in Directory.GetFiles(_shortcutManager.ShortcutsFolder))
+                    File.Copy(file, Path.Combine(tempDir, Path.GetFileName(file)), true);
+                if (File.Exists(dlg.FileName)) File.Delete(dlg.FileName);
+                System.IO.Compression.ZipFile.CreateFromDirectory(tempDir, dlg.FileName);
+                Directory.Delete(tempDir, true);
+                MessageBox.Show($"Shortcuts exported to:\n{dlg.FileName}",
+                    "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Export failed:\n{ex.Message}",
+                    "TaskFolder Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnImportShortcuts(object sender, EventArgs e)
+        {
+            using var dlg = new OpenFileDialog
+            {
+                Title = "Import Shortcuts",
+                Filter = "TaskFolder Archive (*.tfzip)|*.tfzip|ZIP Archive (*.zip)|*.zip"
+            };
+            if (dlg.ShowDialog() != DialogResult.OK) return;
+            if (MessageBox.Show(
+                    "Merge shortcuts from the archive?\nFiles with the same name will be overwritten.",
+                    "Import Shortcuts", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+            try
+            {
+                string tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                System.IO.Compression.ZipFile.ExtractToDirectory(dlg.FileName, tempDir);
+                foreach (var file in Directory.GetFiles(tempDir))
+                    File.Copy(file, Path.Combine(_shortcutManager.ShortcutsFolder, Path.GetFileName(file)), true);
+                Directory.Delete(tempDir, true);
+                _shortcutManager.ReloadShortcuts();
+                RefreshShortcutsList();
+                UpdateTrayTooltip();
+                MessageBox.Show("Import complete.",
+                    "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Import failed:\n{ex.Message}",
+                    "TaskFolder Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnMoveShortcutToPosition(ShortcutItem item, ShortcutItem target)
+        {
+            var all = _shortcutManager.GetAllShortcuts();
+            var sameGroup = all
+                .Where(sc => string.Equals(sc.Category, item.Category, StringComparison.OrdinalIgnoreCase)
+                          || (sc.Category == null && item.Category == null))
+                .OrderBy(sc => sc.SortOrder)
+                .ThenBy(sc => sc.GetDisplayName(), StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            int fromIdx = sameGroup.IndexOf(item);
+            int toIdx   = sameGroup.IndexOf(target);
+            if (fromIdx < 0 || toIdx < 0 || fromIdx == toIdx) return;
+
+            for (int i = 0; i < sameGroup.Count; i++)
+                sameGroup[i].SortOrder = i * 10;
+
+            sameGroup.RemoveAt(fromIdx);
+            sameGroup.Insert(toIdx, item);
+            for (int i = 0; i < sameGroup.Count; i++)
+                sameGroup[i].SortOrder = i * 10;
+
+            foreach (var sc in sameGroup)
+                _shortcutManager.UpdateSortOrder(sc, sc.SortOrder);
+
+            RefreshShortcutsList();
+        }
+
         private void OnExit(object sender, EventArgs e)
         {
             _trayIcon.Visible = false;
             _shortcutManager?.Dispose();
             _hotkeyService?.Dispose();
             _mouseHotkeyService?.Dispose();
+            _updateCheckTimer?.Dispose();
             Application.Exit();
         }
 
@@ -931,6 +1132,7 @@ namespace TaskFolder
                 _shortcutManager?.Dispose();
                 _hotkeyService?.Dispose();
                 _mouseHotkeyService?.Dispose();
+                _updateCheckTimer?.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -16,6 +16,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TaskFolder.Tests\**" />
+    <None Remove="TaskFolder.Tests\**" />
+    <Content Remove="TaskFolder.Tests\**" />
+    <EmbeddedResource Remove="TaskFolder.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Copy icon file to output directory -->
     <None Update="Resources\TaskFolder.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

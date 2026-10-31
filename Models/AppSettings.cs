@@ -33,6 +33,12 @@ namespace TaskFolder.Models
         /// <summary>"Middle", "XButton1" (back), or "XButton2" (forward).</summary>
         public string MouseHotkeyButton { get; set; } = "Middle";
 
+        /// <summary>Menu icon size in pixels: 16 (small) or 32 (large).</summary>
+        public int MenuIconSize { get; set; } = 16;
+
+        /// <summary>Check GitHub for a new release on startup.</summary>
+        public bool CheckForUpdates { get; set; } = true;
+
         /// <summary>Font size (pt) for the tray menu. Range 7–20.</summary>
         public float MenuFontSize { get; set; } = 9f;
 
