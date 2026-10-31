@@ -32,7 +32,8 @@ namespace TaskFolder.Views
         public AddNoteDialog(IEnumerable<string> existingSubfolders)
         {
             Text            = "Add Note";
-            Size            = new Size(340, 180);
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
+            Size            = new Size(340, 215);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox     = false;
             MinimizeBox     = false;

@@ -4,7 +4,7 @@
 
 TaskFolder brings back quick-access application launching to Windows 11's taskbar area through a clean system tray menu. Launch your favorite apps, PWAs, and scripts with a single click—no taskbar clutter required.
 
-![Version](https://img.shields.io/badge/Version-1.2.0-green.svg)
+![Version](https://img.shields.io/badge/Version-1.3.0-green.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![.NET 8.0](https://img.shields.io/badge/.NET-8.0-purple.svg)
 ![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2011%2F10-blue.svg)
@@ -27,9 +27,16 @@ TaskFolder brings back quick-access application launching to Windows 11's taskba
 - **👤 Profiles** - Multiple named shortcut sets, switchable from the tray menu
 - **📌 Pinned Shortcuts** - Pin your most-accessed items to the top of the list
 - **🛡️ Run as Administrator** - Launch any shortcut elevated with a right-click or middle-click
-- **📝 Sticky Notes** - Create always-on-top sticky note shortcuts directly in the menu
+- **📝 Sticky Notes** - Create always-on-top rich-text sticky notes (bold, italic, bullet) directly from the menu
+- **🗂️ Notes Folders** - Organize notes into subfolders; all notes live under a dedicated Notes submenu with nested sub-submenus
 - **⚙️ Pre-Launch Scripts** - Run a custom script before any shortcut launches
-- **☁️ Profile Sync** - Store shortcuts on OneDrive, Dropbox, or a network share
+- **☁️ Profile Sync** - Store shortcuts on OneDrive or Dropbox with one-click auto-detection, or any network share
+- **📦 Import / Export** - Zip-based backup and restore of your entire shortcut collection
+- **🖱️ Mouse Button Hotkey** - Trigger the tray menu with Middle Click, Back, or Forward mouse buttons
+- **🔄 Update Checker** - Checks GitHub Releases for newer versions on startup (toggle in Settings)
+- **🌙 Dark Mode** - Full dark mode for the tray menu and Settings dialog, including title bar and scrollbars
+- **⌨️ Enter-to-Launch** - Press Enter in the search box to instantly launch the top result
+- **🔠 Icon Size** - Toggle between 16 px and 32 px menu icons in Settings
 - **💾 Portable Mode** - Run from a USB drive with `--portable` flag
 - **🆓 Completely Free** - Open source under MIT License
 
@@ -106,14 +113,20 @@ Attach a custom script (batch/PowerShell/cmd) to any shortcut via right-click �
 
 ### Sticky Notes
 
-Right-click the tray icon → **Add Note...** to create an always-on-top sticky note that appears as a shortcut in your menu. Notes open in a resizable yellow editor window with a save button.
+Right-click the tray icon → **Add Note...** to create an always-on-top sticky note that appears as a shortcut in your menu. Notes open in a resizable yellow rich-text editor with **Bold**, *Italic*, and bullet formatting. Notes can be organized into subfolders — all notes appear under a dedicated **Notes** submenu in the tray, with subfolder notes nested one level deeper.
+
+### Import / Export
+
+Back up your entire shortcut collection or move it to another machine:
+- **Export**: Right-click tray icon → Export Shortcuts → saves a `.zip` archive containing all shortcuts and metadata
+- **Import**: Right-click tray icon → Import Shortcuts → extracts a previously exported `.zip` into the active profile
 
 ### Profile Sync (OneDrive / Dropbox / Network Share)
 
 Keep your shortcuts in sync across machines by pointing TaskFolder at a shared folder:
 
 1. Open Settings → **Profile Sync**
-2. Browse to your OneDrive / Dropbox folder, or click **Use Dropbox** to auto-detect
+2. Click **Use OneDrive** or **Use Dropbox** to auto-detect the path, or Browse to any folder
 3. Click OK and restart TaskFolder
 
 All profiles and shortcuts will be read from (and written to) that shared location.
@@ -165,10 +178,14 @@ Access via: Right-click tray icon → "Settings"
 
 - ☑️ **Start with Windows** - Auto-start on boot
 - 🔔 **Show Notifications** - Balloon tip when an app is launched
-- ⌨️ **Global Hotkey** - Enable and configure the hotkey (e.g. Ctrl+Alt+T)
+- 🔄 **Check for Updates** - Notify on startup if a newer GitHub release is available
+- ⌨️ **Global Hotkey** - Enable and configure the keyboard hotkey (e.g. Ctrl+Alt+T)
+- 🖱️ **Mouse Button Hotkey** - Trigger the menu with a mouse side-button or middle-click
 - 📁 **Open Shortcuts Folder** - Open the active profile's shortcuts directory
 - 🗑️ **Remove All Shortcuts** - Clear the current profile's shortcuts
-- ☁️ **Profile Sync** - Set a custom root path for shortcuts (OneDrive, Dropbox, network share)
+- ☁️ **Profile Sync** - One-click **Use OneDrive** / **Use Dropbox** buttons, or browse to any path
+- 🌙 **Dark Mode** - Full dark mode for menu and Settings dialog (title bar included)
+- 🔠 **Icon Size** - 16 px (default) or 32 px menu icons
 - 📌 **Pin to System Tray** - Opens Windows Settings to pin the TaskFolder icon so it's always visible
 
 ## 💡 Use Cases
@@ -249,7 +266,10 @@ TaskFolder/
 │   ├── ProfileService.cs       # Named profile switching
 │   ├── HotkeyService.cs        # Global hotkey via RegisterHotKey P/Invoke
 │   ├── FuzzySearch.cs          # Fuzzy string matching for the search box
-│   └── DropboxDetector.cs      # Auto-detect local Dropbox root path
+│   ├── DropboxDetector.cs      # Auto-detect local Dropbox root path
+│   ├── OneDriveDetector.cs     # Auto-detect local OneDrive root path (registry + env var)
+│   ├── MouseHotkeyService.cs   # Low-level mouse hook for mouse-button hotkeys
+│   └── UpdateChecker.cs        # Polls GitHub Releases API for newer versions
 ├── Views/
 │   ├── SettingsForm.cs         # Settings dialog
 │   ├── RenameDialog.cs         # Inline rename dialog
@@ -314,7 +334,7 @@ Requires [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" TaskFolder.iss
 ```
 
-Output: `installer\TaskFolder-Setup-1.2.0.exe`
+Output: `installer\TaskFolder-Setup-1.3.0.exe`
 
 ### Code Style
 - Standard C# conventions
@@ -329,6 +349,30 @@ None currently reported! 🎉
 If you find a bug, please [open an issue](../../issues).
 
 ## 📋 Changelog
+
+### v1.3.0 (October 2026)
+
+**New Features:**
+- **Mouse Button Hotkey** — Trigger the tray menu with Middle Click, Back, or Forward mouse buttons (configurable in Settings)
+- **Dark Mode** — Full dark theme for the tray menu and Settings dialog; title bar uses the Windows DWM dark-mode API, scrollbars use `SetWindowTheme("DarkMode_Explorer")`, and all controls are styled to match
+- **Enter-to-Launch** — Press Enter in the search box to immediately launch the top-matching shortcut
+- **Icon Size** — Toggle between 16 px (default) and 32 px menu icons in Settings → Appearance
+- **Update Checker** — Polls the GitHub Releases API on startup and notifies when a newer version is available; can be disabled in Settings → Notifications
+- **Import / Export** — Zip-based export of the entire active shortcut collection; import extracts into the active profile with confirmation
+- **Drag-to-Reorder** — Drag shortcut items up or down directly in the tray menu (6 px Y-delta threshold prevents accidental reorders on clicks)
+- **Rich-Text Sticky Notes** — Note editor upgraded from `TextBox` to `RichTextBox` with Bold, Italic, and Bullet toolbar; saves as RTF, loads legacy plain-text notes gracefully
+- **Notes Folder** — All notes are routed to a dedicated `Shortcuts\Notes\` folder; subfolders are supported and appear as nested sub-submenus under a single **Notes** root in the tray
+- **Notes Subfolder Picker** — Add Note dialog now includes a Folder combo box (lists existing subfolders; accepts new names); opens near the tray menu cursor position
+- **OneDrive Auto-Detection** — "Use OneDrive" button in Settings reads `HKCU\Software\Microsoft\OneDrive → UserFolder` (with `%OneDrive%` env-var fallback) and fills the sync path automatically
+- **xUnit Test Suite** — 27 tests covering `FuzzySearch`, `SettingsService`, and `UpdateChecker` in a separate `TaskFolder.Tests` project
+- **App Icon on All Dialogs** — Settings, Add Note, Rename, Input, Icon Picker, Mouse Button Capture, and Sticky Note forms all now show the TaskFolder icon in their title bars
+- **Scrollable Settings** — Settings form content lives in an auto-scroll panel; form height is capped at 82% of the working area so it fits on compact displays
+
+**Bug Fixes:**
+- Fixed Settings form appearing with no icon (WinForms forms don't inherit the app icon automatically)
+- Fixed Add Note dialog always opening at screen top-left instead of near the tray menu
+- Fixed horizontal scrollbar appearing in Settings when the vertical scrollbar reduced the available width
+- Fixed "Cl" button label truncation (Clear button was 30 px wide — too narrow to render the full word)
 
 ### v1.2.0 (October 2026)
 
@@ -395,10 +439,12 @@ If you find a bug, please [open an issue](../../issues).
 
 Potential future features (contributions welcome!):
 
-- [ ] **Themes** - Light/dark mode menu styling
-- [ ] **Unit tests** - Test coverage for services
-- [ ] **Drag-and-drop reorder** - True drag reorder in the tray menu (currently Move Up/Down)
-- [ ] **Note formatting** - Rich text / markdown support in sticky notes
+- [x] **Dark mode** - Full dark mode for menu and Settings dialog *(v1.3.0)*
+- [x] **Unit tests** - Test coverage for FuzzySearch, SettingsService, UpdateChecker *(v1.3.0)*
+- [x] **Drag-and-drop reorder** - True drag reorder directly in the tray menu *(v1.3.0)*
+- [x] **Note formatting** - Rich text (bold, italic, bullet) in sticky notes *(v1.3.0)*
+- [ ] **Themes** - Additional color theme presets beyond light/dark
+- [ ] **Scheduler** - Launch shortcuts at a scheduled time or on an event
 
 ## 🤝 Contributing
 

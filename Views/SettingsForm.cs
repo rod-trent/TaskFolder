@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using TaskFolder.Services;
@@ -14,6 +15,26 @@ namespace TaskFolder.Views
     /// </summary>
     public partial class SettingsForm : Form
     {
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
+        private static extern int SetWindowTheme(IntPtr hwnd, string pszSubAppName, string pszSubIdList);
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (_settingsService?.Settings.DarkMode == true)
+            {
+                int val = 1;
+                DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref val, sizeof(int));
+                // Dark scrollbars on the scroll panel
+                if (_scrollPanel != null)
+                    SetWindowTheme(_scrollPanel.Handle, "DarkMode_Explorer", null);
+            }
+        }
+
         private readonly ShortcutManager _shortcutManager;
         private readonly SettingsService _settingsService;
         private readonly HotkeyService _hotkeyService;
@@ -35,6 +56,8 @@ namespace TaskFolder.Views
         private Button _btnBrowseProfilesRoot;
         private Button _btnClearProfilesRoot;
         private Button _btnUseDropbox;
+        private Button _btnUseOneDrive;
+        private Panel _scrollPanel;
 
         // Mouse hotkey
         private CheckBox _chkMouseHotkeyEnabled;
@@ -68,6 +91,7 @@ namespace TaskFolder.Views
         private void InitializeComponent()
         {
             Text = "TaskFolder Settings";
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             FormBorderStyle = FormBorderStyle.Sizable;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -80,12 +104,13 @@ namespace TaskFolder.Views
             // ─────────────────────────────────────────────────────────────────────
             // Scroll panel — hosts all groups; fills remaining space above buttons
             // ─────────────────────────────────────────────────────────────────────
-            var scrollPanel = new Panel
+            _scrollPanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
                 Padding = new Padding(0, 0, 0, 4)
             };
+            var scrollPanel = _scrollPanel;
 
             // ── Startup ───────────────────────────────────────────────────────────
             var grpStartup = new GroupBox { Text = "Startup", Location = new Point(X, y), Size = new Size(W, 60) };
@@ -200,7 +225,7 @@ namespace TaskFolder.Views
             {
                 Text = "Profile Sync (OneDrive / Dropbox / Network Share)",
                 Location = new Point(X, y),
-                Size = new Size(W, 95)
+                Size = new Size(W, 118)
             };
             grpSync.Controls.Add(new Label
             {
@@ -211,27 +236,31 @@ namespace TaskFolder.Views
             _txtProfilesRoot = new TextBox
             {
                 Location = new Point(12, 38),
-                Width = W - 230,
+                Width = W - 146,
                 PlaceholderText = "e.g. C:\\Users\\You\\OneDrive\\TaskFolder"
             };
             grpSync.Controls.Add(_txtProfilesRoot);
 
-            _btnUseDropbox = new Button { Text = "Use Dropbox", Location = new Point(W - 214, 36), Width = 90 };
-            _btnUseDropbox.Click += BtnUseDropbox_Click;
-            grpSync.Controls.Add(_btnUseDropbox);
-
-            _btnBrowseProfilesRoot = new Button { Text = "Browse...", Location = new Point(W - 120, 36), Width = 58 };
+            _btnBrowseProfilesRoot = new Button { Text = "Browse...", Location = new Point(W - 130, 36), Width = 70 };
             _btnBrowseProfilesRoot.Click += BtnBrowseProfilesRoot_Click;
             grpSync.Controls.Add(_btnBrowseProfilesRoot);
 
-            _btnClearProfilesRoot = new Button { Text = "Clear", Location = new Point(W - 58, 36), Width = 46 };
+            _btnClearProfilesRoot = new Button { Text = "Clear", Location = new Point(W - 56, 36), Width = 44 };
             _btnClearProfilesRoot.Click += (s, e) => _txtProfilesRoot.Clear();
             grpSync.Controls.Add(_btnClearProfilesRoot);
+
+            _btnUseOneDrive = new Button { Text = "Use OneDrive", Location = new Point(12, 64), Width = 100 };
+            _btnUseOneDrive.Click += BtnUseOneDrive_Click;
+            grpSync.Controls.Add(_btnUseOneDrive);
+
+            _btnUseDropbox = new Button { Text = "Use Dropbox", Location = new Point(118, 64), Width = 100 };
+            _btnUseDropbox.Click += BtnUseDropbox_Click;
+            grpSync.Controls.Add(_btnUseDropbox);
 
             grpSync.Controls.Add(new Label
             {
                 Text = "Restart TaskFolder after changing this path for it to take effect.",
-                Location = new Point(12, 68),
+                Location = new Point(12, 92),
                 Size = new Size(W - 24, 18),
                 ForeColor = Color.Gray,
                 Font = new Font(Font, FontStyle.Italic)
@@ -341,8 +370,8 @@ namespace TaskFolder.Views
             int screenH = Screen.PrimaryScreen?.WorkingArea.Height ?? 900;
             int maxH = (int)(screenH * 0.82);
             int naturalH = y + btnPanel.Height + 8;
-            ClientSize = new Size(W + 30, Math.Min(naturalH, maxH));
-            MinimumSize = new Size(W + 30, 400);
+            ClientSize = new Size(W + 50, Math.Min(naturalH, maxH));
+            MinimumSize = new Size(W + 50, 400);
         }
 
         private void LoadSettings()
@@ -375,6 +404,73 @@ namespace TaskFolder.Views
             int keyIdx = _cboKey.Items.IndexOf(key);
             _cboKey.SelectedIndex = keyIdx >= 0 ? keyIdx : _cboKey.Items.IndexOf("T");
             if (_cboKey.SelectedIndex < 0) _cboKey.SelectedIndex = 0;
+
+            if (_settingsService.Settings.DarkMode)
+                ApplyDarkMode(this);
+        }
+
+        private static void ApplyDarkMode(Control root)
+        {
+            var bg     = Color.FromArgb(30, 30, 46);
+            var bgCtrl = Color.FromArgb(45, 45, 65);
+            var fg     = Color.FromArgb(205, 214, 244);
+            var fgMute = Color.FromArgb(140, 145, 165);
+            var border = Color.FromArgb(50, 50, 70);
+
+            void Style(Control c)
+            {
+                switch (c)
+                {
+                    case GroupBox gb:
+                        gb.BackColor = bg;
+                        gb.ForeColor = fg;
+                        break;
+                    case Panel p:
+                        p.BackColor = bg;
+                        break;
+                    case Label lbl:
+                        lbl.BackColor = Color.Transparent;
+                        lbl.ForeColor = lbl.ForeColor == Color.Gray ? fgMute : fg;
+                        break;
+                    case CheckBox cb:
+                        cb.BackColor = Color.Transparent;
+                        cb.ForeColor = fg;
+                        break;
+                    case RadioButton rb:
+                        rb.BackColor = Color.Transparent;
+                        rb.ForeColor = fg;
+                        break;
+                    case TextBox tb:
+                        tb.BackColor = bgCtrl;
+                        tb.ForeColor = fg;
+                        break;
+                    case ComboBox cbo:
+                        cbo.BackColor = bgCtrl;
+                        cbo.ForeColor = fg;
+                        break;
+                    case NumericUpDown nud:
+                        nud.BackColor = bgCtrl;
+                        nud.ForeColor = fg;
+                        break;
+                    case Button btn:
+                        btn.BackColor = bgCtrl;
+                        btn.ForeColor = fg;
+                        btn.FlatStyle = FlatStyle.Flat;
+                        btn.FlatAppearance.BorderColor = border;
+                        break;
+                    default:
+                        c.BackColor = bg;
+                        c.ForeColor = fg;
+                        break;
+                }
+                foreach (Control child in c.Controls)
+                    Style(child);
+            }
+
+            root.BackColor = bg;
+            root.ForeColor = fg;
+            foreach (Control c in root.Controls)
+                Style(c);
         }
 
         private bool IsAutoStartEnabled()
@@ -449,6 +545,26 @@ namespace TaskFolder.Views
                     "Go to Settings → Personalization → Taskbar → Other system tray icons manually.",
                     "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        private void BtnUseOneDrive_Click(object sender, EventArgs e)
+        {
+            string oneDrivePath = OneDriveDetector.GetOneDrivePath();
+            if (oneDrivePath == null)
+            {
+                MessageBox.Show(
+                    "OneDrive does not appear to be installed or configured on this machine.",
+                    "OneDrive Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string suggested = Path.Combine(oneDrivePath, "TaskFolder");
+            _txtProfilesRoot.Text = suggested;
+
+            MessageBox.Show(
+                $"OneDrive path set to:\n{suggested}\n\nTaskFolder will create this folder if it does not exist. " +
+                "Click OK in Settings to save, then restart TaskFolder.",
+                "OneDrive Sync", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnUseDropbox_Click(object sender, EventArgs e)

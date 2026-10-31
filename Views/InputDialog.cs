@@ -26,6 +26,7 @@ namespace TaskFolder.Views
             Text = title;
             Size = new Size(400, 145);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             MaximizeBox = false;
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;

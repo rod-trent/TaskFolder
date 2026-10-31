@@ -14,7 +14,7 @@ namespace TaskFolder.Services
         private const string ApiUrl =
             "https://api.github.com/repos/rod-trent/TaskFolder/releases/latest";
 
-        private const string CurrentVersion = "v1.2.0";
+        private const string CurrentVersion = "v1.3.0";
 
         public static event Action<string, string> UpdateAvailable; // (tagName, htmlUrl)
 

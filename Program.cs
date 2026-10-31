@@ -409,6 +409,42 @@ namespace TaskFolder
                         anyAdded = true;
                     }
                 }
+                else if (group.Key.Equals("Notes", StringComparison.OrdinalIgnoreCase))
+                {
+                    var notesMenu = new ToolStripMenuItem("Notes") { Tag = "category" };
+                    if (_settingsService.Settings.DarkMode)
+                        notesMenu.DropDown.Renderer = new DarkModeRenderer();
+
+                    // Root notes first
+                    var rootNotes = group
+                        .Where(sc => string.IsNullOrEmpty(sc.NoteSubfolder))
+                        .OrderBy(sc => sc.SortOrder)
+                        .ThenBy(sc => sc.GetDisplayName(), StringComparer.OrdinalIgnoreCase);
+                    foreach (var sc in rootNotes)
+                        notesMenu.DropDownItems.Add(BuildShortcutItem(sc));
+
+                    // Subfolder sub-submenus
+                    var sfGroups = group
+                        .Where(sc => !string.IsNullOrEmpty(sc.NoteSubfolder))
+                        .GroupBy(sc => sc.NoteSubfolder, StringComparer.OrdinalIgnoreCase)
+                        .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
+                    foreach (var sfGroup in sfGroups)
+                    {
+                        if (notesMenu.DropDownItems.Count > 0)
+                            notesMenu.DropDownItems.Add(new ToolStripSeparator());
+                        var sfMenu = new ToolStripMenuItem(sfGroup.Key);
+                        if (_settingsService.Settings.DarkMode)
+                            sfMenu.DropDown.Renderer = new DarkModeRenderer();
+                        foreach (var sc in sfGroup
+                            .OrderBy(s => s.SortOrder)
+                            .ThenBy(s => s.GetDisplayName(), StringComparer.OrdinalIgnoreCase))
+                            sfMenu.DropDownItems.Add(BuildShortcutItem(sc));
+                        notesMenu.DropDownItems.Add(sfMenu);
+                    }
+
+                    _trayMenu.Items.Insert(insertAt++, notesMenu);
+                    anyAdded = true;
+                }
                 else
                 {
                     // Category submenu
@@ -839,6 +875,12 @@ namespace TaskFolder
         {
             var subfolders = _shortcutManager.GetNoteSubfolders();
             using var dlg = new AddNoteDialog(subfolders);
+            dlg.StartPosition = FormStartPosition.Manual;
+            var pt = Cursor.Position;
+            var screen = Screen.FromPoint(pt).WorkingArea;
+            int x = Math.Min(pt.X, screen.Right  - dlg.Width);
+            int y = Math.Min(pt.Y, screen.Bottom - dlg.Height);
+            dlg.Location = new Point(Math.Max(screen.Left, x), Math.Max(screen.Top, y));
             if (dlg.ShowDialog() != DialogResult.OK) return;
             try
             {

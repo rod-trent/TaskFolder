@@ -143,13 +143,13 @@ namespace TaskFolder.Services
                         LoadFromDirectory(subDir, dirName);
                     }
 
-                    // Notes folder: root notes get category "Notes"; each subfolder becomes its own category
+                    // Notes folder: all notes share Category = "Notes"; subfolder is stored in NoteSubfolder
                     string notesDir = NotesFolder;
                     if (Directory.Exists(notesDir))
                     {
-                        LoadFromDirectory(notesDir, "Notes");
+                        LoadNotesFromDirectory(notesDir, null);
                         foreach (string sub in Directory.GetDirectories(notesDir))
-                            LoadFromDirectory(sub, Path.GetFileName(sub));
+                            LoadNotesFromDirectory(sub, Path.GetFileName(sub));
                     }
 
                     // Sort by SortOrder, then alphabetically by display name
@@ -203,6 +203,33 @@ namespace TaskFolder.Services
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Failed to load shortcut {file}: {ex.Message}");
+                }
+            }
+        }
+
+        private void LoadNotesFromDirectory(string directory, string noteSubfolder)
+        {
+            foreach (string file in Directory.GetFiles(directory, "*.note"))
+            {
+                try
+                {
+                    var shortcut = LoadNoteShortcut(file);
+                    if (shortcut == null) continue;
+
+                    var meta = _settingsService.GetMetadata(Path.GetFileName(file));
+                    shortcut.LaunchCount    = meta.LaunchCount;
+                    shortcut.LastUsed       = meta.LastUsed;
+                    shortcut.SortOrder      = meta.SortOrder;
+                    shortcut.Category       = "Notes";
+                    shortcut.NoteSubfolder  = noteSubfolder;
+                    shortcut.IsPinned       = meta.Pinned;
+                    shortcut.PreLaunchScript = meta.PreLaunchScript;
+
+                    _shortcuts.Add(shortcut);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to load note {file}: {ex.Message}");
                 }
             }
         }

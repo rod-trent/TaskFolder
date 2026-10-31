@@ -21,6 +21,7 @@ namespace TaskFolder.Views
             Text = "Rename Shortcut";
             Size = new Size(340, 130);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             MaximizeBox = false;
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;

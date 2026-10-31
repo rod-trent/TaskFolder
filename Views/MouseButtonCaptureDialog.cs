@@ -57,6 +57,7 @@ namespace TaskFolder.Views
             Text            = "Set Mouse Hotkey";
             Size            = new System.Drawing.Size(340, 160);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             MaximizeBox     = false;
             MinimizeBox     = false;
             StartPosition   = FormStartPosition.CenterParent;

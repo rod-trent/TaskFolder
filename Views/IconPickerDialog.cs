@@ -26,6 +26,7 @@ namespace TaskFolder.Views
             Text = "Choose Icon";
             Size = new Size(420, 220);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             MaximizeBox = false;
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;

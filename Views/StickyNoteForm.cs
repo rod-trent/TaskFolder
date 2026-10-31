@@ -27,7 +27,7 @@ namespace TaskFolder.Views
             Size            = new Size(340, 300);
             MinimumSize     = new Size(220, 180);
             BackColor       = Color.FromArgb(255, 255, 204); // classic yellow
-            Icon            = SystemIcons.Information;
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { Icon = SystemIcons.Information; }
             StartPosition   = FormStartPosition.CenterScreen;
 
             // ── Toolbar ───────────────────────────────────────────────────────────

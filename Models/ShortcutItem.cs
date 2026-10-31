@@ -81,6 +81,12 @@ namespace TaskFolder.Models
         /// <summary>Optional command run before launching this shortcut.</summary>
         public string PreLaunchScript { get; set; }
 
+        /// <summary>
+        /// For note items: the subfolder within the Notes folder (null = Notes root).
+        /// Always empty/null for non-note shortcuts.
+        /// </summary>
+        public string NoteSubfolder { get; set; }
+
         public ShortcutItem()
         {
             DateCreated = DateTime.Now;
