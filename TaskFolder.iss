@@ -2,7 +2,7 @@
 ; Quick application launcher for Windows 11 taskbar
 
 #define MyAppName "TaskFolder"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "TaskFolder"
 #define MyAppURL "https://github.com/rod-trent/TaskFolder"
 #define MyAppExeName "TaskFolder.exe"
@@ -55,6 +55,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "startup"; Description: "Run {#MyAppName} at Windows startup"; GroupDescription: "Startup Options:"; Flags: unchecked
+Name: "pintotray"; Description: "Always show {#MyAppName} icon in the taskbar system tray (opens Windows Settings)"; GroupDescription: "Taskbar Options:"; Flags: checked
 
 [Files]
 ; Main application files - uses the PublishPath defined above
@@ -81,6 +82,8 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Notifications\Set
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+; Open Windows Taskbar Settings so the user can pin the icon (checked by default via pintotray task)
+Filename: "ms-settings:taskbar"; Description: "Open Windows Settings to pin {#MyAppName} to the system tray"; Flags: shellexec nowait postinstall skipifsilent unchecked; Tasks: pintotray
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\{#MyAppName}"
@@ -137,6 +140,17 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
+    // If the user chose to pin the icon, show a quick reminder before Settings opens
+    if IsTaskSelected('pintotray') then
+    begin
+      MsgBox(
+        'Windows Settings will open to the Taskbar page.' + #13#10 + #13#10 +
+        'Scroll down to "Other system tray icons", find TaskFolder in the list, ' +
+        'and toggle it to On.' + #13#10 + #13#10 +
+        'This makes the TaskFolder icon always visible on your taskbar instead of hiding in the overflow menu.',
+        mbInformation, MB_OK);
+    end;
+
     // Configure Windows 11 to show TaskFolder icon in system tray by default
     // This sets the toggle to "On" in Settings > Personalization > Taskbar > Other system tray icons
     

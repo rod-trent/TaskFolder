@@ -222,6 +222,35 @@ namespace TaskFolder.Views
             Controls.Add(grpSync);
             y += grpSync.Height + 8;
 
+            // ── Taskbar Visibility ───────────────────────────────────────────────
+            var grpTray = new GroupBox
+            {
+                Text = "Taskbar Visibility",
+                Location = new Point(X, y),
+                Size = new Size(W, 80)
+            };
+
+            var btnPinTray = new Button
+            {
+                Text = "Pin to System Tray...",
+                Location = new Point(12, 22),
+                Size = new Size(160, 28)
+            };
+            btnPinTray.Click += BtnPinTray_Click;
+            grpTray.Controls.Add(btnPinTray);
+
+            grpTray.Controls.Add(new Label
+            {
+                Text = "Opens Windows Settings → Taskbar → Other system tray icons." + Environment.NewLine +
+                       "Toggle 'TaskFolder' to On so the icon always shows on the taskbar.",
+                Location = new Point(180, 18),
+                Size = new Size(W - 192, 44),
+                ForeColor = System.Drawing.Color.Gray
+            });
+
+            Controls.Add(grpTray);
+            y += grpTray.Height + 8;
+
             // ── About ────────────────────────────────────────────────────────────
             var grpAbout = new GroupBox { Text = "About", Location = new Point(X, y), Size = new Size(W, 65) };
             grpAbout.Controls.Add(new Label
@@ -313,6 +342,34 @@ namespace TaskFolder.Views
             {
                 MessageBox.Show($"Failed to update startup settings:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnPinTray_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "Windows Settings will open to the Taskbar page.\n\n" +
+                "Scroll down to 'Other system tray icons', find TaskFolder in the list, " +
+                "and toggle it to On.\n\n" +
+                "The icon will then always be visible on your taskbar.",
+                "Pin TaskFolder to System Tray",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "ms-settings:taskbar",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Could not open Windows Settings:\n{ex.Message}\n\n" +
+                    "Go to Settings → Personalization → Taskbar → Other system tray icons manually.",
+                    "TaskFolder", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
