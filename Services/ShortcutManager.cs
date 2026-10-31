@@ -28,6 +28,9 @@ namespace TaskFolder.Services
         /// <summary>Gets the folder where shortcuts are stored.</summary>
         public string ShortcutsFolder => _shortcutsFolder;
 
+        /// <summary>Gets the dedicated notes folder (always a "Notes" subfolder of ShortcutsFolder).</summary>
+        public string NotesFolder => Path.Combine(_shortcutsFolder, "Notes");
+
         public ShortcutManager(SettingsService settingsService)
         {
             _settingsService = settingsService;
@@ -131,11 +134,22 @@ namespace TaskFolder.Services
                     // Root-level shortcuts (no category)
                     LoadFromDirectory(_shortcutsFolder, null);
 
-                    // One level of subdirectories = categories
+                    // One level of subdirectories = categories (skip the Notes folder — handled below)
                     foreach (string subDir in Directory.GetDirectories(_shortcutsFolder))
                     {
-                        string category = Path.GetFileName(subDir);
-                        LoadFromDirectory(subDir, category);
+                        string dirName = Path.GetFileName(subDir);
+                        if (dirName.Equals("Notes", StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        LoadFromDirectory(subDir, dirName);
+                    }
+
+                    // Notes folder: root notes get category "Notes"; each subfolder becomes its own category
+                    string notesDir = NotesFolder;
+                    if (Directory.Exists(notesDir))
+                    {
+                        LoadFromDirectory(notesDir, "Notes");
+                        foreach (string sub in Directory.GetDirectories(notesDir))
+                            LoadFromDirectory(sub, Path.GetFileName(sub));
                     }
 
                     // Sort by SortOrder, then alphabetically by display name
@@ -510,13 +524,22 @@ namespace TaskFolder.Services
             _settingsService.Save();
         }
 
-        /// <summary>Creates a new Quick Note shortcut (.note file) in the shortcuts folder.</summary>
-        public ShortcutItem AddNote(string name, string content = "")
+        /// <summary>
+        /// Creates a new note (.note file) in the Notes folder.
+        /// Pass a <paramref name="subfolder"/> name to place the note inside a subfolder of Notes.
+        /// </summary>
+        public ShortcutItem AddNote(string name, string content = "", string subfolder = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Note name cannot be empty.");
 
-            string notePath = UniqueFilePath(_shortcutsFolder, name, ".note");
+            string targetFolder = string.IsNullOrWhiteSpace(subfolder)
+                ? NotesFolder
+                : Path.Combine(NotesFolder, subfolder.Trim());
+
+            Directory.CreateDirectory(targetFolder);
+
+            string notePath = UniqueFilePath(targetFolder, name, ".note");
             File.WriteAllText(notePath, content ?? string.Empty);
 
             LoadShortcuts();
@@ -525,6 +548,17 @@ namespace TaskFolder.Services
             lock (_lock)
                 return _shortcuts.FirstOrDefault(s => s.IsNote &&
                     string.Equals(s.ShortcutFilePath, notePath, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>Returns the names of all direct subfolders in the Notes folder.</summary>
+        public List<string> GetNoteSubfolders()
+        {
+            string notesDir = NotesFolder;
+            if (!Directory.Exists(notesDir)) return new List<string>();
+            return Directory.GetDirectories(notesDir)
+                .Select(d => Path.GetFileName(d))
+                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         /// <summary>Persists updated note content to disk and updates the in-memory item.</summary>

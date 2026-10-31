@@ -247,6 +247,7 @@ namespace TaskFolder
             menu.Items.Add(new ToolStripMenuItem("Add Application...", null, OnAddApplication));
             menu.Items.Add(new ToolStripMenuItem("Add Note...", null, OnAddNote));
             menu.Items.Add(new ToolStripMenuItem("Open Shortcuts Folder", null, OnOpenFolder));
+            menu.Items.Add(new ToolStripMenuItem("Open Notes Folder", null, OnOpenNotesFolder));
             menu.Items.Add(new ToolStripMenuItem("Import Shortcuts...", null, OnImportShortcuts));
             menu.Items.Add(new ToolStripMenuItem("Export Shortcuts...", null, OnExportShortcuts));
 
@@ -836,15 +837,35 @@ namespace TaskFolder
 
         private void OnAddNote(object sender, EventArgs e)
         {
-            using var dlg = new InputDialog("Add Note", "Note title:", string.Empty);
+            var subfolders = _shortcutManager.GetNoteSubfolders();
+            using var dlg = new AddNoteDialog(subfolders);
             if (dlg.ShowDialog() != DialogResult.OK) return;
             try
             {
-                _shortcutManager.AddNote(dlg.Value);
+                _shortcutManager.AddNote(dlg.NoteName, string.Empty, dlg.NoteSubfolder);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to create note:\n{ex.Message}",
+                    "TaskFolder Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnOpenNotesFolder(object sender, EventArgs e)
+        {
+            try
+            {
+                string notesFolder = _shortcutManager.NotesFolder;
+                Directory.CreateDirectory(notesFolder);
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = notesFolder,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open Notes folder:\n{ex.Message}",
                     "TaskFolder Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
