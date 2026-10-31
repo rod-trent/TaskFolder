@@ -4,7 +4,7 @@
 
 TaskFolder brings back quick-access application launching to Windows 11's taskbar area through a clean system tray menu. Launch your favorite apps, PWAs, and scripts with a single click—no taskbar clutter required.
 
-![Version](https://img.shields.io/badge/Version-1.1.0-green.svg)
+![Version](https://img.shields.io/badge/Version-1.2.0-green.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![.NET 8.0](https://img.shields.io/badge/.NET-8.0-purple.svg)
 ![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2011%2F10-blue.svg)
@@ -18,13 +18,18 @@ TaskFolder brings back quick-access application launching to Windows 11's taskba
 - **🎨 Smart Icons** - Extracts proper icons from PWAs, executables, and custom locations
 - **🚀 Auto-Start** - Optional startup with Windows
 - **📁 Simple Management** - Drag-and-drop shortcuts or use the built-in browser
-- **🔍 Search/Filter** - Instantly filter your shortcuts by name
+- **🔍 Fuzzy Search** - Instantly filter your shortcuts by name with intelligent fuzzy matching
 - **📂 Categories** - Organize shortcuts into subfolders that appear as submenus
 - **🌍 URL Shortcut Support** - Launch `.url` Internet Shortcuts directly
-- **⌨️ Global Hotkey** - User-configurable hotkey to pop the menu from anywhere
+- **⌨️ Global Hotkey** - User-configurable hotkey to pop the menu from anywhere, on any monitor
 - **📊 Launch Statistics** - Tracks most-used and recently-used shortcuts across restarts
 - **🖼️ Custom Icons** - Override any shortcut's icon with a file + index picker
 - **👤 Profiles** - Multiple named shortcut sets, switchable from the tray menu
+- **📌 Pinned Shortcuts** - Pin your most-accessed items to the top of the list
+- **🛡️ Run as Administrator** - Launch any shortcut elevated with a right-click or middle-click
+- **📝 Sticky Notes** - Create always-on-top sticky note shortcuts directly in the menu
+- **⚙️ Pre-Launch Scripts** - Run a custom script before any shortcut launches
+- **☁️ Profile Sync** - Store shortcuts on OneDrive, Dropbox, or a network share
 - **💾 Portable Mode** - Run from a USB drive with `--portable` flag
 - **🆓 Completely Free** - Open source under MIT License
 
@@ -67,8 +72,9 @@ Output: `bin/Release/net8.0-windows/TaskFolder.exe`
 ### Launching Applications
 
 - **Left-click** the tray icon to see your menu
-- **Global hotkey** (configurable in Settings) to open the menu from anywhere
+- **Global hotkey** (configurable in Settings) to open the menu from anywhere, on any monitor
 - **Click** any application to launch it
+- **Middle-click** a shortcut to launch it as Administrator
 - **Right-click** a shortcut for per-item options
 
 ### Managing Shortcuts
@@ -78,10 +84,39 @@ Output: `bin/Release/net8.0-windows/TaskFolder.exe`
 - **Reorder**: Right-click shortcut → Move Up / Move Down
 - **Change Icon**: Right-click shortcut → Change Icon...
 - **Open File Location**: Right-click shortcut → Open File Location
+- **Pin to Top**: Right-click shortcut → Pin to Top (📌 pinned items always appear first)
+- **Run as Administrator**: Right-click shortcut → Run as Administrator (or middle-click)
+- **Pre-Launch Script**: Right-click shortcut → Set Pre-Launch Script...
 
-### Search & Filter
+### Fuzzy Search
 
-Type in the search box at the top of the tray menu to instantly filter shortcuts by name. Clear the box to show all shortcuts.
+Type in the search box at the top of the tray menu to instantly filter shortcuts. The search uses fuzzy matching—typing `viv` finds `Vivaldi`, `cmt` finds `Camtasia`. Clear the box to show all shortcuts.
+
+### Pinned Shortcuts
+
+Right-click any shortcut and choose **Pin to Top** to keep it permanently at the top of the menu, marked with a 📌. Unpin it the same way.
+
+### Run as Administrator
+
+Need elevated privileges? Right-click any shortcut and choose **Run as Administrator**, or simply **middle-click** it. The UAC prompt appears as normal.
+
+### Pre-Launch Scripts
+
+Attach a custom script (batch/PowerShell/cmd) to any shortcut via right-click → **Set Pre-Launch Script...**. The script runs first; the shortcut launches after it completes (up to 30 seconds).
+
+### Sticky Notes
+
+Right-click the tray icon → **Add Note...** to create an always-on-top sticky note that appears as a shortcut in your menu. Notes open in a resizable yellow editor window with a save button.
+
+### Profile Sync (OneDrive / Dropbox / Network Share)
+
+Keep your shortcuts in sync across machines by pointing TaskFolder at a shared folder:
+
+1. Open Settings → **Profile Sync**
+2. Browse to your OneDrive / Dropbox folder, or click **Use Dropbox** to auto-detect
+3. Click OK and restart TaskFolder
+
+All profiles and shortcuts will be read from (and written to) that shared location.
 
 ### Categories (Subfolders)
 
@@ -124,6 +159,18 @@ TaskFolder.exe --portable
 
 All data (`settings.json`, `metadata.json`, `Shortcuts\`) is stored next to the executable.
 
+## ⚙️ Settings
+
+Access via: Right-click tray icon → "Settings"
+
+- ☑️ **Start with Windows** - Auto-start on boot
+- 🔔 **Show Notifications** - Balloon tip when an app is launched
+- ⌨️ **Global Hotkey** - Enable and configure the hotkey (e.g. Ctrl+Alt+T)
+- 📁 **Open Shortcuts Folder** - Open the active profile's shortcuts directory
+- 🗑️ **Remove All Shortcuts** - Clear the current profile's shortcuts
+- ☁️ **Profile Sync** - Set a custom root path for shortcuts (OneDrive, Dropbox, network share)
+- 📌 **Pin to System Tray** - Opens Windows Settings to pin the TaskFolder icon so it's always visible
+
 ## 💡 Use Cases
 
 ### For Power Users
@@ -160,23 +207,13 @@ TaskFolder has excellent support for Progressive Web Apps:
 
 **How?** TaskFolder launches the `.lnk` file itself (not the executable), letting Windows handle all the parameters correctly.
 
-## ⚙️ Settings
-
-Access via: Right-click tray icon → "Settings"
-
-- ☑️ **Start with Windows** - Auto-start on boot
-- 🔔 **Show Notifications** - Balloon tip when an app is launched
-- ⌨️ **Global Hotkey** - Enable and configure the hotkey (e.g. Ctrl+Alt+T)
-- 📁 **Open Shortcuts Folder** - Open the active profile's shortcuts directory
-- 🗑️ **Remove All Shortcuts** - Clear the current profile's shortcuts
-
 ## 📂 File Locations
 
 **Normal mode:**
 ```
 %APPDATA%\TaskFolder\
 ├── settings.json          ← app settings
-├── metadata.json          ← per-shortcut stats, sort order, custom icons
+├── metadata.json          ← per-shortcut stats, sort order, custom icons, pins
 ├── Shortcuts\             ← Default profile
 └── Profiles\
     └── <ProfileName>\     ← Additional profiles
@@ -193,9 +230,9 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run\TaskFolder
 
 ### Tech Stack
 - **.NET 8.0** - Modern Windows framework
-- **Windows Forms** - System tray and UI
+- **Windows Forms** - System tray and UI (PerMonitorV2 DPI-aware)
 - **Dynamic COM** - Shortcut (.lnk) manipulation
-- **Win32 APIs** - Icon extraction, global hotkey (`RegisterHotKey`)
+- **Win32 APIs** - Icon extraction, global hotkey (`RegisterHotKey`), foreground window management
 - **System.Text.Json** - Settings and metadata persistence
 
 ### Project Structure
@@ -205,16 +242,20 @@ TaskFolder/
 ├── Models/
 │   ├── AppSettings.cs          # JSON-serializable app settings
 │   ├── ShortcutItem.cs         # Shortcut data model
-│   └── ShortcutMetadata.cs     # Per-shortcut persisted stats & overrides
+│   └── ShortcutMetadata.cs     # Per-shortcut persisted stats, overrides, pin & script
 ├── Services/
 │   ├── SettingsService.cs      # Reads/writes settings.json + metadata.json
-│   ├── ShortcutManager.cs      # Core shortcut management (.lnk, .url, .exe)
+│   ├── ShortcutManager.cs      # Core shortcut management (.lnk, .url, .exe, .note)
 │   ├── ProfileService.cs       # Named profile switching
-│   └── HotkeyService.cs        # Global hotkey via RegisterHotKey P/Invoke
+│   ├── HotkeyService.cs        # Global hotkey via RegisterHotKey P/Invoke
+│   ├── FuzzySearch.cs          # Fuzzy string matching for the search box
+│   └── DropboxDetector.cs      # Auto-detect local Dropbox root path
 ├── Views/
 │   ├── SettingsForm.cs         # Settings dialog
 │   ├── RenameDialog.cs         # Inline rename dialog
-│   └── IconPickerDialog.cs     # Custom icon picker with live preview
+│   ├── IconPickerDialog.cs     # Custom icon picker with live preview
+│   ├── StickyNoteForm.cs       # Always-on-top sticky note editor
+│   └── InputDialog.cs          # Generic single-line text input dialog
 └── Utilities/
     ├── IconExtractor.cs        # Icon extraction from exe/dll/ico/lnk/url
     └── DragDropHelper.cs       # Drag-drop support
@@ -273,7 +314,7 @@ Requires [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" TaskFolder.iss
 ```
 
-Output: `installer\TaskFolder-Setup-1.1.0.exe`
+Output: `installer\TaskFolder-Setup-1.2.0.exe`
 
 ### Code Style
 - Standard C# conventions
@@ -288,6 +329,24 @@ None currently reported! 🎉
 If you find a bug, please [open an issue](../../issues).
 
 ## 📋 Changelog
+
+### v1.2.0 (October 2026)
+
+**New Features:**
+- **Pinned shortcuts** — Right-click any shortcut → Pin to Top; pinned items float to the top of the list marked with 📌 and persist across restarts
+- **Run as Administrator** — Launch any shortcut elevated via right-click or by middle-clicking the item
+- **Pre-Launch Scripts** — Attach a batch/PowerShell script to any shortcut; it runs before the app launches (30 s timeout)
+- **Sticky Notes** — Add Note... creates `.note` shortcuts that open an always-on-top, resizable sticky note editor with a yellow background and save-on-close prompt
+- **Profile Sync** — New Settings section to point shortcuts at OneDrive, Dropbox, or a network share; Dropbox path is auto-detected from Dropbox's own `info.json`
+- **Fuzzy Search** — The search box now uses character-order fuzzy scoring instead of simple substring matching, so `viv` finds `Vivaldi`
+- **Submenu shortcut name** — The right-click context menu header now shows the app name in parentheses, e.g. `(Vivaldi)`, for clarity
+- **Pin to System Tray** — New Settings button opens Windows Settings to the Taskbar page so the icon can be pinned to always-show; the installer also offers this as a post-install step
+
+**Bug Fixes:**
+- **Hotkey menu multi-monitor** — The menu now appears on whichever monitor the cursor is on, not always the primary monitor
+- **Hotkey menu DPI scaling** — Added `PerMonitorV2` DPI awareness so the menu renders at the correct scale on monitors with different DPI settings
+- **Hotkey menu click-away** — The menu now properly closes when clicking elsewhere (invisible owner form + `SetForegroundWindow` delivers the required `WM_ACTIVATE`)
+- **Right-click submenu** — Opening the per-shortcut context menu no longer collapses the main tray menu; clicking an item in the submenu now correctly closes both menus
 
 ### v1.1.0 (April 2026)
 
@@ -337,9 +396,9 @@ If you find a bug, please [open an issue](../../issues).
 Potential future features (contributions welcome!):
 
 - [ ] **Themes** - Light/dark mode menu styling
-- [ ] **Cloud sync** - Sync shortcuts across machines
 - [ ] **Unit tests** - Test coverage for services
 - [ ] **Drag-and-drop reorder** - True drag reorder in the tray menu (currently Move Up/Down)
+- [ ] **Note formatting** - Rich text / markdown support in sticky notes
 
 ## 🤝 Contributing
 
@@ -354,7 +413,6 @@ Contributions welcome! Please:
 ### Good First Issues
 - Add unit tests for `SettingsService` and `ShortcutManager`
 - Implement theme/dark mode support
-- Add cloud sync (e.g. OneDrive folder as the Shortcuts folder)
 
 ## 📜 License
 
@@ -372,7 +430,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - **Issues**: [GitHub Issues](../../issues)
 - **Discussions**: [GitHub Discussions](../../discussions)
-- **Blog Post**: [Read the full story](#) *(link to your blog post)*
 
 ## ⭐ Star History
 
