@@ -420,7 +420,12 @@ namespace TaskFolder
                 if (e.Button == MouseButtons.Right)
                 {
                     _itemContextMenuOpen = true;
-                    ctx.Closed += (cs, ce) => _itemContextMenuOpen = false;
+                    ctx.Closed += (cs, ce) =>
+                    {
+                        _itemContextMenuOpen = false;
+                        if (ce.CloseReason == ToolStripDropDownCloseReason.ItemClicked)
+                            _trayMenu.Close();
+                    };
                     ctx.Show(Cursor.Position);
                 }
                 else if (e.Button == MouseButtons.Middle && !shortcut.IsNote)
