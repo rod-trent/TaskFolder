@@ -570,6 +570,7 @@ namespace TaskFolder
             var owner = new Form
             {
                 Size = new Size(1, 1),
+                StartPosition = FormStartPosition.Manual, // must be Manual or Location is ignored
                 Location = new Point(x, y),
                 FormBorderStyle = FormBorderStyle.None,
                 ShowInTaskbar = false,
