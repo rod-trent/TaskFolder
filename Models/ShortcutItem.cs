@@ -69,6 +69,18 @@ namespace TaskFolder.Models
         /// </summary>
         public string Category { get; set; }
 
+        /// <summary>When true this shortcut floats above all others at the top of the menu.</summary>
+        public bool IsPinned { get; set; }
+
+        /// <summary>When true this is a Quick Note shortcut (opens a sticky-note editor).</summary>
+        public bool IsNote { get; set; }
+
+        /// <summary>Content of the note, loaded from the .note file.</summary>
+        public string NoteContent { get; set; }
+
+        /// <summary>Optional command run before launching this shortcut.</summary>
+        public string PreLaunchScript { get; set; }
+
         public ShortcutItem()
         {
             DateCreated = DateTime.Now;

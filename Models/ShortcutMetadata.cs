@@ -20,5 +20,11 @@ namespace TaskFolder.Models
         /// <summary>Overrides the auto-detected icon. Null means use default detection.</summary>
         public string CustomIconPath { get; set; } = null;
         public int CustomIconIndex { get; set; } = 0;
+
+        /// <summary>Pinned shortcuts float above all others in the menu.</summary>
+        public bool Pinned { get; set; } = false;
+
+        /// <summary>Optional command to run before launching this shortcut (e.g. a VPN connect script).</summary>
+        public string PreLaunchScript { get; set; } = null;
     }
 }

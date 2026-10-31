@@ -26,6 +26,10 @@ namespace TaskFolder.Views
         private Button _btnOpenFolder;
         private Button _btnClearShortcuts;
 
+        private TextBox _txtProfilesRoot;
+        private Button _btnBrowseProfilesRoot;
+        private Button _btnClearProfilesRoot;
+
         private Button _btnOK;
         private Button _btnCancel;
 
@@ -154,11 +158,64 @@ namespace TaskFolder.Views
             Controls.Add(grpShortcuts);
             y += grpShortcuts.Height + 8;
 
+            // ── Profile Sync ─────────────────────────────────────────────────────
+            var grpSync = new GroupBox
+            {
+                Text = "Profile Sync (OneDrive / Network Share)",
+                Location = new Point(X, y),
+                Size = new Size(W, 95)
+            };
+
+            grpSync.Controls.Add(new Label
+            {
+                Text = "Root path (leave blank to use %APPDATA%\\TaskFolder):",
+                Location = new Point(12, 20),
+                AutoSize = true
+            });
+
+            _txtProfilesRoot = new TextBox
+            {
+                Location = new Point(12, 38),
+                Width = W - 160,
+                PlaceholderText = "e.g. C:\\Users\\You\\OneDrive\\TaskFolder"
+            };
+            grpSync.Controls.Add(_txtProfilesRoot);
+
+            _btnBrowseProfilesRoot = new Button
+            {
+                Text = "Browse...",
+                Location = new Point(W - 144, 36),
+                Width = 70
+            };
+            _btnBrowseProfilesRoot.Click += BtnBrowseProfilesRoot_Click;
+            grpSync.Controls.Add(_btnBrowseProfilesRoot);
+
+            _btnClearProfilesRoot = new Button
+            {
+                Text = "Clear",
+                Location = new Point(W - 70, 36),
+                Width = 58
+            };
+            _btnClearProfilesRoot.Click += (s, e) => _txtProfilesRoot.Clear();
+            grpSync.Controls.Add(_btnClearProfilesRoot);
+
+            grpSync.Controls.Add(new Label
+            {
+                Text = "Restart TaskFolder after changing this path for it to take effect.",
+                Location = new Point(12, 68),
+                Size = new Size(W - 24, 18),
+                ForeColor = System.Drawing.Color.Gray,
+                Font = new System.Drawing.Font(Font, System.Drawing.FontStyle.Italic)
+            });
+
+            Controls.Add(grpSync);
+            y += grpSync.Height + 8;
+
             // ── About ────────────────────────────────────────────────────────────
             var grpAbout = new GroupBox { Text = "About", Location = new Point(X, y), Size = new Size(W, 65) };
             grpAbout.Controls.Add(new Label
             {
-                Text = "TaskFolder v1.1.0 — Windows 11 Application Launcher — MIT License",
+                Text = "TaskFolder v1.2.0 — Windows 11 Application Launcher — MIT License",
                 Location = new Point(12, 22),
                 Size = new Size(W - 24, 32),
                 TextAlign = ContentAlignment.MiddleCenter
@@ -199,6 +256,7 @@ namespace TaskFolder.Views
             _chkAutoStart.Checked = IsAutoStartEnabled();
             _chkShowNotifications.Checked = _settingsService.Settings.ShowNotifications;
             _chkHotkeyEnabled.Checked = _settingsService.Settings.HotkeyEnabled;
+            _txtProfilesRoot.Text = _settingsService.Settings.ProfilesRootPath ?? string.Empty;
 
             // Modifiers
             string mod = _settingsService.Settings.HotkeyModifiers ?? "Ctrl+Alt";
@@ -245,6 +303,20 @@ namespace TaskFolder.Views
                 MessageBox.Show($"Failed to update startup settings:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void BtnBrowseProfilesRoot_Click(object sender, EventArgs e)
+        {
+            using var dlg = new FolderBrowserDialog
+            {
+                Description = "Select root folder for shortcuts/profiles (e.g. your OneDrive folder)",
+                UseDescriptionForTitle = true,
+                ShowNewFolderButton = true,
+                SelectedPath = _txtProfilesRoot.Text.Trim()
+            };
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+                _txtProfilesRoot.Text = dlg.SelectedPath;
         }
 
         private void BtnOpenFolder_Click(object sender, EventArgs e)
@@ -306,6 +378,10 @@ namespace TaskFolder.Views
             _settingsService.Settings.HotkeyEnabled = hotkeyEnabled;
             _settingsService.Settings.HotkeyModifiers = mods;
             _settingsService.Settings.HotkeyKey = key;
+
+            string syncPath = _txtProfilesRoot.Text.Trim();
+            _settingsService.Settings.ProfilesRootPath = string.IsNullOrEmpty(syncPath) ? null : syncPath;
+
             _settingsService.Save();
 
             // Apply hotkey change

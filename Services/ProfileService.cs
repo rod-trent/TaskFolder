@@ -27,7 +27,7 @@ namespace TaskFolder.Services
         {
             var names = new List<string> { "Default" };
 
-            string profilesRoot = Path.Combine(_settingsService.DataRoot, "Profiles");
+            string profilesRoot = Path.Combine(_shortcutManager.GetProfilesRoot(), "Profiles");
             if (Directory.Exists(profilesRoot))
             {
                 foreach (string dir in Directory.GetDirectories(profilesRoot))

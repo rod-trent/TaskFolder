@@ -19,5 +19,12 @@ namespace TaskFolder.Models
         public bool HotkeyEnabled { get; set; } = false;
 
         public bool PortableMode { get; set; } = false;
+
+        /// <summary>
+        /// Optional root path for all shortcut profiles (Shortcuts\ + Profiles\).
+        /// When set, shortcuts live here instead of under %APPDATA%\TaskFolder\.
+        /// Point this at a OneDrive or network folder to sync across machines.
+        /// </summary>
+        public string ProfilesRootPath { get; set; } = null;
     }
 }

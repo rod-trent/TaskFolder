@@ -50,12 +50,26 @@ namespace TaskFolder.Services
         /// </summary>
         public string ResolveShortcutsFolder(string profileName)
         {
+            string root = GetProfilesRoot();
+
             if (string.IsNullOrWhiteSpace(profileName) ||
                 profileName.Equals("Default", StringComparison.OrdinalIgnoreCase))
             {
-                return Path.Combine(_settingsService.DataRoot, "Shortcuts");
+                return Path.Combine(root, "Shortcuts");
             }
-            return Path.Combine(_settingsService.DataRoot, "Profiles", profileName);
+            return Path.Combine(root, "Profiles", profileName);
+        }
+
+        /// <summary>
+        /// Returns the root used for all profile/shortcut folders.
+        /// Falls back to the app data root when no custom sync path is configured.
+        /// </summary>
+        public string GetProfilesRoot()
+        {
+            string custom = _settingsService.Settings.ProfilesRootPath;
+            return !string.IsNullOrWhiteSpace(custom) && Directory.Exists(custom)
+                ? custom
+                : _settingsService.DataRoot;
         }
 
         /// <summary>Switches the active shortcuts folder (for profile switching).</summary>
@@ -144,7 +158,7 @@ namespace TaskFolder.Services
             foreach (string file in Directory.GetFiles(directory))
             {
                 string ext = Path.GetExtension(file).ToLowerInvariant();
-                if (ext != ".lnk" && ext != ".url" && ext != ".exe")
+                if (ext != ".lnk" && ext != ".url" && ext != ".exe" && ext != ".note")
                     continue;
 
                 try
@@ -158,6 +172,8 @@ namespace TaskFolder.Services
                     shortcut.LastUsed = meta.LastUsed;
                     shortcut.SortOrder = meta.SortOrder;
                     shortcut.Category = category;
+                    shortcut.IsPinned = meta.Pinned;
+                    shortcut.PreLaunchScript = meta.PreLaunchScript;
 
                     // Apply custom icon override
                     if (!string.IsNullOrEmpty(meta.CustomIconPath) && File.Exists(meta.CustomIconPath))
@@ -181,6 +197,9 @@ namespace TaskFolder.Services
         {
             string ext = Path.GetExtension(filePath).ToLowerInvariant();
 
+            if (ext == ".note")
+                return LoadNoteShortcut(filePath);
+
             if (ext == ".url")
                 return LoadUrlShortcut(filePath);
 
@@ -188,6 +207,40 @@ namespace TaskFolder.Services
                 return LoadExeShortcut(filePath);
 
             return LoadLnkShortcut(filePath);
+        }
+
+        private ShortcutItem LoadNoteShortcut(string notePath)
+        {
+            try
+            {
+                string content = File.Exists(notePath) ? File.ReadAllText(notePath) : string.Empty;
+                return new ShortcutItem
+                {
+                    Name = Path.GetFileNameWithoutExtension(notePath),
+                    TargetPath = notePath,
+                    ShortcutFilePath = notePath,
+                    DateCreated = File.GetCreationTime(notePath),
+                    IsNote = true,
+                    NoteContent = content,
+                    Icon = GetNoteIcon()
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"LoadNoteShortcut failed for {notePath}: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static System.Drawing.Icon GetNoteIcon()
+        {
+            try
+            {
+                // Use the notepad icon from shell32
+                return Utilities.IconExtractor.ExtractIcon(
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "shell32.dll"), 72);
+            }
+            catch { return null; }
         }
 
         private ShortcutItem LoadLnkShortcut(string linkPath)
@@ -455,6 +508,53 @@ namespace TaskFolder.Services
             meta.SortOrder = newOrder;
             _settingsService.UpsertMetadata(meta);
             _settingsService.Save();
+        }
+
+        /// <summary>Creates a new Quick Note shortcut (.note file) in the shortcuts folder.</summary>
+        public ShortcutItem AddNote(string name, string content = "")
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Note name cannot be empty.");
+
+            string notePath = UniqueFilePath(_shortcutsFolder, name, ".note");
+            File.WriteAllText(notePath, content ?? string.Empty);
+
+            LoadShortcuts();
+            ShortcutsChanged?.Invoke(this, EventArgs.Empty);
+
+            lock (_lock)
+                return _shortcuts.FirstOrDefault(s => s.IsNote &&
+                    string.Equals(s.ShortcutFilePath, notePath, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>Persists updated note content to disk and updates the in-memory item.</summary>
+        public void UpdateNoteContent(ShortcutItem note, string content)
+        {
+            if (note == null || !note.IsNote) return;
+            note.NoteContent = content;
+            try { File.WriteAllText(note.ShortcutFilePath, content); } catch { }
+        }
+
+        /// <summary>Toggles the pinned state of a shortcut and persists it.</summary>
+        public void SetPinned(ShortcutItem shortcut, bool pinned)
+        {
+            if (shortcut == null) return;
+            shortcut.IsPinned = pinned;
+            var meta = _settingsService.GetMetadata(Path.GetFileName(shortcut.ShortcutFilePath));
+            meta.FileName = Path.GetFileName(shortcut.ShortcutFilePath);
+            meta.Pinned = pinned;
+            _settingsService.SaveMetadata(meta);
+        }
+
+        /// <summary>Sets (or clears) the pre-launch script for a shortcut and persists it.</summary>
+        public void SetPreLaunchScript(ShortcutItem shortcut, string scriptCommand)
+        {
+            if (shortcut == null) return;
+            shortcut.PreLaunchScript = string.IsNullOrWhiteSpace(scriptCommand) ? null : scriptCommand.Trim();
+            var meta = _settingsService.GetMetadata(Path.GetFileName(shortcut.ShortcutFilePath));
+            meta.FileName = Path.GetFileName(shortcut.ShortcutFilePath);
+            meta.PreLaunchScript = shortcut.PreLaunchScript;
+            _settingsService.SaveMetadata(meta);
         }
 
         /// <summary>Saves a custom icon override for a shortcut.</summary>

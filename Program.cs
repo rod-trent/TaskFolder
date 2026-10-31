@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TaskFolder.Models;
 using TaskFolder.Services;
 using TaskFolder.Views;
+using TaskFolder.Utilities;
 
 namespace TaskFolder
 {
@@ -177,6 +178,7 @@ namespace TaskFolder
 
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add(new ToolStripMenuItem("Add Application...", null, OnAddApplication));
+            menu.Items.Add(new ToolStripMenuItem("Add Note...", null, OnAddNote));
             menu.Items.Add(new ToolStripMenuItem("Open Shortcuts Folder", null, OnOpenFolder));
 
             // Switch Profile submenu
@@ -219,12 +221,15 @@ namespace TaskFolder
 
             var allShortcuts = _shortcutManager.GetAllShortcuts();
 
-            // Apply search filter
+            // Apply fuzzy search filter, sorted by score descending
             IEnumerable<ShortcutItem> visible = allShortcuts;
             if (!string.IsNullOrWhiteSpace(_searchFilter))
             {
-                visible = allShortcuts.Where(sc =>
-                    sc.GetDisplayName().Contains(_searchFilter, StringComparison.OrdinalIgnoreCase));
+                visible = allShortcuts
+                    .Select(sc => (sc, score: FuzzySearch.Score(sc.GetDisplayName(), _searchFilter)))
+                    .Where(t => t.score > 0)
+                    .OrderByDescending(t => t.score)
+                    .Select(t => t.sc);
             }
 
             // ── Most Used section ──────────────────────────────────────────────
@@ -242,6 +247,16 @@ namespace TaskFolder
                 .ToList();
 
             int insertAt = ShortcutsInsertIndex;
+
+            // ── Pinned section ─────────────────────────────────────────────────
+            var pinned = allShortcuts.Where(sc => sc.IsPinned).ToList();
+            if (pinned.Count > 0)
+            {
+                foreach (var sc in pinned)
+                    _trayMenu.Items.Insert(insertAt++, BuildShortcutItem(sc));
+                var pinSep = new ToolStripSeparator { Tag = "shortcuts-sep" };
+                _trayMenu.Items.Insert(insertAt++, pinSep);
+            }
 
             // Insert Most Used submenu
             if (mostUsed.Count > 0)
@@ -311,54 +326,107 @@ namespace TaskFolder
 
         private ToolStripMenuItem BuildShortcutItem(ShortcutItem shortcut)
         {
+            string displayName = shortcut.GetDisplayName();
+            string pinnedPrefix = shortcut.IsPinned ? "📌 " : "";
+
             var menuItem = new ToolStripMenuItem(
-                shortcut.GetDisplayName(),
+                pinnedPrefix + displayName,
                 shortcut.Icon?.ToBitmap())
             {
                 Tag = shortcut,
-                ToolTipText = shortcut.TargetPath
+                ToolTipText = BuildTooltip(shortcut)
             };
 
             // Left-click: launch
             menuItem.Click += (s, e) => LaunchShortcut(shortcut);
 
-            // Right-click context menu: Rename, Remove, Open Location, Change Icon, Move Up/Down
+            // Right-click context menu
             var ctx = new ContextMenuStrip();
+
+            // Pin / Unpin
+            var pinItem = new ToolStripMenuItem(shortcut.IsPinned ? "Unpin from Top" : "Pin to Top");
+            pinItem.Click += (s, e) => OnTogglePin(shortcut);
+            ctx.Items.Add(pinItem);
+            ctx.Items.Add(new ToolStripSeparator());
+
+            if (!shortcut.IsNote)
+            {
+                var adminItem = new ToolStripMenuItem("Run as Administrator");
+                adminItem.Click += (s, e) => LaunchAsAdmin(shortcut);
+                ctx.Items.Add(adminItem);
+                ctx.Items.Add(new ToolStripSeparator());
+            }
 
             var renameItem = new ToolStripMenuItem("Rename...");
             renameItem.Click += (s, e) => OnRenameShortcut(shortcut);
+            ctx.Items.Add(renameItem);
 
             var removeItem = new ToolStripMenuItem("Remove");
             removeItem.Click += (s, e) => OnRemoveShortcut(shortcut);
+            ctx.Items.Add(removeItem);
 
-            var openLocItem = new ToolStripMenuItem("Open File Location");
-            openLocItem.Click += (s, e) => OnOpenFileLocation(shortcut);
+            if (!shortcut.IsNote)
+            {
+                var openLocItem = new ToolStripMenuItem("Open File Location");
+                openLocItem.Click += (s, e) => OnOpenFileLocation(shortcut);
+                ctx.Items.Add(openLocItem);
 
-            var changeIconItem = new ToolStripMenuItem("Change Icon...");
-            changeIconItem.Click += (s, e) => OnChangeIcon(shortcut);
+                ctx.Items.Add(new ToolStripSeparator());
+
+                var changeIconItem = new ToolStripMenuItem("Change Icon...");
+                changeIconItem.Click += (s, e) => OnChangeIcon(shortcut);
+                ctx.Items.Add(changeIconItem);
+
+                ctx.Items.Add(new ToolStripSeparator());
+
+                string scriptLabel = string.IsNullOrEmpty(shortcut.PreLaunchScript)
+                    ? "Set Pre-Launch Script..."
+                    : $"Pre-Launch Script: {shortcut.PreLaunchScript}";
+                var scriptItem = new ToolStripMenuItem(scriptLabel);
+                scriptItem.Click += (s, e) => OnSetPreLaunchScript(shortcut);
+                ctx.Items.Add(scriptItem);
+            }
+
+            ctx.Items.Add(new ToolStripSeparator());
 
             var moveUpItem = new ToolStripMenuItem("Move Up");
             moveUpItem.Click += (s, e) => OnMoveShortcut(shortcut, -1);
+            ctx.Items.Add(moveUpItem);
 
             var moveDownItem = new ToolStripMenuItem("Move Down");
             moveDownItem.Click += (s, e) => OnMoveShortcut(shortcut, +1);
-
-            ctx.Items.AddRange(new ToolStripItem[]
-            {
-                renameItem, removeItem, openLocItem,
-                new ToolStripSeparator(),
-                changeIconItem,
-                new ToolStripSeparator(),
-                moveUpItem, moveDownItem
-            });
+            ctx.Items.Add(moveDownItem);
 
             menuItem.MouseDown += (s, e) =>
             {
                 if (e.Button == MouseButtons.Right)
                     ctx.Show(Cursor.Position);
+                else if (e.Button == MouseButtons.Middle && !shortcut.IsNote)
+                    LaunchAsAdmin(shortcut);
             };
 
             return menuItem;
+        }
+
+        private static string BuildTooltip(ShortcutItem sc)
+        {
+            var parts = new System.Text.StringBuilder();
+            parts.AppendLine(sc.IsNote ? "(Quick Note)" : sc.TargetPath);
+            if (sc.LaunchCount > 0)
+                parts.AppendLine($"Launched {sc.LaunchCount} time{(sc.LaunchCount == 1 ? "" : "s")}");
+            if (sc.LastUsed.HasValue)
+            {
+                var ago = DateTime.Now - sc.LastUsed.Value;
+                string agoStr = ago.TotalDays >= 1
+                    ? $"{(int)ago.TotalDays}d ago"
+                    : ago.TotalHours >= 1
+                        ? $"{(int)ago.TotalHours}h ago"
+                        : "just now";
+                parts.Append($"Last used: {agoStr}");
+            }
+            if (!string.IsNullOrEmpty(sc.PreLaunchScript))
+                parts.AppendLine($"\nPre-launch: {sc.PreLaunchScript}");
+            return parts.ToString().TrimEnd();
         }
 
         // ── Profile submenu ─────────────────────────────────────────────────────
@@ -429,7 +497,8 @@ namespace TaskFolder
 
         private void OnHotkeyPressed(object sender, EventArgs e)
         {
-            ShowContextMenu();
+            // Show the menu at the cursor so it appears on the same monitor the user is working on.
+            ShowMenuAtCursor();
         }
 
         private void OnTrayIconClick(object sender, EventArgs e)
@@ -450,15 +519,52 @@ namespace TaskFolder
             method?.Invoke(_trayIcon, null);
         }
 
+        /// <summary>
+        /// Shows the menu at the current cursor position, snapping to keep it
+        /// fully on the screen the cursor is on. Used for hotkey-triggered opens
+        /// so the menu appears on the same monitor as the active work.
+        /// </summary>
+        private void ShowMenuAtCursor()
+        {
+            var cursorPos = Cursor.Position;
+            var screen = Screen.FromPoint(cursorPos);
+
+            // Clamp so the menu fits on the screen (approximate 250×400 max size)
+            int x = Math.Min(cursorPos.X, screen.WorkingArea.Right - 260);
+            int y = Math.Min(cursorPos.Y, screen.WorkingArea.Bottom - 420);
+
+            _trayMenu.Show(new Point(x, y));
+        }
+
         private void LaunchShortcut(ShortcutItem shortcut)
         {
             try
             {
+                // Quick Note — open sticky-note editor
+                if (shortcut.IsNote)
+                {
+                    var noteForm = new StickyNoteForm(
+                        shortcut.ShortcutFilePath,
+                        shortcut.GetDisplayName(),
+                        shortcut.NoteContent ?? string.Empty);
+                    noteForm.FormClosed += (s, e) =>
+                    {
+                        // Reload note content after editing
+                        if (File.Exists(shortcut.ShortcutFilePath))
+                            shortcut.NoteContent = File.ReadAllText(shortcut.ShortcutFilePath);
+                    };
+                    noteForm.Show();
+                    return;
+                }
+
+                // Pre-launch script
+                if (!string.IsNullOrWhiteSpace(shortcut.PreLaunchScript))
+                    RunPreLaunchScript(shortcut.PreLaunchScript);
+
                 string ext = Path.GetExtension(shortcut.ShortcutFilePath ?? "").ToLowerInvariant();
 
                 if (ext == ".url")
                 {
-                    // Launch URL in default browser
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = shortcut.TargetPath,
@@ -501,6 +607,92 @@ namespace TaskFolder
                 MessageBox.Show($"Failed to launch application:\n{ex.Message}",
                     "TaskFolder Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void LaunchAsAdmin(ShortcutItem shortcut)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(shortcut.PreLaunchScript))
+                    RunPreLaunchScript(shortcut.PreLaunchScript);
+
+                string target = File.Exists(shortcut.ShortcutFilePath ?? "")
+                    ? shortcut.ShortcutFilePath
+                    : shortcut.TargetPath;
+
+                var si = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = target,
+                    Verb = "runas",
+                    UseShellExecute = true
+                };
+                if (!string.IsNullOrEmpty(shortcut.Arguments))
+                    si.Arguments = shortcut.Arguments;
+                if (!string.IsNullOrEmpty(shortcut.WorkingDirectory))
+                    si.WorkingDirectory = shortcut.WorkingDirectory;
+
+                System.Diagnostics.Process.Start(si);
+                _shortcutManager.RecordLaunch(shortcut);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to launch as administrator:\n{ex.Message}",
+                    "TaskFolder Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static void RunPreLaunchScript(string command)
+        {
+            try
+            {
+                var si = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c \"{command}\"",
+                    UseShellExecute = true,
+                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized
+                };
+                var proc = System.Diagnostics.Process.Start(si);
+                proc?.WaitForExit(30_000); // max 30 s
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Pre-launch script failed: {ex.Message}");
+            }
+        }
+
+        private void OnAddNote(object sender, EventArgs e)
+        {
+            using var dlg = new InputDialog("Add Note", "Note title:", string.Empty);
+            if (dlg.ShowDialog() != DialogResult.OK) return;
+            try
+            {
+                _shortcutManager.AddNote(dlg.Value);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to create note:\n{ex.Message}",
+                    "TaskFolder Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnTogglePin(ShortcutItem shortcut)
+        {
+            _shortcutManager.SetPinned(shortcut, !shortcut.IsPinned);
+            RefreshShortcutsList();
+        }
+
+        private void OnSetPreLaunchScript(ShortcutItem shortcut)
+        {
+            using var dlg = new InputDialog(
+                "Pre-Launch Script",
+                "Command to run before launching (leave blank to clear):",
+                shortcut.PreLaunchScript ?? string.Empty,
+                allowEmpty: true);
+
+            if (dlg.ShowDialog() != DialogResult.OK) return;
+            _shortcutManager.SetPreLaunchScript(shortcut, dlg.Value);
+            RefreshShortcutsList();
         }
 
         private void OnAddApplication(object sender, EventArgs e)
