@@ -66,6 +66,7 @@ namespace TaskFolder
         // ── Menu state ──────────────────────────────────────────────────────────
         private ToolStripTextBox _searchBox;
         private string _searchFilter = string.Empty;
+        private bool _itemContextMenuOpen = false;
 
         public TaskFolderApplicationContext(bool isPortable = false)
         {
@@ -145,6 +146,13 @@ namespace TaskFolder
         private ContextMenuStrip BuildTrayMenu()
         {
             var menu = new ContextMenuStrip();
+
+            // Keep the tray menu alive while a per-item right-click context menu is open.
+            menu.Closing += (s, e) =>
+            {
+                if (_itemContextMenuOpen)
+                    e.Cancel = true;
+            };
 
             var header = new ToolStripLabel("Applications")
             {
@@ -400,7 +408,11 @@ namespace TaskFolder
             menuItem.MouseDown += (s, e) =>
             {
                 if (e.Button == MouseButtons.Right)
+                {
+                    _itemContextMenuOpen = true;
+                    ctx.Closed += (cs, ce) => _itemContextMenuOpen = false;
                     ctx.Show(Cursor.Position);
+                }
                 else if (e.Button == MouseButtons.Middle && !shortcut.IsNote)
                     LaunchAsAdmin(shortcut);
             };

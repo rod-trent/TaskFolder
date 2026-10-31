@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using TaskFolder.Services;
@@ -29,6 +30,7 @@ namespace TaskFolder.Views
         private TextBox _txtProfilesRoot;
         private Button _btnBrowseProfilesRoot;
         private Button _btnClearProfilesRoot;
+        private Button _btnUseDropbox;
 
         private Button _btnOK;
         private Button _btnCancel;
@@ -161,7 +163,7 @@ namespace TaskFolder.Views
             // ── Profile Sync ─────────────────────────────────────────────────────
             var grpSync = new GroupBox
             {
-                Text = "Profile Sync (OneDrive / Network Share)",
+                Text = "Profile Sync (OneDrive / Dropbox / Network Share)",
                 Location = new Point(X, y),
                 Size = new Size(W, 95)
             };
@@ -176,16 +178,25 @@ namespace TaskFolder.Views
             _txtProfilesRoot = new TextBox
             {
                 Location = new Point(12, 38),
-                Width = W - 160,
+                Width = W - 230,
                 PlaceholderText = "e.g. C:\\Users\\You\\OneDrive\\TaskFolder"
             };
             grpSync.Controls.Add(_txtProfilesRoot);
 
+            _btnUseDropbox = new Button
+            {
+                Text = "Use Dropbox",
+                Location = new Point(W - 214, 36),
+                Width = 90
+            };
+            _btnUseDropbox.Click += BtnUseDropbox_Click;
+            grpSync.Controls.Add(_btnUseDropbox);
+
             _btnBrowseProfilesRoot = new Button
             {
                 Text = "Browse...",
-                Location = new Point(W - 144, 36),
-                Width = 70
+                Location = new Point(W - 120, 36),
+                Width = 58
             };
             _btnBrowseProfilesRoot.Click += BtnBrowseProfilesRoot_Click;
             grpSync.Controls.Add(_btnBrowseProfilesRoot);
@@ -193,8 +204,8 @@ namespace TaskFolder.Views
             _btnClearProfilesRoot = new Button
             {
                 Text = "Clear",
-                Location = new Point(W - 70, 36),
-                Width = 58
+                Location = new Point(W - 58, 36),
+                Width = 46
             };
             _btnClearProfilesRoot.Click += (s, e) => _txtProfilesRoot.Clear();
             grpSync.Controls.Add(_btnClearProfilesRoot);
@@ -303,6 +314,27 @@ namespace TaskFolder.Views
                 MessageBox.Show($"Failed to update startup settings:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void BtnUseDropbox_Click(object sender, EventArgs e)
+        {
+            string dropboxPath = DropboxDetector.GetDropboxPath();
+            if (dropboxPath == null)
+            {
+                MessageBox.Show(
+                    "Dropbox does not appear to be installed or configured on this machine.",
+                    "Dropbox Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Suggest a TaskFolder subfolder inside Dropbox so it doesn't clutter the root
+            string suggested = Path.Combine(dropboxPath, "TaskFolder");
+            _txtProfilesRoot.Text = suggested;
+
+            MessageBox.Show(
+                $"Dropbox path set to:\n{suggested}\n\nTaskFolder will create this folder if it does not exist. " +
+                "Click OK in Settings to save, then restart TaskFolder.",
+                "Dropbox Sync", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnBrowseProfilesRoot_Click(object sender, EventArgs e)
