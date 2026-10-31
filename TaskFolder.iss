@@ -55,7 +55,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "startup"; Description: "Run {#MyAppName} at Windows startup"; GroupDescription: "Startup Options:"; Flags: unchecked
-Name: "pintotray"; Description: "Always show {#MyAppName} icon in the taskbar system tray (opens Windows Settings)"; GroupDescription: "Taskbar Options:"; Flags: checked
+Name: "pintotray"; Description: "Always show {#MyAppName} icon in the taskbar system tray (opens Windows Settings)"; GroupDescription: "Taskbar Options:"
 
 [Files]
 ; Main application files - uses the PublishPath defined above
