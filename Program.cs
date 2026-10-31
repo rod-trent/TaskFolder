@@ -260,46 +260,6 @@ namespace TaskFolder
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add(new ToolStripMenuItem("Exit TaskFolder", null, OnExit));
 
-            // Drag-to-reorder: hold and drag an item to a new position
-            menu.MouseDown += (s, e) =>
-            {
-                if (e.Button != MouseButtons.Left) return;
-                var hit = menu.GetItemAt(e.Location);
-                if (hit is ToolStripMenuItem mi && mi.Tag is ShortcutItem sc)
-                {
-                    _dragItem = sc;
-                    _dragStartPt = e.Location;
-                    _isDragging = false;
-                }
-            };
-            menu.MouseMove += (s, e) =>
-            {
-                if (_dragItem == null) return;
-                if (!_isDragging && Math.Abs(e.Y - _dragStartPt.Y) > 6)
-                {
-                    _isDragging = true;
-                    menu.Cursor = Cursors.SizeNS;
-                }
-            };
-            menu.MouseUp += (s, e) =>
-            {
-                try
-                {
-                    if (_isDragging && _dragItem != null)
-                    {
-                        var hit = menu.GetItemAt(e.Location);
-                        if (hit is ToolStripMenuItem tmi && tmi.Tag is ShortcutItem targetSc && targetSc != _dragItem)
-                            OnMoveShortcutToPosition(_dragItem, targetSc);
-                    }
-                }
-                finally
-                {
-                    _dragItem = null;
-                    _isDragging = false;
-                    menu.Cursor = Cursors.Default;
-                }
-            };
-
             return menu;
         }
 
@@ -583,6 +543,39 @@ namespace TaskFolder
                 }
                 else if (e.Button == MouseButtons.Middle && !shortcut.IsNote)
                     LaunchAsAdmin(shortcut);
+                else if (e.Button == MouseButtons.Left)
+                {
+                    _dragItem = shortcut;
+                    _dragStartPt = e.Location;
+                    _isDragging = false;
+                }
+            };
+
+            // MouseMove/MouseUp must be on the item — ContextMenuStrip-level handlers
+            // don't fire while the cursor is over a ToolStripMenuItem.
+            menuItem.MouseMove += (s, e) =>
+            {
+                if (_dragItem == null) return;
+                if (!_isDragging && Math.Abs(e.Y - _dragStartPt.Y) > 6)
+                {
+                    _isDragging = true;
+                    _trayMenu.Cursor = Cursors.SizeNS;
+                }
+            };
+            menuItem.MouseUp += (s, e) =>
+            {
+                if (e.Button != MouseButtons.Left) return;
+                try
+                {
+                    if (_isDragging && _dragItem != null && _dragItem != shortcut)
+                        OnMoveShortcutToPosition(_dragItem, shortcut);
+                }
+                finally
+                {
+                    _dragItem = null;
+                    _isDragging = false;
+                    _trayMenu.Cursor = Cursors.Default;
+                }
             };
 
             return menuItem;
