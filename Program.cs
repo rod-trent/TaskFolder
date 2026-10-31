@@ -21,6 +21,7 @@ namespace TaskFolder
         {
             try
             {
+                Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
@@ -53,6 +54,9 @@ namespace TaskFolder
     /// </summary>
     public class TaskFolderApplicationContext : ApplicationContext
     {
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
         // ── Services ────────────────────────────────────────────────────────────
         private SettingsService _settingsService;
         private ShortcutManager _shortcutManager;
@@ -352,7 +356,7 @@ namespace TaskFolder
             var ctx = new ContextMenuStrip();
 
             // Header showing which shortcut this menu is for
-            var header = new ToolStripLabel(displayName)
+            var header = new ToolStripLabel($"({displayName})")
             {
                 Font = new Font(ctx.Font, FontStyle.Bold),
                 ForeColor = SystemColors.HotTrack,
@@ -577,7 +581,7 @@ namespace TaskFolder
                 Opacity = 0
             };
             owner.Show();
-            owner.Activate();
+            SetForegroundWindow(owner.Handle);
 
             // Dispose the owner form once the menu closes.
             ToolStripDropDownClosedEventHandler onClosed = null;
