@@ -351,6 +351,16 @@ namespace TaskFolder
             // Right-click context menu
             var ctx = new ContextMenuStrip();
 
+            // Header showing which shortcut this menu is for
+            var header = new ToolStripLabel(displayName)
+            {
+                Font = new Font(ctx.Font, FontStyle.Bold),
+                ForeColor = SystemColors.HotTrack,
+                Enabled = false
+            };
+            ctx.Items.Add(header);
+            ctx.Items.Add(new ToolStripSeparator());
+
             // Pin / Unpin
             var pinItem = new ToolStripMenuItem(shortcut.IsPinned ? "Unpin from Top" : "Pin to Top");
             pinItem.Click += (s, e) => OnTogglePin(shortcut);
