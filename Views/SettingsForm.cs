@@ -647,6 +647,11 @@ namespace TaskFolder.Views
 
         private void BtnOK_Click(object sender, EventArgs e)
         {
+            // Snapshot restart-required settings before saving
+            bool   prevDark     = _settingsService.Settings.DarkMode;
+            float  prevFont     = _settingsService.Settings.MenuFontSize;
+            int    prevIconSize = _settingsService.Settings.MenuIconSize;
+
             SetAutoStart(_chkAutoStart.Checked);
             _settingsService.Settings.StartWithWindows = _chkAutoStart.Checked;
             _settingsService.Settings.ShowNotifications = _chkShowNotifications.Checked;
@@ -686,6 +691,26 @@ namespace TaskFolder.Views
                 _mouseHotkeyService.Unregister();
                 if (_chkMouseHotkeyEnabled.Checked)
                     _mouseHotkeyService.Register(_capturedMouseButton);
+            }
+
+            bool needsRestart = _settingsService.Settings.DarkMode     != prevDark
+                             || _settingsService.Settings.MenuFontSize  != prevFont
+                             || _settingsService.Settings.MenuIconSize  != prevIconSize;
+
+            if (needsRestart)
+            {
+                var result = MessageBox.Show(
+                    "Some changes (dark mode, font size, icon size) take effect after a restart.\n\nRestart TaskFolder now?",
+                    "Restart Required",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+
+                if (result == DialogResult.Yes)
+                {
+                    Application.Restart();
+                    return;
+                }
             }
 
             Close();
