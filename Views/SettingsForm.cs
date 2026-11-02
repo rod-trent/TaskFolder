@@ -31,6 +31,30 @@ namespace TaskFolder.Views
                 DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref val, sizeof(int));
                 foreach (var p in _scrollPanels)
                     SetWindowTheme(p.Handle, "DarkMode_Explorer", null);
+                ApplyDarkMode(this);
+            }
+            SelectSettingsTab(_selectedTabIndex);
+        }
+
+        private void SelectSettingsTab(int index)
+        {
+            _selectedTabIndex = index;
+            bool dark = _settingsService?.Settings.DarkMode == true;
+
+            var selBg   = dark ? Color.FromArgb(45, 45, 65)   : SystemColors.Window;
+            var unselBg = dark ? Color.FromArgb(30, 30, 46)   : SystemColors.Control;
+            var fg      = dark ? Color.FromArgb(205, 214, 244) : SystemColors.ControlText;
+            var sepClr  = dark ? Color.FromArgb(60, 60, 80)   : SystemColors.ControlDark;
+
+            if (_tabSeparator != null) _tabSeparator.BackColor = sepClr;
+
+            for (int i = 0; i < _tabBtns.Length; i++)
+            {
+                bool sel = i == index;
+                _tabBtns[i].BackColor = sel ? selBg : unselBg;
+                _tabBtns[i].ForeColor = fg;
+                _tabBtns[i].Font = new Font(Font, sel ? FontStyle.Bold : FontStyle.Regular);
+                if (_tabPanels[i] != null) _tabPanels[i].Visible = sel;
             }
         }
 
@@ -58,7 +82,10 @@ namespace TaskFolder.Views
         private Button _btnUseOneDrive;
         private Panel _scrollPanel;
         private readonly System.Collections.Generic.List<Panel> _scrollPanels = new();
-        private TabControl _tabs = null!;
+        private Button[] _tabBtns   = Array.Empty<Button>();
+        private Panel[]  _tabPanels = Array.Empty<Panel>();
+        private Panel    _tabSeparator = null!;
+        private int      _selectedTabIndex = 0;
 
         // Mouse hotkey
         private CheckBox _chkMouseHotkeyEnabled;
@@ -112,43 +139,40 @@ namespace TaskFolder.Views
                 return p;
             }
 
-            var tabs = new TabControl { Dock = DockStyle.Fill, DrawMode = TabDrawMode.OwnerDrawFixed, Padding = new Point(12, 4) };
-            tabs.DrawItem += (s, e) =>
+            // ── Custom tab bar (no TabControl — avoids system-drawn borders) ──────
+            var tabBar     = new Panel { Dock = DockStyle.Top, Height = 34 };
+            _tabSeparator  = new Panel { Dock = DockStyle.Top, Height = 1  };
+            var contentHost = new Panel { Dock = DockStyle.Fill };
+
+            string[] tabTitles = { "General", "Hotkeys", "Shortcuts", "Appearance" };
+            _tabBtns   = new Button[tabTitles.Length];
+            _tabPanels = new Panel[tabTitles.Length];
+
+            for (int ti = 0; ti < tabTitles.Length; ti++)
             {
-                var tc   = (TabControl)s!;
-                bool sel = e.Index == tc.SelectedIndex;
-                bool dark = _settingsService?.Settings.DarkMode == true;
-
-                Color tabBg  = dark ? (sel ? Color.FromArgb(45, 45, 65)  : Color.FromArgb(30, 30, 46))
-                                    : (sel ? SystemColors.Window          : SystemColors.Control);
-                Color tabFg  = dark ? Color.FromArgb(205, 214, 244) : SystemColors.ControlText;
-                Color border = dark ? Color.FromArgb(60, 60, 80)    : SystemColors.ControlDark;
-
-                using var bgBrush = new SolidBrush(tabBg);
-                using var fgBrush = new SolidBrush(tabFg);
-                using var pen     = new Pen(border);
-
-                e.Graphics.FillRectangle(bgBrush, e.Bounds);
-
-                if (sel)
-                    e.Graphics.DrawLines(pen, new[] {
-                        new Point(e.Bounds.Left,  e.Bounds.Bottom),
-                        new Point(e.Bounds.Left,  e.Bounds.Top),
-                        new Point(e.Bounds.Right - 1, e.Bounds.Top),
-                        new Point(e.Bounds.Right - 1, e.Bounds.Bottom)
-                    });
-
-                var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                e.Graphics.DrawString(tc.TabPages[e.Index].Text, e.Font!, fgBrush, e.Bounds, fmt);
-            };
+                int idx = ti;
+                var tb = new Button
+                {
+                    Text      = tabTitles[ti],
+                    FlatStyle = FlatStyle.Flat,
+                    Size      = new Size(96, 34),
+                    Location  = new Point(ti * 96, 0),
+                    Cursor    = Cursors.Hand,
+                    TabStop   = false,
+                    Font      = new Font(Font, FontStyle.Regular)
+                };
+                tb.FlatAppearance.BorderSize = 0;
+                tb.Click += (s, e) => SelectSettingsTab(idx);
+                tabBar.Controls.Add(tb);
+                _tabBtns[ti] = tb;
+            }
 
             // ════════════════════════════════════════════════
             // TAB 1 — General
             // ════════════════════════════════════════════════
-            var tabGeneral  = new TabPage("General");
-            var panGeneral  = MakeTabPanel();
-            tabGeneral.Controls.Add(panGeneral);
-            tabs.TabPages.Add(tabGeneral);
+            var panGeneral = MakeTabPanel();
+            contentHost.Controls.Add(panGeneral);
+            _tabPanels[0] = panGeneral;
 
             int y = 10;
 
@@ -190,10 +214,9 @@ namespace TaskFolder.Views
             // ════════════════════════════════════════════════
             // TAB 2 — Hotkeys
             // ════════════════════════════════════════════════
-            var tabHotkeys = new TabPage("Hotkeys");
             var panHotkeys = MakeTabPanel();
-            tabHotkeys.Controls.Add(panHotkeys);
-            tabs.TabPages.Add(tabHotkeys);
+            contentHost.Controls.Add(panHotkeys);
+            _tabPanels[1] = panHotkeys;
 
             y = 10;
 
@@ -225,10 +248,9 @@ namespace TaskFolder.Views
             // ════════════════════════════════════════════════
             // TAB 3 — Shortcuts
             // ════════════════════════════════════════════════
-            var tabShortcuts = new TabPage("Shortcuts");
             var panShortcuts = MakeTabPanel();
-            tabShortcuts.Controls.Add(panShortcuts);
-            tabs.TabPages.Add(tabShortcuts);
+            contentHost.Controls.Add(panShortcuts);
+            _tabPanels[2] = panShortcuts;
 
             y = 10;
 
@@ -274,10 +296,9 @@ namespace TaskFolder.Views
             // ════════════════════════════════════════════════
             // TAB 4 — Appearance
             // ════════════════════════════════════════════════
-            var tabAppearance = new TabPage("Appearance");
             var panAppearance = MakeTabPanel();
-            tabAppearance.Controls.Add(panAppearance);
-            tabs.TabPages.Add(tabAppearance);
+            contentHost.Controls.Add(panAppearance);
+            _tabPanels[3] = panAppearance;
 
             y = 10;
 
@@ -330,11 +351,15 @@ namespace TaskFolder.Views
             CancelButton = _btnCancel;
 
             _scrollPanel = panGeneral;
-            _tabs = tabs;
 
-            // Bottom dock before Fill for correct layering
-            Controls.Add(tabs);
+            // Dock order: Bottom first, then Top panels, then Fill
+            Controls.Add(contentHost);
+            Controls.Add(_tabSeparator);
+            Controls.Add(tabBar);
             Controls.Add(btnPanel);
+
+            // Show first tab
+            SelectSettingsTab(0);
 
             // Form height: tallest tab (General ~340px) + tab strip + buttons
             int screenH = Screen.PrimaryScreen?.WorkingArea.Height ?? 900;
@@ -377,7 +402,10 @@ namespace TaskFolder.Views
             if (_cboKey.SelectedIndex < 0) _cboKey.SelectedIndex = 0;
 
             if (_settingsService.Settings.DarkMode)
+            {
                 ApplyDarkMode(this);
+                SelectSettingsTab(_selectedTabIndex);
+            }
         }
 
         private static void ApplyDarkMode(Control root)
