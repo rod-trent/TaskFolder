@@ -90,6 +90,10 @@ namespace TaskFolder.Views
 
         private void InitializeComponent()
         {
+            SuspendLayout();
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+
             Text = "TaskFolder Settings";
             try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             FormBorderStyle = FormBorderStyle.Sizable;
@@ -372,6 +376,9 @@ namespace TaskFolder.Views
             int naturalH = y + btnPanel.Height + 8;
             ClientSize = new Size(W + 50, Math.Min(naturalH, maxH));
             MinimumSize = new Size(W + 50, 400);
+
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         private void LoadSettings()
