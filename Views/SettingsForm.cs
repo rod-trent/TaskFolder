@@ -58,6 +58,7 @@ namespace TaskFolder.Views
         private Button _btnUseOneDrive;
         private Panel _scrollPanel;
         private readonly System.Collections.Generic.List<Panel> _scrollPanels = new();
+        private TabControl _tabs = null!;
 
         // Mouse hotkey
         private CheckBox _chkMouseHotkeyEnabled;
@@ -111,7 +112,35 @@ namespace TaskFolder.Views
                 return p;
             }
 
-            var tabs = new TabControl { Dock = DockStyle.Fill };
+            var tabs = new TabControl { Dock = DockStyle.Fill, DrawMode = TabDrawMode.OwnerDrawFixed, Padding = new Point(12, 4) };
+            tabs.DrawItem += (s, e) =>
+            {
+                var tc   = (TabControl)s!;
+                bool sel = e.Index == tc.SelectedIndex;
+                bool dark = _settingsService?.Settings.DarkMode == true;
+
+                Color tabBg  = dark ? (sel ? Color.FromArgb(45, 45, 65)  : Color.FromArgb(30, 30, 46))
+                                    : (sel ? SystemColors.Window          : SystemColors.Control);
+                Color tabFg  = dark ? Color.FromArgb(205, 214, 244) : SystemColors.ControlText;
+                Color border = dark ? Color.FromArgb(60, 60, 80)    : SystemColors.ControlDark;
+
+                using var bgBrush = new SolidBrush(tabBg);
+                using var fgBrush = new SolidBrush(tabFg);
+                using var pen     = new Pen(border);
+
+                e.Graphics.FillRectangle(bgBrush, e.Bounds);
+
+                if (sel)
+                    e.Graphics.DrawLines(pen, new[] {
+                        new Point(e.Bounds.Left,  e.Bounds.Bottom),
+                        new Point(e.Bounds.Left,  e.Bounds.Top),
+                        new Point(e.Bounds.Right - 1, e.Bounds.Top),
+                        new Point(e.Bounds.Right - 1, e.Bounds.Bottom)
+                    });
+
+                var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                e.Graphics.DrawString(tc.TabPages[e.Index].Text, e.Font!, fgBrush, e.Bounds, fmt);
+            };
 
             // ════════════════════════════════════════════════
             // TAB 1 — General
@@ -301,6 +330,7 @@ namespace TaskFolder.Views
             CancelButton = _btnCancel;
 
             _scrollPanel = panGeneral;
+            _tabs = tabs;
 
             // Bottom dock before Fill for correct layering
             Controls.Add(tabs);
