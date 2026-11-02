@@ -29,9 +29,8 @@ namespace TaskFolder.Views
             {
                 int val = 1;
                 DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref val, sizeof(int));
-                // Dark scrollbars on the scroll panel
-                if (_scrollPanel != null)
-                    SetWindowTheme(_scrollPanel.Handle, "DarkMode_Explorer", null);
+                foreach (var p in _scrollPanels)
+                    SetWindowTheme(p.Handle, "DarkMode_Explorer", null);
             }
         }
 
@@ -58,6 +57,7 @@ namespace TaskFolder.Views
         private Button _btnUseDropbox;
         private Button _btnUseOneDrive;
         private Panel _scrollPanel;
+        private readonly System.Collections.Generic.List<Panel> _scrollPanels = new();
 
         // Mouse hotkey
         private CheckBox _chkMouseHotkeyEnabled;
@@ -101,281 +101,215 @@ namespace TaskFolder.Views
             MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
 
-            int y = 12;
             const int W = 440;
             const int X = 15;
 
-            // ─────────────────────────────────────────────────────────────────────
-            // Scroll panel — hosts all groups; fills remaining space above buttons
-            // ─────────────────────────────────────────────────────────────────────
-            _scrollPanel = new Panel
+            Panel MakeTabPanel()
             {
-                Dock = DockStyle.Fill,
-                AutoScroll = true,
-                Padding = new Padding(0, 0, 0, 4)
-            };
-            var scrollPanel = _scrollPanel;
+                var p = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(0, 0, 0, 8) };
+                _scrollPanels.Add(p);
+                return p;
+            }
 
-            // ── Startup ───────────────────────────────────────────────────────────
+            var tabs = new TabControl { Dock = DockStyle.Fill };
+
+            // ════════════════════════════════════════════════
+            // TAB 1 — General
+            // ════════════════════════════════════════════════
+            var tabGeneral  = new TabPage("General");
+            var panGeneral  = MakeTabPanel();
+            tabGeneral.Controls.Add(panGeneral);
+            tabs.TabPages.Add(tabGeneral);
+
+            int y = 10;
+
             var grpStartup = new GroupBox { Text = "Startup", Location = new Point(X, y), Size = new Size(W, 60) };
-            _chkAutoStart = new CheckBox
-            {
-                Text = "Start TaskFolder when Windows starts",
-                Location = new Point(12, 20),
-                Size = new Size(W - 24, 20)
-            };
+            _chkAutoStart = new CheckBox { Text = "Start TaskFolder when Windows starts", Location = new Point(12, 20), Size = new Size(W - 24, 20) };
             grpStartup.Controls.Add(_chkAutoStart);
-            scrollPanel.Controls.Add(grpStartup);
+            panGeneral.Controls.Add(grpStartup);
             y += grpStartup.Height + 8;
 
-            // ── Notifications ─────────────────────────────────────────────────────
             var grpNotif = new GroupBox { Text = "Notifications", Location = new Point(X, y), Size = new Size(W, 80) };
-            _chkShowNotifications = new CheckBox
-            {
-                Text = "Show a balloon tip when an application is launched",
-                Location = new Point(12, 20),
-                Size = new Size(W - 24, 20)
-            };
-            _chkCheckForUpdates = new CheckBox
-            {
-                Text = "Check GitHub for a newer release on startup",
-                Location = new Point(12, 48),
-                Size = new Size(W - 24, 20)
-            };
+            _chkShowNotifications = new CheckBox { Text = "Show a balloon tip when an application is launched", Location = new Point(12, 20), Size = new Size(W - 24, 20) };
+            _chkCheckForUpdates   = new CheckBox { Text = "Check GitHub for a newer release on startup",       Location = new Point(12, 48), Size = new Size(W - 24, 20) };
             grpNotif.Controls.Add(_chkShowNotifications);
             grpNotif.Controls.Add(_chkCheckForUpdates);
-            scrollPanel.Controls.Add(grpNotif);
+            panGeneral.Controls.Add(grpNotif);
             y += grpNotif.Height + 8;
 
-            // ── Global Hotkey ─────────────────────────────────────────────────────
-            var grpHotkey = new GroupBox { Text = "Global Hotkey (pops the tray menu)", Location = new Point(X, y), Size = new Size(W, 90) };
-            _chkHotkeyEnabled = new CheckBox
-            {
-                Text = "Enable global hotkey",
-                Location = new Point(12, 20),
-                Size = new Size(200, 20)
-            };
-            grpHotkey.Controls.Add(_chkHotkeyEnabled);
-
-            grpHotkey.Controls.Add(new Label { Text = "Modifiers:", Location = new Point(12, 48), AutoSize = true });
-            _cboModifiers = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(80, 45),
-                Width = 130
-            };
-            _cboModifiers.Items.AddRange(new object[] { "Ctrl+Alt", "Ctrl+Shift", "Alt+Shift", "Ctrl+Alt+Shift", "Win" });
-            grpHotkey.Controls.Add(_cboModifiers);
-
-            grpHotkey.Controls.Add(new Label { Text = "Key:", Location = new Point(224, 48), AutoSize = true });
-            _cboKey = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(255, 45),
-                Width = 80
-            };
-            for (char c = 'A'; c <= 'Z'; c++) _cboKey.Items.Add(c.ToString());
-            for (int i = 1; i <= 12; i++) _cboKey.Items.Add($"F{i}");
-            grpHotkey.Controls.Add(_cboKey);
-            scrollPanel.Controls.Add(grpHotkey);
-            y += grpHotkey.Height + 8;
-
-            // ── Mouse Hotkey ──────────────────────────────────────────────────────
-            var grpMouse = new GroupBox { Text = "Mouse Button Hotkey", Location = new Point(X, y), Size = new Size(W, 80) };
-            _chkMouseHotkeyEnabled = new CheckBox
-            {
-                Text = "Enable mouse button hotkey",
-                Location = new Point(12, 20),
-                Size = new Size(200, 20)
-            };
-            grpMouse.Controls.Add(_chkMouseHotkeyEnabled);
-
-            _lblMouseButton = new Label { Text = "Button: Middle Button", Location = new Point(12, 48), AutoSize = true };
-            grpMouse.Controls.Add(_lblMouseButton);
-
-            _btnSetMouseButton = new Button
-            {
-                Text = "Set Button...",
-                Location = new Point(W - 130, 44),
-                Size = new Size(110, 26)
-            };
-            _btnSetMouseButton.Click += BtnSetMouseButton_Click;
-            grpMouse.Controls.Add(_btnSetMouseButton);
-            scrollPanel.Controls.Add(grpMouse);
-            y += grpMouse.Height + 8;
-
-            // ── Shortcuts Management ──────────────────────────────────────────────
-            var grpShortcuts = new GroupBox { Text = "Shortcuts Management", Location = new Point(X, y), Size = new Size(W, 100) };
-            _btnOpenFolder = new Button { Text = "Open Shortcuts Folder", Location = new Point(12, 25), Size = new Size(180, 28) };
-            _btnOpenFolder.Click += BtnOpenFolder_Click;
-            grpShortcuts.Controls.Add(_btnOpenFolder);
-
-            _btnClearShortcuts = new Button { Text = "Remove All Shortcuts", Location = new Point(210, 25), Size = new Size(180, 28) };
-            _btnClearShortcuts.Click += BtnClearShortcuts_Click;
-            grpShortcuts.Controls.Add(_btnClearShortcuts);
-
-            grpShortcuts.Controls.Add(new Label
-            {
-                Text = $"Folder: {_shortcutManager.ShortcutsFolder}",
-                Location = new Point(12, 65),
-                Size = new Size(W - 24, 22),
-                AutoEllipsis = true
-            });
-            scrollPanel.Controls.Add(grpShortcuts);
-            y += grpShortcuts.Height + 8;
-
-            // ── Profile Sync ──────────────────────────────────────────────────────
-            var grpSync = new GroupBox
-            {
-                Text = "Profile Sync (OneDrive / Dropbox / Network Share)",
-                Location = new Point(X, y),
-                Size = new Size(W, 118)
-            };
-            grpSync.Controls.Add(new Label
-            {
-                Text = "Root path (leave blank to use %APPDATA%\\TaskFolder):",
-                Location = new Point(12, 20),
-                AutoSize = true
-            });
-            _txtProfilesRoot = new TextBox
-            {
-                Location = new Point(12, 38),
-                Width = W - 146,
-                PlaceholderText = "e.g. C:\\Users\\You\\OneDrive\\TaskFolder"
-            };
-            grpSync.Controls.Add(_txtProfilesRoot);
-
-            _btnBrowseProfilesRoot = new Button { Text = "Browse...", Location = new Point(W - 130, 36), Width = 70 };
-            _btnBrowseProfilesRoot.Click += BtnBrowseProfilesRoot_Click;
-            grpSync.Controls.Add(_btnBrowseProfilesRoot);
-
-            _btnClearProfilesRoot = new Button { Text = "Clear", Location = new Point(W - 56, 36), Width = 44 };
-            _btnClearProfilesRoot.Click += (s, e) => _txtProfilesRoot.Clear();
-            grpSync.Controls.Add(_btnClearProfilesRoot);
-
-            _btnUseOneDrive = new Button { Text = "Use OneDrive", Location = new Point(12, 64), Width = 100 };
-            _btnUseOneDrive.Click += BtnUseOneDrive_Click;
-            grpSync.Controls.Add(_btnUseOneDrive);
-
-            _btnUseDropbox = new Button { Text = "Use Dropbox", Location = new Point(118, 64), Width = 100 };
-            _btnUseDropbox.Click += BtnUseDropbox_Click;
-            grpSync.Controls.Add(_btnUseDropbox);
-
-            grpSync.Controls.Add(new Label
-            {
-                Text = "Restart TaskFolder after changing this path for it to take effect.",
-                Location = new Point(12, 92),
-                Size = new Size(W - 24, 18),
-                ForeColor = Color.Gray,
-                Font = new Font(Font, FontStyle.Italic)
-            });
-            scrollPanel.Controls.Add(grpSync);
-            y += grpSync.Height + 8;
-
-            // ── Appearance ────────────────────────────────────────────────────────
-            var grpAppearance = new GroupBox { Text = "Appearance", Location = new Point(X, y), Size = new Size(W, 165) };
-
-            grpAppearance.Controls.Add(new Label { Text = "Menu font size (pt):", Location = new Point(12, 22), AutoSize = true });
-            _nudFontSize = new NumericUpDown { Location = new Point(130, 19), Width = 60, Minimum = 7, Maximum = 20, DecimalPlaces = 0, Value = 9 };
-            grpAppearance.Controls.Add(_nudFontSize);
-            grpAppearance.Controls.Add(new Label { Text = "(restart to apply)", Location = new Point(198, 22), AutoSize = true, ForeColor = Color.Gray });
-
-            _chkDarkMode = new CheckBox { Text = "Dark mode menu", Location = new Point(12, 48), AutoSize = true };
-            grpAppearance.Controls.Add(_chkDarkMode);
-            grpAppearance.Controls.Add(new Label { Text = "(restart to apply)", Location = new Point(138, 50), AutoSize = true, ForeColor = Color.Gray });
-
-            grpAppearance.Controls.Add(new Label { Text = "Icon size:", Location = new Point(12, 78), AutoSize = true });
-            _radIconSmall = new RadioButton { Text = "Small (16 px)", Location = new Point(75, 75), AutoSize = true, Checked = true };
-            _radIconLarge = new RadioButton { Text = "Large (32 px)", Location = new Point(185, 75), AutoSize = true };
-            grpAppearance.Controls.Add(new Label { Text = "(restart to apply)", Location = new Point(300, 78), AutoSize = true, ForeColor = Color.Gray });
-            grpAppearance.Controls.Add(_radIconSmall);
-            grpAppearance.Controls.Add(_radIconLarge);
-
-            grpAppearance.Controls.Add(new Label
-            {
-                Text = "Strip from shortcut names (comma-separated, case-insensitive):",
-                Location = new Point(12, 108),
-                AutoSize = true
-            });
-            _txtCleanupTerms = new TextBox { Location = new Point(12, 126), Size = new Size(W - 24, 20) };
-            grpAppearance.Controls.Add(_txtCleanupTerms);
-            scrollPanel.Controls.Add(grpAppearance);
-            y += grpAppearance.Height + 8;
-
-            // ── Taskbar Visibility ────────────────────────────────────────────────
-            var grpTray = new GroupBox { Text = "Taskbar Visibility", Location = new Point(X, y), Size = new Size(W, 80) };
-            var btnPinTray = new Button { Text = "Pin to System Tray...", Location = new Point(12, 22), Size = new Size(160, 28) };
+            var grpTray    = new GroupBox { Text = "Taskbar Visibility", Location = new Point(X, y), Size = new Size(W, 80) };
+            var btnPinTray = new Button   { Text = "Pin to System Tray...", Location = new Point(12, 22), Size = new Size(160, 28) };
             btnPinTray.Click += BtnPinTray_Click;
             grpTray.Controls.Add(btnPinTray);
             grpTray.Controls.Add(new Label
             {
                 Text = "Opens Windows Settings → Taskbar → Other system tray icons." + Environment.NewLine +
                        "Toggle 'TaskFolder' to On so the icon always shows on the taskbar.",
-                Location = new Point(180, 18),
-                Size = new Size(W - 192, 44),
-                ForeColor = Color.Gray
+                Location = new Point(180, 18), Size = new Size(W - 192, 44), ForeColor = Color.Gray
             });
-            scrollPanel.Controls.Add(grpTray);
+            panGeneral.Controls.Add(grpTray);
             y += grpTray.Height + 8;
 
-            // ── About ─────────────────────────────────────────────────────────────
-            var grpAbout = new GroupBox { Text = "About", Location = new Point(X, y), Size = new Size(W, 65) };
+            var grpAbout = new GroupBox { Text = "About", Location = new Point(X, y), Size = new Size(W, 55) };
             grpAbout.Controls.Add(new Label
             {
                 Text = "TaskFolder v1.3.0 — Windows 11 Application Launcher — MIT License",
-                Location = new Point(12, 22),
-                Size = new Size(W - 24, 32),
-                TextAlign = ContentAlignment.MiddleCenter
+                Location = new Point(12, 18), Size = new Size(W - 24, 28), TextAlign = ContentAlignment.MiddleCenter
             });
-            scrollPanel.Controls.Add(grpAbout);
-            y += grpAbout.Height + 12;
+            panGeneral.Controls.Add(grpAbout);
+
+            // ════════════════════════════════════════════════
+            // TAB 2 — Hotkeys
+            // ════════════════════════════════════════════════
+            var tabHotkeys = new TabPage("Hotkeys");
+            var panHotkeys = MakeTabPanel();
+            tabHotkeys.Controls.Add(panHotkeys);
+            tabs.TabPages.Add(tabHotkeys);
+
+            y = 10;
+
+            var grpHotkey = new GroupBox { Text = "Global Hotkey (pops the tray menu)", Location = new Point(X, y), Size = new Size(W, 90) };
+            _chkHotkeyEnabled = new CheckBox { Text = "Enable global hotkey", Location = new Point(12, 20), Size = new Size(200, 20) };
+            grpHotkey.Controls.Add(_chkHotkeyEnabled);
+            grpHotkey.Controls.Add(new Label { Text = "Modifiers:", Location = new Point(12, 48), AutoSize = true });
+            _cboModifiers = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(80, 45), Width = 130 };
+            _cboModifiers.Items.AddRange(new object[] { "Ctrl+Alt", "Ctrl+Shift", "Alt+Shift", "Ctrl+Alt+Shift", "Win" });
+            grpHotkey.Controls.Add(_cboModifiers);
+            grpHotkey.Controls.Add(new Label { Text = "Key:", Location = new Point(224, 48), AutoSize = true });
+            _cboKey = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(255, 45), Width = 80 };
+            for (char c = 'A'; c <= 'Z'; c++) _cboKey.Items.Add(c.ToString());
+            for (int i = 1; i <= 12; i++) _cboKey.Items.Add($"F{i}");
+            grpHotkey.Controls.Add(_cboKey);
+            panHotkeys.Controls.Add(grpHotkey);
+            y += grpHotkey.Height + 8;
+
+            var grpMouse = new GroupBox { Text = "Mouse Button Hotkey", Location = new Point(X, y), Size = new Size(W, 80) };
+            _chkMouseHotkeyEnabled = new CheckBox { Text = "Enable mouse button hotkey", Location = new Point(12, 20), Size = new Size(200, 20) };
+            grpMouse.Controls.Add(_chkMouseHotkeyEnabled);
+            _lblMouseButton = new Label { Text = "Button: Middle Button", Location = new Point(12, 48), AutoSize = true };
+            grpMouse.Controls.Add(_lblMouseButton);
+            _btnSetMouseButton = new Button { Text = "Set Button...", Location = new Point(W - 130, 44), Size = new Size(110, 26) };
+            _btnSetMouseButton.Click += BtnSetMouseButton_Click;
+            grpMouse.Controls.Add(_btnSetMouseButton);
+            panHotkeys.Controls.Add(grpMouse);
+
+            // ════════════════════════════════════════════════
+            // TAB 3 — Shortcuts
+            // ════════════════════════════════════════════════
+            var tabShortcuts = new TabPage("Shortcuts");
+            var panShortcuts = MakeTabPanel();
+            tabShortcuts.Controls.Add(panShortcuts);
+            tabs.TabPages.Add(tabShortcuts);
+
+            y = 10;
+
+            var grpShortcuts = new GroupBox { Text = "Shortcuts Management", Location = new Point(X, y), Size = new Size(W, 100) };
+            _btnOpenFolder    = new Button { Text = "Open Shortcuts Folder", Location = new Point(12,  25), Size = new Size(180, 28) };
+            _btnClearShortcuts = new Button { Text = "Remove All Shortcuts", Location = new Point(210, 25), Size = new Size(180, 28) };
+            _btnOpenFolder.Click     += BtnOpenFolder_Click;
+            _btnClearShortcuts.Click += BtnClearShortcuts_Click;
+            grpShortcuts.Controls.Add(_btnOpenFolder);
+            grpShortcuts.Controls.Add(_btnClearShortcuts);
+            grpShortcuts.Controls.Add(new Label
+            {
+                Text = $"Folder: {_shortcutManager.ShortcutsFolder}",
+                Location = new Point(12, 65), Size = new Size(W - 24, 22), AutoEllipsis = true
+            });
+            panShortcuts.Controls.Add(grpShortcuts);
+            y += grpShortcuts.Height + 8;
+
+            var grpSync = new GroupBox { Text = "Profile Sync (OneDrive / Dropbox / Network Share)", Location = new Point(X, y), Size = new Size(W, 118) };
+            grpSync.Controls.Add(new Label { Text = "Root path (leave blank to use %APPDATA%\\TaskFolder):", Location = new Point(12, 20), AutoSize = true });
+            _txtProfilesRoot      = new TextBox { Location = new Point(12, 38), Width = W - 146, PlaceholderText = "e.g. C:\\Users\\You\\OneDrive\\TaskFolder" };
+            _btnBrowseProfilesRoot = new Button { Text = "Browse...", Location = new Point(W - 130, 36), Width = 70 };
+            _btnClearProfilesRoot  = new Button { Text = "Clear",     Location = new Point(W -  56, 36), Width = 44 };
+            _btnUseOneDrive        = new Button { Text = "Use OneDrive", Location = new Point(12,  64), Width = 100 };
+            _btnUseDropbox         = new Button { Text = "Use Dropbox",  Location = new Point(118, 64), Width = 100 };
+            _btnBrowseProfilesRoot.Click += BtnBrowseProfilesRoot_Click;
+            _btnClearProfilesRoot.Click  += (s, e) => _txtProfilesRoot.Clear();
+            _btnUseOneDrive.Click        += BtnUseOneDrive_Click;
+            _btnUseDropbox.Click         += BtnUseDropbox_Click;
+            grpSync.Controls.Add(_txtProfilesRoot);
+            grpSync.Controls.Add(_btnBrowseProfilesRoot);
+            grpSync.Controls.Add(_btnClearProfilesRoot);
+            grpSync.Controls.Add(_btnUseOneDrive);
+            grpSync.Controls.Add(_btnUseDropbox);
+            grpSync.Controls.Add(new Label
+            {
+                Text = "Restart TaskFolder after changing this path for it to take effect.",
+                Location = new Point(12, 92), Size = new Size(W - 24, 18),
+                ForeColor = Color.Gray, Font = new Font(Font, FontStyle.Italic)
+            });
+            panShortcuts.Controls.Add(grpSync);
+
+            // ════════════════════════════════════════════════
+            // TAB 4 — Appearance
+            // ════════════════════════════════════════════════
+            var tabAppearance = new TabPage("Appearance");
+            var panAppearance = MakeTabPanel();
+            tabAppearance.Controls.Add(panAppearance);
+            tabs.TabPages.Add(tabAppearance);
+
+            y = 10;
+
+            var grpAppearance = new GroupBox { Text = "Appearance", Location = new Point(X, y), Size = new Size(W, 165) };
+            grpAppearance.Controls.Add(new Label { Text = "Menu font size (pt):", Location = new Point(12, 22), AutoSize = true });
+            _nudFontSize = new NumericUpDown { Location = new Point(130, 19), Width = 60, Minimum = 7, Maximum = 20, DecimalPlaces = 0, Value = 9 };
+            grpAppearance.Controls.Add(_nudFontSize);
+            grpAppearance.Controls.Add(new Label { Text = "(restart to apply)", Location = new Point(198, 22), AutoSize = true, ForeColor = Color.Gray });
+            _chkDarkMode = new CheckBox { Text = "Dark mode menu", Location = new Point(12, 48), AutoSize = true };
+            grpAppearance.Controls.Add(_chkDarkMode);
+            grpAppearance.Controls.Add(new Label { Text = "(restart to apply)", Location = new Point(138, 50), AutoSize = true, ForeColor = Color.Gray });
+            grpAppearance.Controls.Add(new Label { Text = "Icon size:", Location = new Point(12, 78), AutoSize = true });
+            _radIconSmall = new RadioButton { Text = "Small (16 px)", Location = new Point(75,  75), AutoSize = true, Checked = true };
+            _radIconLarge = new RadioButton { Text = "Large (32 px)", Location = new Point(185, 75), AutoSize = true };
+            grpAppearance.Controls.Add(new Label { Text = "(restart to apply)", Location = new Point(300, 78), AutoSize = true, ForeColor = Color.Gray });
+            grpAppearance.Controls.Add(_radIconSmall);
+            grpAppearance.Controls.Add(_radIconLarge);
+            grpAppearance.Controls.Add(new Label { Text = "Strip from shortcut names (comma-separated, case-insensitive):", Location = new Point(12, 108), AutoSize = true });
+            _txtCleanupTerms = new TextBox { Location = new Point(12, 126), Size = new Size(W - 24, 20) };
+            grpAppearance.Controls.Add(_txtCleanupTerms);
+            panAppearance.Controls.Add(grpAppearance);
 
             // ─────────────────────────────────────────────────────────────────────
-            // Button panel — docked to the bottom, outside the scroll area
+            // Button panel — docked to the bottom
             // ─────────────────────────────────────────────────────────────────────
             var btnPanel = new Panel { Dock = DockStyle.Bottom, Height = 44 };
 
             _btnOK = new Button
             {
-                Text = "OK",
-                DialogResult = DialogResult.OK,
-                Size = new Size(80, 28),
-                Anchor = AnchorStyles.Right | AnchorStyles.Top
+                Text = "OK", DialogResult = DialogResult.OK,
+                Size = new Size(80, 28), Anchor = AnchorStyles.Right | AnchorStyles.Top
             };
             _btnOK.Click += BtnOK_Click;
 
             _btnCancel = new Button
             {
-                Text = "Cancel",
-                DialogResult = DialogResult.Cancel,
-                Size = new Size(80, 28),
-                Anchor = AnchorStyles.Right | AnchorStyles.Top
+                Text = "Cancel", DialogResult = DialogResult.Cancel,
+                Size = new Size(80, 28), Anchor = AnchorStyles.Right | AnchorStyles.Top
             };
 
             btnPanel.Controls.Add(_btnOK);
             btnPanel.Controls.Add(_btnCancel);
-
-            // Position buttons on the right side of the button panel
             btnPanel.Resize += (s, e) =>
             {
                 _btnCancel.Location = new Point(btnPanel.Width - _btnCancel.Width - 8, 8);
-                _btnOK.Location = new Point(btnPanel.Width - _btnOK.Width - _btnCancel.Width - 16, 8);
+                _btnOK.Location     = new Point(btnPanel.Width - _btnOK.Width - _btnCancel.Width - 16, 8);
             };
 
-            // ── Wire up OK/Cancel ─────────────────────────────────────────────────
             AcceptButton = _btnOK;
             CancelButton = _btnCancel;
 
-            // Add controls — Bottom must be added before Fill for correct Dock ordering
-            Controls.Add(scrollPanel);
+            _scrollPanel = panGeneral;
+
+            // Bottom dock before Fill for correct layering
+            Controls.Add(tabs);
             Controls.Add(btnPanel);
 
-            // Cap form height at ~82% of the working area; wide enough for all groups
+            // Form height: tallest tab (General ~340px) + tab strip + buttons
             int screenH = Screen.PrimaryScreen?.WorkingArea.Height ?? 900;
-            int maxH = (int)(screenH * 0.82);
-            int naturalH = y + btnPanel.Height + 8;
-            ClientSize = new Size(W + 50, Math.Min(naturalH, maxH));
-            MinimumSize = new Size(W + 50, 400);
+            ClientSize = new Size(W + 50, Math.Min(420, (int)(screenH * 0.82)));
+            MinimumSize = new Size(W + 50, 340);
 
             ResumeLayout(false);
             PerformLayout();
@@ -432,6 +366,10 @@ namespace TaskFolder.Views
                         gb.BackColor = bg;
                         gb.ForeColor = fg;
                         break;
+                    case TabPage tp:
+                        tp.BackColor = bg;
+                        tp.ForeColor = fg;
+                        break;
                     case Panel p:
                         p.BackColor = bg;
                         break;
@@ -464,6 +402,10 @@ namespace TaskFolder.Views
                         btn.ForeColor = fg;
                         btn.FlatStyle = FlatStyle.Flat;
                         btn.FlatAppearance.BorderColor = border;
+                        break;
+                    case TabControl tc:
+                        tc.BackColor = bg;
+                        tc.ForeColor = fg;
                         break;
                     default:
                         c.BackColor = bg;
